@@ -1,0 +1,155 @@
+//
+//  MapVC.swift
+//  Weather Central
+//
+//  Created by George Bauer on 10/19/17.
+//  Copyright © 2017 GeorgeBauer. All rights reserved.
+//
+
+import UIKit
+import MapKit
+
+//MARK: ------- class MapVC (MapViewController) ------
+class MapVC: UIViewController, MKMapViewDelegate {
+    var latDelta = 0.18
+    var lonDelta = 0.18
+    
+    // ---- viewDidLoad uses globals: gSearchType,gSearchName,gSearchLat,gSearchLon,[gStations] ----
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        // Do any additional setup after loading the view.
+        gUpdateGeoLookup = false
+        plotMap(lat: gSearchLat, lon: gSearchLon, latDelt: latDelta, lonDelt: lonDelta)
+        mapView.showsUserLocation = true
+        var info = "\(gSearchType) search\nThis is the center of the search for weather stations close to \(gSearchName).\n"
+        info += "\(formatLatLon(lat: gSearchLat, lon: gSearchLon, places: 3))"
+        addMyAnnotation(title: gSearchName, subtitle: "searching from here", lat: gSearchLat, lon: gSearchLon, info: info, pinColor: UIColor.black, backgroundColor: nil)
+        addAnnotations(stations: gStations)
+    }
+
+    @IBOutlet weak var mapView: MKMapView!
+
+    @IBAction func btnBackTap(_ sender: UIButton) {
+        dismiss(animated: true, completion: nil)
+    }
+    
+    @IBAction func btnZoomOut(_ sender: UIButton) {
+        latDelta = latDelta * 1.5
+        lonDelta = lonDelta * 1.5
+        plotMap(lat: gSearchLat, lon: gSearchLon, latDelt: latDelta, lonDelt: lonDelta)
+    }
+    
+    @IBAction func btnZoomIn(_ sender: UIButton) {
+        latDelta = latDelta / 1.5
+        lonDelta = lonDelta / 1.5
+        plotMap(lat: gSearchLat, lon: gSearchLon, latDelt: latDelta, lonDelt: lonDelta)
+    }
+    
+    func plotMap(lat: Double, lon: Double, latDelt: Double, lonDelt: Double) {
+        let latitude: CLLocationDegrees = lat
+        let longitude: CLLocationDegrees = lon
+        let latDelta: CLLocationDegrees = latDelt
+        let lonDelta: CLLocationDegrees = lonDelt
+        let span = MKCoordinateSpan(latitudeDelta: latDelta, longitudeDelta: lonDelta)
+        let location = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+        let region = MKCoordinateRegion(center: location, span: span)
+        mapView.setRegion(region, animated: true)
+    }//end func
+    
+    // ---- Add all the StationPin annotations from stations array ----
+    func addAnnotations(stations:[Station]) {
+        for station in stations {
+            let subtitle:String
+            if station.neighborhood != "" {
+                subtitle = station.neighborhood
+            } else {
+                subtitle = station.city
+            }
+            var info = station.type + "\n"
+            if station.neighborhood != "" {
+                info += station.neighborhood + "\n"
+            }
+            info += station.city + ", " + station.state + "\n\(formatLatLon(lat: gSearchLat, lon: gSearchLon, places: 3))"
+            let pinColor = station.type == "pws" ? UIColor.blue : UIColor.red
+            addMyAnnotation(title: station.id, subtitle: subtitle, lat: station.lat, lon: station.lon, info: info, pinColor: pinColor, backgroundColor: nil)
+        }
+    }
+    
+    // ---- Add a single StationPin annotation to the map ----
+    func addMyAnnotation(title: String, subtitle: String, lat: Double, lon:Double,
+                         info: String, pinColor: UIColor, backgroundColor: UIColor?) {
+        let ann = StationPin(title: title, subtitle: subtitle,
+                             coordinate: CLLocationCoordinate2D(latitude: lat, longitude: lon), info: info,
+                             pinColor: pinColor, backgroundColor: backgroundColor)
+        mapView.addAnnotation(ann)
+    }//end func
+    
+    //========================================================
+    
+    
+    // ---- built-in "viewFor" is run whenever an annotation is to be displayed ----
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        // 1 Define a reuse identifier. This will be used to ensure we reuse annotation views as much as possible.
+        let identifier = "StationPin"
+        // 2 Check whether the annotation we're creating a view for is one of our StationPin objects.
+        if annotation is StationPin {
+            // 3 Try to dequeue an annotation view from the map view's pool of unused views.
+            var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) as? MKPinAnnotationView
+            
+            if annotationView == nil {
+                //4 If it isn't able to find a reusable view, create a new one using MKPinAnnotationView and sets its canShowCallout property to true. This triggers the popup with the city name.
+                annotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: identifier) 
+                annotationView!.canShowCallout = true
+                
+                // 5 Create a UIButton using built-in .detailDisclosure type (small blue "i" symbol with a circle around it).
+                let btn = UIButton(type: .detailDisclosure)
+                annotationView!.rightCalloutAccessoryView = btn
+
+                let stationPin = annotation as! StationPin
+
+                annotationView?.pinTintColor = stationPin.pinColor
+                annotationView!.backgroundColor = stationPin.backgroundColor
+            } else {
+                // 6 If it can reuse a view, update that view to use a different annotation.
+                annotationView!.annotation = annotation
+            }
+            return annotationView
+        }//endif is StationPin
+        
+        // 7 If the annotation isn't from a StationPin, it must return nil so iOS uses a default view.
+        return nil
+    }//end func
+
+    //------ Handles detailDisclosure button on stationPin ------
+    func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
+        let stationPin = view.annotation as! StationPin
+        let title = stationPin.title
+        let info = stationPin.info
+        
+        let alertController = UIAlertController(title: title, message: info, preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alertController, animated: true)
+    }//end func
+
+}//end class MapVC
+
+//MARK: ------- class StationPin ------
+// -------- Define datatype "StationPin", which inherits from MKAnnotation --------
+class StationPin: NSObject, MKAnnotation {
+    var title:      String?
+    var subtitle:   String?
+    var coordinate: CLLocationCoordinate2D
+    var info:       String
+    var pinColor: UIColor
+    var backgroundColor: UIColor?
+    
+    init(title: String, subtitle: String, coordinate: CLLocationCoordinate2D, info: String, pinColor: UIColor, backgroundColor: UIColor?) {
+        self.title      = title
+        self.subtitle   = subtitle
+        self.coordinate = coordinate
+        self.info       = info
+        self.pinColor   = pinColor
+        self.backgroundColor = backgroundColor
+    }
+}
+
