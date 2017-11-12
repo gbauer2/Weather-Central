@@ -40,9 +40,9 @@ public func roundToPlaces(number: Double, places: Int) -> Double {
 }
 
 //---- Format an integer with leading zeros e.g. (5, 3) -> "005" ----
-public func formatWithLeadingZero(num: Int, wid: Int) -> String {
+public func formatIntWithLeadingZeros(_ num: Int, width: Int) -> String {
     var a = String(num)
-    while a.count < wid {
+    while a.count < width {
         a = "0" + a
     }
     return a

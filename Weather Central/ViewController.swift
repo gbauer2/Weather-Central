@@ -8,16 +8,13 @@
 
 //TODO: - ToDo list
 /*
- 0) if City/State changed, Clear Station
- 1) Fix DataView Scrolling
- 2) If NO Features selected, disable "GetData"
+ 1) if City/State changed, Clear Station
+ 2) If NO Features selected, disable "GetData" or Default "Conditions"
  3) Select Hours & Days for "Hourly"
- 4) Constraints & autoSize
- 5) Settings: (Default NSEW hemi)(LatLon display)(mi,nm,km)(degC,degF)(AMPM,24hr)(call limits)(WU level)
- 6) Limit "Developer" calls to < 10/Min < 500/day
- 7) Hurricane forecast & map
- 8) Map: DistDir in info, dotted line to selected, bkgrndColor for airports
- show ver
+ 4) Settings: (Default NSEW hemi)(LatLon display)(mi,nm,km)(degC,degF)(AMPM,24hr)(call limits)(WU level)
+ 5) Show Version/Build
+ 6) Hurricane forecast & map
+ 8) Map: DistDir in info, dotted line to selected, bkgrndColor for airports, Select on map
  customize for landscape, or 6 vs 6+ in portait
 
 Get some stuff with every query *Almanac&Astron= 1K,
@@ -315,18 +312,22 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
             showError(urlTuple.errorStr)
             return
         }
+
         let url = urlTuple.url
         weatherJSON(url: url)   //
-        
+        clearRawData()
     }//end @IBAction func btnGetData
     
 // MARK: ---- My Functions ----
+
+    // Clear txtRawData(font to default). Set lblRawDataHeading to 18pt, adjust to width, "# Features Selected"
     func clearRawData() {
         lblRawDataHeading.adjustsFontSizeToFitWidth = true
         lblRawDataHeading.font = UIFont(name: lblRawDataHeading.font.fontName, size: 18)
         lblRawDataHeading.textAlignment = NSTextAlignment.center
         lblRawDataHeading.text = showCount(count: numFeatures, name: "Feature" , ifZero: "No") + " Selected"    //"\(numFeatures) features Selected"
         txtRawData.text = ""
+        txtRawData.font = rawFontDefault
     }
     
     func showError(_ message: String) {
@@ -681,6 +682,7 @@ temp_high --> {
     // ------------------------------- Do current_observation ---------------------------
     func DoCurrentObservation(jsonResult: AnyObject) -> String {
         clearRawData()
+        txtRawData.font = UIFont(name: rawFontDefault!.fontName, size: 15)
         let myError = ""
         
         guard let dictCurrentObservation = jsonResult["current_observation"] as? [String: AnyObject] else {return "\"conditions\" not in downloaded data!"}
@@ -1583,6 +1585,7 @@ date {
     func DoTide(jsonResult: AnyObject) -> String {
         
         clearRawData()
+        txtRawData.font = UIFont(name: rawFontDefault!.fontName, size: 14)
         var myError = ""
         
         guard let dictTide = jsonResult["tide"] as? [String: AnyObject] else {return "\"tide\" not in downloaded data!"}
@@ -1599,7 +1602,7 @@ date {
         guard let TideSummaryStatsArr = dictTide["tideSummaryStats"] as? [[String: AnyObject]] else { return "Could not create \"TideSummaryStatsArr\"" }
         let dictTideSummaryStats0 = TideSummaryStatsArr[0]
         
-        print("========================== tideInfo ===========================")
+        //print("========================== tideInfo ===========================")
         var aa = "----- tideInfo -----\n"
 
         printDictionary(dict: dictTideInf0, expandLevels: 0, dashLen: 0, title: "tideInfo")
@@ -1614,12 +1617,12 @@ date {
             return "No tideSite info available"
         }
         lblRawDataHeading.text = site
-        aa = "\(site)\nat \(lat) \(lon) measured in \(units)\n"
-        print("========================== end tideInfo ===========================")
-        print()
+        aa = "measured in \(units) at \(lat) \(lon) \n"
+        //print("========================== end tideInfo ===========================")
+        //print()
 
-        print("========================== tideSummaryStats ===========================")
-        aa += "\n----- tideSummaryStats -----\n"
+        //print("========================= tideSummaryStats ===========================")
+        //aa += "\n----- tideSummaryStats -----\n"
         
         printDictionary(dict: dictTideSummaryStats0, expandLevels: 0, dashLen: 0, title: "tideSummaryStats")
         printDictionary(dict: dictTideSummaryStats0, expandLevels: 1, dashLen: 0, title: "tideSummaryStats")
@@ -1629,32 +1632,60 @@ date {
         aa += "Min Height = \(minHeight) \(units)\n"
         aa += "Max Height = \(maxHeight) \(units)\n"
         
-        print("========================== end tideSummaryStats ===========================")
-        print()
+        //print("========================= end tideSummaryStats ===========================")
+        //print()
         
-        print("%%%%%%%%%%%%%%%")
-        print(TideSummaryArr.count, " in Tide Summary Array")
-        print("%%%%%%%%%%%%%%%")
+        print(TideSummaryArr.count, " entries in Tide Summary Array")
+        print()
 
-        printDictionary(dict: TideSummaryArr[0], expandLevels: 1, dashLen: 0, title: "TideSummaryArr[0]")
-
-
+        if TideSummaryArr.count >= 1 {
+            printDictionary(dict: TideSummaryArr[0], expandLevels: 1, dashLen: 0, title: "TideSummaryArr[0]")
+        } else {
+            aa += "\n--- Tide Info Missing! ---"
+        }
+        var prevDay = ""
         for dictTideSummary in TideSummaryArr {
             //let dictTideSummary = tideSummary as! [String: AnyObject]
             let dictData = dictTideSummary["data"] as! [String: AnyObject]
             let dictDate = dictTideSummary["date"] as! [String: AnyObject]
+            let datePretty = dictDate["pretty"] as? String ?? "nil on nil"
             print(dictDate["pretty"]!, dictData["type"]!,  dictData["height"]!)
-            var strDate = dictDate["pretty"] as! String
-            let strType = dictData["type"] as! String
-            let strHt = dictData["height"] as! String
-            
-            strDate = strDate.replacingOccurrences(of: " on ", with: " ")
 
-            let char1 = strDate[strDate.index(strDate.startIndex, offsetBy: 1)]
-            if char1 == ":" {
-                strDate = " " + strDate
+            let timeDate = datePretty.components(separatedBy: " on ")
+
+            var strTime = timeDate[0]
+            let timeZoneAbr = strTime.right(3)
+            let monStr = dictDate["mon"]  as? String ?? "??"
+            let dayStr = dictDate["mday"] as? String ?? "??"
+            let yrStr =  dictDate["year"] as? String ?? "????"
+            var strDate = "\(monStr)/\(dayStr)"
+            var strType = dictData["type"]   as? String ?? "?"
+            let strHt   = dictData["height"] as? String ?? "?"
+            let mon  = Int(monStr)
+            let day  = Int(dayStr)
+            let year = Int(yrStr)
+            var dateComponents = DateComponents(calendar:Calendar.current, year:year, month:mon, day:day)
+            dateComponents.timeZone = TimeZone(abbreviation: timeZoneAbr)
+            if dateComponents.isValidDate {
+                let localDate = dateComponents.date!
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "EEE MMM dd"
+                strDate = dateFormatter.string(from: localDate)
+                print(strDate)
             }
-            aa += strDate + " " + strType + " " + strHt + "\n"
+            let char2 = strTime[strTime.index(strTime.startIndex, offsetBy: 1)]
+            if char2 == ":" {
+                strTime = " " + strTime
+            }
+            strType = strType.replacingOccurrences(of: "Low", with: " Low")// == "Low" {strType = " Low"}
+            let newLine = "\(strDate) \(strTime) \(strType) \(strHt)"
+            if dayStr != prevDay {
+                print()
+                aa += "\n"
+                prevDay = dayStr
+            }
+            print(newLine)
+            aa += "\(newLine)\n"
         }
         
         DispatchQueue.main.async {
