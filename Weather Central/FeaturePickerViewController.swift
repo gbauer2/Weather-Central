@@ -13,6 +13,23 @@ import UIKit
 
 class FeaturePickerViewController: UIViewController, UITextFieldDelegate {
     
+    //MARK: ---- Variables ----
+    let allowedFeatures = ["xxx", "alerts", "almanac", "astronomy", "conditions", "currenthurricane", "forecast", "forecast10day", "geolookup", "history", "hourly", "hourly10day", "planner--------", "rawtide", "satellite", "tide", "webcams", "yesterday"]
+
+    var plannerSuffix = "09010910"
+
+    var featuresStr = ""
+    var didAddFeature = false
+
+    //MARK: ---- @IBOutlets ----
+    @IBOutlet weak var btnCheck:  UIButton!
+    @IBOutlet weak var lblError:  UILabel!
+    @IBOutlet weak var btnSave: UIBarButtonItem!
+
+    @IBOutlet weak var txtDate1: UITextField!
+    @IBOutlet weak var txtDate2: UITextField!
+
+    //MARK: ---- Overrides ----
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -63,22 +80,6 @@ class FeaturePickerViewController: UIViewController, UITextFieldDelegate {
         
     }
     
-    //MARK: ---- Variables ----
-    let allowedFeatures = ["xxx", "alerts", "almanac", "astronomy", "conditions", "currenthurricane", "forecast", "forecast10day", "geolookup", "history", "hourly", "hourly10day", "planner--------", "rawtide", "satellite", "tide", "webcams", "yesterday"]
-    
-    var plannerSuffix = "09010910"
-
-    var featuresStr = ""
-    var didAddFeature = false
-    
-    //MARK: ---- @IBOutlets ----
-    @IBOutlet weak var btnCheck:  UIButton!
-    @IBOutlet weak var lblError:  UILabel!
-    @IBOutlet weak var btnSave: UIBarButtonItem!
-    
-    @IBOutlet weak var txtDate1: UITextField!
-    @IBOutlet weak var txtDate2: UITextField!
-
     //MARK: ---- @IBActions ----
     @IBAction func btnClearPress(_ sender: Any) {
         for i in 0..<18 {

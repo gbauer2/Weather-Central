@@ -8,14 +8,17 @@
 
 //TODO: - ToDo list
 /*
- 1) if City/State changed, Clear Station
- 2) If NO Features selected, disable "GetData" or Default "Conditions"
- 3) Select Hours & Days for "Hourly"
- 4) Settings: (Default NSEW hemi)(LatLon display)(mi,nm,km)(degC,degF)(AMPM,24hr)(call limits)(WU level)
- 5) Show Version/Build
- 6) Hurricane forecast & map
- 8) Map: DistDir in info, dotted line to selected, bkgrndColor for airports, Select on map
- customize for landscape, or 6 vs 6+ in portait
+ 1) Redo Home page to allow either NearMe or LastUsed/GeoLookup.
+    a. Allow GeoLookup to save location without picking WxStation
+ 2) If NO Features selected, Default to "Almanac, Astronomy, Conditions"
+ 3) Select Hours & Days of interest for "Hourly" (e.g. Wed,Thu,Fri 8AM-2PM)
+ 4) Settings: Put on its own storyBoard
+    a. About - Version/Build #, Credits, brief instructions
+    b. Enter/Test WUnderground key.
+    c. (Default NSEW hemi)(LatLon display)(mi,nm,km)(degC,degF)(AMPM,24hr)(call limits)(WU level)
+ 5) Hurricane forecast & map
+ 6) Map: DistDir in info, dotted line to selected, bkgrndColor for airports, Select on map
+ 7) Customize for landscape, or 6 vs 6+ in portait
 
 Get some stuff with every query *Almanac&Astron= 1K,
                                  GeoLookup     = 8k,
@@ -1020,11 +1023,14 @@ date
     //------------------------------------ DoHurricane ----------------------------------
     func DoHurricane (jsonResult: AnyObject) -> String {
         clearRawData()
+        lblRawDataHeading.textAlignment = NSTextAlignment.center
+        lblRawDataHeading.text = "No Report from Tropics"       // default label
         guard let hurricaneArr = jsonResult["currenthurricane"] as? [[String: AnyObject]] else {return "\"CurrentHurricane\" not in downloaded data!!"}
         
         print("\n\(hurricaneArr.count) storms in hurricaneArr (jsonResult[\"currenthurricane\"])")
-        if hurricaneArr.count == 0 { return "No tropical systems to report." }
-        guard let dictHurricane0 = hurricaneArr.first else {return "Hurricane0 not found!"}
+        lblRawDataHeading.text = showCount(count: hurricaneArr.count, name: "Tropical System", ifZero: "No")  //"\(hurricaneArr.count) storms"
+        if hurricaneArr.count == 0 { return "" }
+        guard let dictHurricane0 = hurricaneArr.first else {return "Hurricane[0] not found!"}
         printDictionary(dict: dictHurricane0, expandLevels: 0, dashLen: 0, title: "currenthurricane[0]")
         //printDictionary(dict: dictHurricane0, expandLevels: 1, dashLen: 0, title: "currenthurricane[0]")
         
@@ -1052,29 +1058,35 @@ date
         }
         var aa = ""
         for dictHurricane in hurricaneArr {
-            let dictStormInfo = dictHurricane["stormInfo"] as! [String: AnyObject]
-            let dictCurrent = dictHurricane["Current"] as! [String: AnyObject]
-            
-            let stormNameNice = dictStormInfo["stormName_Nice"] as! String
-            let cat = dictCurrent["SaffirSimpsonCategory"] as! Int
-            let dictFSpeed = dictCurrent["Fspeed"] as! [String: AnyObject]
-            let fSpeedMph = dictFSpeed["Mph"] as! Int
-            let dictWindGust = dictCurrent["WindGust"] as! [String: AnyObject]
-            let windGustMph = dictWindGust["Mph"] as! Int
-            let dictWindSpeed = dictCurrent["WindSpeed"] as! [String: AnyObject]
-            let windSpeedMph = dictWindSpeed["Mph"] as! Int
-            let dictMovement = dictCurrent["Movement"] as! [String: AnyObject]
-            //let movementDeg = dictMovement["Degrees"] as! String
-            let movementText =  dictMovement["Text"] as! String
-            let dictPressure = dictCurrent["Pressure"] as! [String: AnyObject]
-            let pressureInches = dictPressure["inches"] as? Double ?? 0.0
-            let pressureMb = dictPressure["mb"] as? Int ?? 0
-            let lat = dictCurrent["lat"] as! Double
-            let lon = dictCurrent["lon"] as! Double
-            let latLon = String(format:" %5.1f° ",lat) + String(format:"%5.1f°",lon)
-            let dictTime = dictCurrent["Time"] as! [String: AnyObject]
-            let wkDay = dictTime["weekday_name"] as! String
-            let time = dictTime["pretty"] as! String
+            let dictStormInfo = dictHurricane["stormInfo"]      as! [String: AnyObject]
+            let stormNameNice = dictStormInfo["stormName_Nice"]      as? String ?? "stormName missing"
+
+            let dictCurrent   = dictHurricane["Current"]        as! [String: AnyObject]
+            let cat           = dictCurrent["SaffirSimpsonCategory"] as? Int    ?? 0
+            let lat           = dictCurrent["lat"]                   as? Double ?? -99.0
+            let lon           = dictCurrent["lon"]                   as? Double ?? -999.0
+            let latLon        = String(format:" %5.1f° ",lat) + String(format:"%5.1f°",lon)
+
+            let dictFSpeed    = dictCurrent["Fspeed"]           as! [String: AnyObject]
+            let fSpeedMph     = dictFSpeed["Mph"]                    as? Int    ?? -1
+
+            let dictWindGust  = dictCurrent["WindGust"]         as! [String: AnyObject]
+            let windGustMph   = dictWindGust["Mph"]                  as? Int ?? -1
+
+            let dictWindSpeed = dictCurrent["WindSpeed"]        as! [String: AnyObject]
+            let windSpeedMph  = dictWindSpeed["Mph"]                 as? Int ?? -1
+
+            let dictMovement  = dictCurrent["Movement"]         as! [String: AnyObject]
+            //let movementDeg = dictMovement["Degrees"]              as? String ?? "??"
+            let movementText  =  dictMovement["Text"]                as? String ?? "??"
+
+            let dictPressure  = dictCurrent["Pressure"]         as! [String: AnyObject]
+            let pressureInches = dictPressure["inches"]              as? Double ?? 0.0
+            let pressureMb     = dictPressure["mb"]                  as? Int ?? 0
+
+            let dictTime      = dictCurrent["Time"]             as! [String: AnyObject]
+            let wkDay         = dictTime["weekday_name"]             as? String ?? "???"
+            let time          = dictTime["pretty"]                   as? String ?? "????"
             
             aa += stormNameNice + "\n"
             aa += "Catagory \(cat) Wind \(windSpeedMph), gusting to \(windGustMph) \n"
@@ -1085,8 +1097,6 @@ date
             aa += "\n"
         }
         
-        lblRawDataHeading.textAlignment = NSTextAlignment.center
-        lblRawDataHeading.text = showCount(count: hurricaneArr.count, name: "Storm", ifZero: "No")//"\(hurricaneArr.count) storms"
         txtRawData.text = aa
         return ""
         

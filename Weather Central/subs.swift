@@ -49,12 +49,10 @@ public func formatIntWithLeadingZeros(_ num: Int, width: Int) -> String {
 }
 
 // ------------- returns e.g. "1 name", "2 names", "No names" -----------
-public func showCount(count: Int, name: String, ifZero: String) -> String {
+public func showCount(count: Int, name: String, ifZero: String = "0") -> String {
     if count == 1 { return "1 \(name)" }
     if count == 0 {
-        var z = "0"
-        if ifZero != "" {z = ifZero}
-        return "\(z) \(name)s"
+        return "\(ifZero) \(name)s"
     }
     return "\(count) \(name)s"
     
