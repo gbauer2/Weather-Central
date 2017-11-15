@@ -19,20 +19,20 @@ extension String {
         let end = index(startIndex, offsetBy: r.upperBound)
         return self[Range(start ..< end)]
     }
-    func left(_ i: Int) -> String {
-        if i > self.count {
+    func left(_ length: Int) -> String {
+        if length > self.count {
             return self
         }
-        let end = index(startIndex, offsetBy: i)
+        let end = index(startIndex, offsetBy: length)
         return self[Range(startIndex ..< end)]
     }
-    func right(_ begin: Int) -> String {
-        let len = self.count
-        if begin > len || begin < 0 {
+    func right(_ length: Int) -> String {
+        let fullLen = self.count
+        if length > fullLen || length < 0 {
             return self
         }
-        let start = index(startIndex, offsetBy: len - begin)
-        let end = index(startIndex, offsetBy: len)
+        let start = index(startIndex, offsetBy: fullLen - length)
+        let end = index(startIndex, offsetBy: fullLen)
         return self[Range(start ..< end)]
     }
     func rightJust(_ fieldLen: Int) -> String {

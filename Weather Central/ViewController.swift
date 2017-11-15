@@ -8,7 +8,7 @@
 
 //TODO: - ToDo list
 /*
- 1) Redo Home page to allow either NearMe or LastUsed/GeoLookup.
+ 1) Redo Home page to allow either NearMe or LastUsed or GeoLookup.
     a. Allow GeoLookup to save location without picking WxStation
  2) If NO Features selected, Default to "Almanac, Astronomy, Conditions"
  3) Select Hours & Days of interest for "Hourly" (e.g. Wed,Thu,Fri 8AM-2PM)
@@ -19,6 +19,10 @@
  5) Hurricane forecast & map
  6) Map: DistDir in info, dotted line to selected, bkgrndColor for airports, Select on map
  7) Customize for landscape, or 6 vs 6+ in portait
+ 8) Add large Activity Indicator
+ 9) Bigger Font (rearrange) - Almanac, Planner
+10) Bigger Font for 6sPlus & iPad - Forecast, Hourly
+11) Fix Tide Wrap on 6s
 
 Get some stuff with every query *Almanac&Astron= 1K,
                                  GeoLookup     = 8k,
@@ -38,9 +42,35 @@ import CoreLocation
 class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDelegate {
     //let allowedFeatures = ["alerts", "almanac", "astronomy", "conditions", "currenthurricane", "forecast", "forecast10day", "geolookup", "history", "hourly", "hourly10day", "planner", "rawtide", "satellite", "tide", "webcams", "yesterday"]
 
+    //MARK: ---- ViewController Variables ----
+    let APIKEY = ""    //let APIKEY = "1333bd..."
+    var numFeatures = 0
+    var featuresStr = ""
+    var prevCityLen = 999
+    var cityLockLen = -1
+    var locationManager = CLLocationManager()
+    var userLocation    = CLLocation(latitude: 0.0, longitude: 0.0)
+    var rawFontDefault  = UIFont(name: "Menlo", size: 12)
+
+    //MARK: ---- IBOutlets ----
+    @IBOutlet weak var btnAlerts:     UIButton!
+    @IBOutlet weak var btnAlmanac:    UIButton!
+    @IBOutlet weak var btnConditions: UIButton!
+    @IBOutlet weak var btnHurricane:  UIButton!
+    @IBOutlet weak var btnForecast:   UIButton!
+    @IBOutlet weak var btnHourly:     UIButton!
+    @IBOutlet weak var btnPlanner:    UIButton!
+    @IBOutlet weak var btnTide:       UIButton!
+
+    //@IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var lblRawDataHeading: UILabel!
+    @IBOutlet weak var lblError:          UILabel!
+    @IBOutlet weak var txtState:        UITextField!
+    @IBOutlet weak var txtCity:         UITextField!
+    @IBOutlet weak var txtStationID:    UITextField!
+    @IBOutlet weak var txtRawData:      UITextView!
+
     //MARK: ---- iOS built-in functions & overrides ----
-    //-----------------------------------------------------------------------------------------
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         rawFontDefault = txtRawData.font
@@ -49,7 +79,9 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         locationManager.requestWhenInUseAuthorization()
         locationManager.startUpdatingLocation()
-    }
+        gAppVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0"
+        gAppBuild = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "0"
+    }//end func
    
     override func viewWillAppear(_ animated: Bool) {
         //super.viewWillAppear()
@@ -57,10 +89,8 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        
         //txtCity.text = "Harrisburg"
         //txtState.text = "PA"
-
         let screenWidth = UIScreen.main.bounds.size.width
         let screenHeight = UIScreen.main.bounds.size.height
         let ver = Device.TheCurrentDeviceVersion
@@ -140,11 +170,6 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
         print("Saved \(txtStationID.text!)  \(txtCity.text!), \(txtState.text!)")
     }
     
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-
     // when you get location from CLLocationManager, record gUserLat & gUserLon, and stop updates
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         //print(locations[0])
@@ -169,36 +194,6 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
         return true
     }
     
-    //MARK: ---- ViewController Variables ----
-    let APIKEY = ""    //let APIKEY = "1333bd..."
-    var numFeatures = 0
-    var featuresStr = ""
-    var prevCityLen = 999
-    var cityLockLen = -1
-    var cityLocName = ""
-    var locationManager = CLLocationManager()
-    var userLocation = CLLocation(latitude: 0.0, longitude: 0.0)
-    var rawFontDefault = UIFont(name: "Menlo", size: 12)
-
-    //MARK: ---- IBOutlets ----
-    @IBOutlet weak var btnAlerts:     UIButton!
-    @IBOutlet weak var btnAlmanac:    UIButton!
-    @IBOutlet weak var btnConditions: UIButton!
-    @IBOutlet weak var btnHurricane:  UIButton!
-    @IBOutlet weak var btnForecast:   UIButton!
-    @IBOutlet weak var btnHourly:     UIButton!
-    @IBOutlet weak var btnPlanner:    UIButton!
-    @IBOutlet weak var btnTide:       UIButton!
-    
-    //@IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    //@IBOutlet weak var btnAPIKeyOutlet: UIButton!
-    @IBOutlet weak var lblRawDataHeading: UILabel!
-    @IBOutlet weak var lblError:          UILabel!
-    @IBOutlet weak var txtState:        UITextField!
-    @IBOutlet weak var txtCity:         UITextField!
-    @IBOutlet weak var txtStationID:    UITextField!
-    @IBOutlet weak var txtRawData:      UITextView!
-   
     //MARK: ---- IBActions ----
     @IBAction func btnAlertsPress(_ sender: Any) {
         self.view.endEditing(true)
@@ -239,7 +234,7 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
         lblError.text = DoTide(jsonResult: globalDictJSON)
     }
 
-//=====================
+    //MARK: Move this to GeoLookup =====================
 
     let cityAbrev = ["Fred": "Fredericksburg,PA", "Har": "Harrisburg,PA",
                      "My":   "Myrtle Beach,SC",   "Tru": "Trumbull,CT",
@@ -255,29 +250,29 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
             gDataIsCurrent = false
             setFeatureButtons()
         }
-        let citytxt = txtCity.text!
-        let cnt = citytxt.count
-        let prev = prevCityLen
-        prevCityLen = cnt
-        if cnt - prev != 1 {
-            cityLockLen = 999
-            return          // Did not just add a letter
+        let citytxt = txtCity.text!     // text after change
+        let cnt     = citytxt.count     // number of chars now
+        let prev    = prevCityLen       // previous number of chars
+        prevCityLen = cnt               // udate prevCityLen to now
+        if cnt - prev != 1 {            // if user did not just add a char
+            cityLockLen = 99            // disable length limit
+            return                      // and accept the edit
         }
-        if cnt > cityLockLen {
-            txtCity.text = cityLocName
+        if cnt > cityLockLen {          // if adding char would exceed length limit
+            txtCity.text = citytxt.left(cityLockLen)
             prevCityLen = cityLockLen
         }
-        guard let combName = cityAbrev[citytxt] else { return }
-        let splitNames = combName.components(separatedBy: ",")
-        cityLockLen   = splitNames[0].count
-        prevCityLen   = cityLockLen
-        cityLocName   = splitNames[0]
-        txtCity.text  = splitNames[0]
+        guard let combName = cityAbrev[citytxt] else { return } // dictionary lookup of stored "City,States"
+        // If a match is found in the cityAbrev dictionary, do the following
+        let splitNames = combName.components(separatedBy: ",")  // separate city & state
+        cityLockLen   = splitNames[0].count                     // stop user from adding more chars
+        prevCityLen   = cityLockLen                             // update prevCityLen
+        txtCity.text  = splitNames[0]                           // set the text fields to stored values
         txtState.text = splitNames[1]
 
     }//end @IBAction func txtCityEditChange
 
-//=======================
+//=========================================================
 
     //-------------------- GetData Button -------------------
     @IBAction func btnGetData(_ sender: Any) {
@@ -332,7 +327,44 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
         txtRawData.text = ""
         txtRawData.font = rawFontDefault
     }
-    
+    // ------ Enable/Disable a Button and change its backgroundColor between  colorButtonNorm & colorButtonGray ------
+    func enableButton(btn: UIButton, enable: Bool) {
+        btn.isEnabled = enable                                              // enable/disable
+        btn.backgroundColor = enable ? colorButtonNorm : colorButtonGray    //blue=(0x007AFF) or gray
+    }
+
+    // ------ Set Buttons according to wuFeaturesArr[] ------
+    func setFeatureButtons() {
+        for iButton in 1..<18 {
+            var isOn = wuFeaturesArr[iButton]
+
+            switch iButton {
+            case iForecast:
+                isOn = wuFeaturesArr[iButton] || wuFeaturesArr[iForecast10day]
+            case iHourly:
+                isOn = wuFeaturesArr[iButton] || wuFeaturesArr[iHourly10Day]
+            case iPlanner:  //, iYesterday: //12
+                isOn = wuFeaturesArr[iButton] || wuFeaturesArr[iHistory] || wuFeaturesArr[iYesterday]//9 or 17
+                if wuFeaturesArr[iButton] {btnPlanner.setTitle("Planner", for: UIControlState.normal)}
+            case iHistory:
+                if wuFeaturesArr[iButton] {btnPlanner.setTitle("Today", for: UIControlState.normal)}
+            case iYesterday:
+                if wuFeaturesArr[iButton] {btnPlanner.setTitle("Yesterday", for: UIControlState.normal)}
+            default:
+                isOn = wuFeaturesArr[iButton]
+            }//end switch
+
+            if let button = view.viewWithTag(iButton) as? UIButton {
+                enableButton(btn: button, enable: gDataIsCurrent)
+                //button.isEnabled = gDataIsCurrent                               // Only enable Buttons after a download
+                //button.backgroundColor = gDataIsCurrent ? colorButtonNorm : colorButtonGray   //blue=(0x007AFF)
+                button.isHidden = !isOn            // Hide Buttons not in wuFeatures list.
+
+                //print("Feature#\(iButton), button[\(iButton)] = \(wuFeaturesArr[button.tag])")
+            }//endif
+        }//next iButton
+    }
+
     func showError(_ message: String) {
         showAlert(title: "Error", message: message)
     }
@@ -1298,8 +1330,8 @@ date {
             wx = wx.replacingOccurrences(of: "Thunder", with: "T-")
             wx = wx.replacingOccurrences(of: "Scattered", with: "Sct")
             wx = wx.replacingOccurrences(of: "Isolated", with: "Iso")
-            let temp = EnglishOrMetric(key: "temp", dict: dictHourly, isEnglish: true)
-            let dewP = EnglishOrMetric(key: "dewpoint", dict: dictHourly, isEnglish: true)
+            let temp = hourlyEnglishOrMetric(key: "temp", dict: dictHourly, isMetric: false)
+            let dewP = hourlyEnglishOrMetric(key: "dewpoint", dict: dictHourly, isMetric: false)
             aa += " \(pop)%   \(temp)°/\(dewP)° \(wx) \n"
         }
         lblRawDataHeading.textAlignment = NSTextAlignment.left
@@ -1342,10 +1374,11 @@ date {
     */
     }//end func DoHourly
     
-    func EnglishOrMetric(key: String, dict: [String: AnyObject], isEnglish: Bool) -> String {
-        let englishKey = "english"
+    //
+    func hourlyEnglishOrMetric(key: String, dict: [String: AnyObject], isMetric: Bool) -> String {
+        let sysKey = isMetric ? "metric" : "english"
         guard let d = dict[key] as? [String: AnyObject] else { return "?" }
-        guard let val = d[englishKey] as? String else { return "?int?" }
+        guard let val = d[sysKey] as? String else { return "?int?" }
         return val
     }//end func
     
@@ -1385,18 +1418,18 @@ date {
         a2 += "Cloud Cover = \(cond)\n"
         a2 += "               Min    Avg    Max\n"
         
-        let precip = getInchMinAvgMax(key: "precip", dictSource: dictTrip)
+        let precip = plannerInchMinAvgMax(key: "precip", dictSource: dictTrip)
         let unitsP = isMetric ? "cm" : "in"
         a2 += "precip (\(unitsP)) \(precip.min) \(precip.avg) \(precip.max)\n"
 
-        let tempLow = getDegMinAvgMax(key: "temp_low", dictSource: dictTrip)
+        let tempLow = plannerDegMinAvgMax(key: "temp_low", dictSource: dictTrip)
         a2 += "Low  Temp     \(tempLow.min)°   \(tempLow.avg)°   \(tempLow.max)°\n"
-        let tempHigh = getDegMinAvgMax(key: "temp_high", dictSource: dictTrip)
+        let tempHigh = plannerDegMinAvgMax(key: "temp_high", dictSource: dictTrip)
         a2 += "High Temp     \(tempHigh.min)°   \(tempHigh.avg)°   \(tempHigh.max)°\n"
 
-        let dewpointLow = getDegMinAvgMax(key: "dewpoint_low", dictSource: dictTrip)
+        let dewpointLow = plannerDegMinAvgMax(key: "dewpoint_low", dictSource: dictTrip)
         a2 += "Low  dewpoint \(dewpointLow.min)°   \(dewpointLow.avg)°   \(dewpointLow.max)°\n"
-        let dewpointHigh = getDegMinAvgMax(key: "dewpoint_high", dictSource: dictTrip)
+        let dewpointHigh = plannerDegMinAvgMax(key: "dewpoint_high", dictSource: dictTrip)
         a2 += "High dewpoint \(dewpointHigh.min)°   \(dewpointHigh.avg)°   \(dewpointHigh.max)°\n"
 
         //let dictPeriodOfRecord = dictTrip["period_of_record"] as! [String: AnyObject]
@@ -1556,9 +1589,9 @@ date {
     
     
     // ------ Extract (min, avg, max)degrees from JSON{avg = {C = ""; F = "";}; max = {C = ""; F = "";}; min = {C =  ""; F = ""}} ---
-    func getDegMinAvgMax(key: String, dictSource: [String: AnyObject], isMetric: Bool = false) -> (min:String, avg:String, max:String) {
+    func plannerDegMinAvgMax(key: String, dictSource: [String: AnyObject], isMetric: Bool = false) -> (min:String, avg:String, max:String) {
         guard let dictMain = dictSource[key] as? [String: AnyObject] else {return ("?", "?", "?")}
-        let dict = getMinAvgMax(dict: dictMain)
+        let dict = plannerMinAvgMax(dict: dictMain)
         
         let degType = isMetric ? "C" : "F"
         let min = dict.min?[degType] as? String ?? "??"
@@ -1571,9 +1604,9 @@ date {
     }
     
     // ------ Extract (min, avg, max)degrees from JSON{avg = {avg={cm=""; in=""}; max={cm=""; in=""}; min={cm=""; in=""}} ---
-    func getInchMinAvgMax(key: String, dictSource: [String: AnyObject], metric: Bool = false) -> (min:String, avg:String, max:String) {
+    func plannerInchMinAvgMax(key: String, dictSource: [String: AnyObject], metric: Bool = false) -> (min:String, avg:String, max:String) {
         guard let dictMain = dictSource[key] as? [String: AnyObject] else {return ("?", "?", "?")}
-        let dict = getMinAvgMax(dict: dictMain)
+        let dict = plannerMinAvgMax(dict: dictMain)
         let units = metric ? "cm" : "in"
         let min = dict.min?[units] as? String ?? "??"
         let avg = dict.avg?[units] as? String ?? "??"
@@ -1584,7 +1617,7 @@ date {
         return (min6, avg6, max6)
     }
     
-    func getMinAvgMax(dict: [String: AnyObject]) -> (min: [String: AnyObject]?, avg: [String: AnyObject]?, max: [String: AnyObject]?) {
+    func plannerMinAvgMax(dict: [String: AnyObject]) -> (min: [String: AnyObject]?, avg: [String: AnyObject]?, max: [String: AnyObject]?) {
         let min = dict["min"] as? [String: AnyObject]
         let avg = dict["avg"] as? [String: AnyObject]
         let max = dict["max"] as? [String: AnyObject]
@@ -1711,44 +1744,6 @@ date {
     }//end func DoTide
     
   //===========================================================================
-    // ------ Enable/Disable a Button and change its backgroundColor between  colorButtonNorm & colorButtonGray ------
-    func enableButton(btn: UIButton, enable: Bool) {
-        btn.isEnabled = enable                                              // enable/disable
-        btn.backgroundColor = enable ? colorButtonNorm : colorButtonGray    //blue=(0x007AFF) or gray
-    }
-    
-    // ------ Set Buttons according to wuFeaturesArr[] ------
-    func setFeatureButtons() {
-        for iButton in 1..<18 {
-            var isOn = wuFeaturesArr[iButton]
-            
-            switch iButton {
-            case iForecast:
-                isOn = wuFeaturesArr[iButton] || wuFeaturesArr[iForecast10day]
-            case iHourly:
-                isOn = wuFeaturesArr[iButton] || wuFeaturesArr[iHourly10Day]
-            case iPlanner:  //, iYesterday: //12
-                isOn = wuFeaturesArr[iButton] || wuFeaturesArr[iHistory] || wuFeaturesArr[iYesterday]//9 or 17
-                if wuFeaturesArr[iButton] {btnPlanner.setTitle("Planner", for: UIControlState.normal)}
-            case iHistory:
-                if wuFeaturesArr[iButton] {btnPlanner.setTitle("History", for: UIControlState.normal)}
-            case iYesterday:
-                if wuFeaturesArr[iButton] {btnPlanner.setTitle("History", for: UIControlState.normal)}
-            default:
-                isOn = wuFeaturesArr[iButton]
-            }//end switch
-            
-            if let button = view.viewWithTag(iButton) as? UIButton {
-                enableButton(btn: button, enable: gDataIsCurrent)
-                //button.isEnabled = gDataIsCurrent                               // Only enable Buttons after a download
-                //button.backgroundColor = gDataIsCurrent ? colorButtonNorm : colorButtonGray   //blue=(0x007AFF)
-                button.isHidden = !isOn            // Hide Buttons not in wuFeatures list.
-                
-                //print("Feature#\(iButton), button[\(iButton)] = \(wuFeaturesArr[button.tag])")
-            }//endif
-        }//next iButton
-    }
-    
 }
 /* wunderground keywords
 ["alerts", "almanac", "astronomy", "conditions", "currenthurricane",

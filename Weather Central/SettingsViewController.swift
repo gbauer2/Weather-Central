@@ -10,6 +10,12 @@ import UIKit
 
 class SettingsViewController: UIViewController, UITextFieldDelegate {
 
+    @IBOutlet weak var txtAPIKey: UITextField!
+    @IBOutlet weak var btnUpdateAPIKey: UIButton!
+    @IBOutlet weak var lblAPIKey: UILabel!
+
+    @IBOutlet weak var lblVersion: UILabel!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
@@ -21,7 +27,7 @@ class SettingsViewController: UIViewController, UITextFieldDelegate {
             txtAPIKey.text = ""
         }
         btnUpdateAPIKey.isEnabled = false
-
+        lblVersion.text = "Version \(gAppVersion)  Build \(gAppBuild)"
     }
 
     // ------ Dismiss Keybooard if user taps empty area ------
@@ -35,10 +41,6 @@ class SettingsViewController: UIViewController, UITextFieldDelegate {
         return true
     }
     
-    @IBOutlet weak var txtAPIKey: UITextField!
-    @IBOutlet weak var btnUpdateAPIKey: UIButton!
-    @IBOutlet weak var lblAPIKey: UILabel!
-
     @IBAction func btnTestDate(_ sender: UIButton) {
     }
     

@@ -150,14 +150,61 @@ class FeaturePickerViewController: UIViewController, UITextFieldDelegate {
     }
  
     @IBAction func txtDate1Edit(_ sender: UITextField) {
-        didAddFeature = true
-        btnSave.isEnabled = didAddFeature
+        editMonthDay(sender: sender, is1or2: 1)
     }
     @IBAction func txtDate2Edit(_ sender: UITextField) {
+        editMonthDay(sender: sender, is1or2: 2)
+    }
+
+    func editMonthDay(sender: UITextField, is1or2: Int) {
         didAddFeature = true
         btnSave.isEnabled = didAddFeature
-    }
-    
+
+        print(sender.text!)
+
+        let textAfter = sender.text!
+        switch textAfter.count {
+        case 0:
+            return                              // empty - ok
+        case 1:
+            if isNumeric(textAfter) { return }  // single digit - ok
+        case 2:
+            if isNumeric(textAfter) {
+                let mo = Int(textAfter)!
+                if mo >= 1 && mo <= 12 {
+                    return                      // 2 digits - ok
+                }
+            } else if textAfter.right(1) == "/" && textAfter.left(1) != "0" {
+                sender.text = "0" + textAfter.left(1) + "/"
+                return                          // "3/" --> "03/"
+            }
+        case 3:
+            if isNumeric(textAfter) {
+                let mo = Int(textAfter.left(2))!
+                if mo >= 1 && mo <= 12 {
+                    sender.text = textAfter.left(2) + "/" + textAfter.right(1)
+                }
+                return                      // "12/6"
+            } else {
+                sender.text = textAfter.left(2) + "/"
+                return
+            }
+        case 4:
+            if isNumeric(textAfter.right(1)){
+                return
+            }
+        case 5:
+            if isNumeric(textAfter.right(2)){
+                let day = Int(textAfter.right(2))!
+                if day >= 1 && day <= 31 {
+                    return
+                }
+            }
+        default: break
+        }//end switch
+        sender.text = textAfter.left(textAfter.count - 1) // remove the last char
+    }//end func
+
     //MARK: ---- support funcs ----
     func makePlannerSuffix() -> String {
         let mmdd1 = makeMMDD(mm_dd: txtDate1.text!)
@@ -168,25 +215,29 @@ class FeaturePickerViewController: UIViewController, UITextFieldDelegate {
         
         return "_" + mmdd1 + mmdd2
     }
-    
+
+    // Make "MMDD" from "MM/DD" or "MM/D" & check for errors
     func makeMMDD(mm_dd: String) -> String {
         var mmdd = mm_dd
         var errMsg = "planner date must be of form \"mm/dd\""
         mmdd = mmdd.trimmingCharacters(in: .whitespacesAndNewlines)
-        if mm_dd.count != 5 {return errMsg}
-        var splitTxt = mm_dd.components(separatedBy: "/")
-        if splitTxt.count != 2 {return errMsg}
+        if (mmdd.count != 5 && mmdd.count != 4) || mmdd.mid(begin: 2, length: 1) != "/"  { return errMsg }
+        let splitTxt = mmdd.components(separatedBy: "/")
+        if splitTxt.count != 2        { return errMsg }
         
-        errMsg = "planner month can't be \(splitTxt[0])"
-        guard let m = Int(splitTxt[0]) else {return errMsg}
-        if m < 1 || m > 12 {return errMsg}
-        
-        errMsg = "planner day can't be \(splitTxt[1])"
-        guard let d = Int(splitTxt[1]) else {return errMsg}
-        if d < 1 || d > 31 {return errMsg}
-        if (m == 4 || m == 6 || m == 9 || m == 11) && d > 30 {return errMsg}
-        if (m == 2) && d > 29 {return errMsg}
-        return splitTxt[0] + splitTxt[1]
+        let moStr = splitTxt[0]
+        var daStr = splitTxt[1]
+        errMsg = "planner month can't be \(moStr)"
+        guard let m = Int(moStr) else { return errMsg }
+        if m < 1 || m > 12            { return errMsg }
+
+        errMsg = "planner day can't be \(daStr)"
+        guard let d = Int(daStr) else                        { return errMsg }
+        if d < 1 || d > 31                                   { return errMsg }
+        if d <= 9 { daStr = "0" + daStr }
+        if (m == 4 || m == 6 || m == 9 || m == 11) && d > 30 { return errMsg }
+        if (m == 2) && d > 29                                { return errMsg }
+        return moStr + daStr
     }
     
     
@@ -198,7 +249,7 @@ class FeaturePickerViewController: UIViewController, UITextFieldDelegate {
         txtDate2.isEnabled = wuFeaturesArr[iPlanner]
         txtDate1.isHidden = !wuFeaturesArr[iPlanner]
         txtDate2.isHidden = !wuFeaturesArr[iPlanner]
-        
+
         wuFeaturesArr[iAstronomy] = wuFeaturesArr[iAlmanac]
         if wuFeaturesArr[newItem] == false {
             return
@@ -235,7 +286,9 @@ class FeaturePickerViewController: UIViewController, UITextFieldDelegate {
         if oldItem1 == 0 && oldItem2 == 0 {
             return
         }
-        
+
+
+
         if oldItem1 != 0 {
             wuFeaturesArr[oldItem1] = false
             if let button = view.viewWithTag(oldItem1) as? UIButton {
@@ -249,6 +302,11 @@ class FeaturePickerViewController: UIViewController, UITextFieldDelegate {
                 button.isSelected = false
             }//endif let
         }//endif oldItem2
+
+        txtDate1.isEnabled = wuFeaturesArr[iPlanner]
+        txtDate2.isEnabled = wuFeaturesArr[iPlanner]
+        txtDate1.isHidden = !wuFeaturesArr[iPlanner]
+        txtDate2.isHidden = !wuFeaturesArr[iPlanner]
 
     }//end func toggleItems
     

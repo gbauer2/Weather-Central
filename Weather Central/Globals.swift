@@ -21,6 +21,9 @@ var gStationID = ""
 var gUpdateGeoLookup = true
 var gUserLat = 0.0
 var gUserLon = 0.0
+var gAppVersion = "0"
+var gAppBuild   = "0"
+
 //var gUserLocation = CLLocation(latitude: 0.0, longitude: 0.0)
 
 //MARK: -------- Program Constants --------
