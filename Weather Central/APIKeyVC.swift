@@ -1,5 +1,5 @@
 //
-//  SettingsViewController.swift
+//  APIKeyVC.swift
 //  Weather Central
 //
 //  Created by George Bauer on 10/13/17.

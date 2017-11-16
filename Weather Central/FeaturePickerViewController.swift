@@ -1,5 +1,5 @@
 //
-//  ProductPickerViewController.swift (Features Picker)
+//  FeaturePickerViewController.swift (Features Picker)
 //  Weather Central
 //
 //  Created by George Bauer on 8/30/17.

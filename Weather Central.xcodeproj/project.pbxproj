@@ -10,8 +10,8 @@
 		CE1EEB5D1F8E617300EBA13C /* myExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE1EEB5C1F8E617300EBA13C /* myExtensions.swift */; };
 		CE1EEB5F1F8E906500EBA13C /* MaintainCallLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE1EEB5E1F8E906500EBA13C /* MaintainCallLog.swift */; };
 		CE31D6DA1F912CB9001E8EC6 /* icons8-Settings-50.png in Resources */ = {isa = PBXBuildFile; fileRef = CE31D6D91F912CB9001E8EC6 /* icons8-Settings-50.png */; };
-		CE31D6DE1F91643B001E8EC6 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE31D6DD1F91643B001E8EC6 /* SettingsViewController.swift */; };
-		CE31D6E01F916AE0001E8EC6 /* TestDateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE31D6DF1F916AE0001E8EC6 /* TestDateViewController.swift */; };
+		CE31D6DE1F91643B001E8EC6 /* APIKeyVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE31D6DD1F91643B001E8EC6 /* APIKeyVC.swift */; };
+		CE31D6E01F916AE0001E8EC6 /* TestCallLimitsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE31D6DF1F916AE0001E8EC6 /* TestCallLimitsVC.swift */; };
 		CE46A3E41F995F2900C14766 /* MapVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE46A3E31F995F2900C14766 /* MapVC.swift */; };
 		CE4BF55C1F9782F400A918D0 /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE4BF55B1F9782F400A918D0 /* Globals.swift */; };
 		CE5186DB1F3B6D8000646C80 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE5186DA1F3B6D8000646C80 /* AppDelegate.swift */; };
@@ -28,6 +28,8 @@
 		CEC1FD241F5672B7000E1660 /* FeaturePickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEC1FD231F5672B7000E1660 /* FeaturePickerViewController.swift */; };
 		CECF668A1FB5049400911DFC /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CECF66881FB5049400911DFC /* LaunchScreen.storyboard */; };
 		CEE0AF681F8156C60018B01F /* wuSubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE0AF671F8156C60018B01F /* wuSubs.swift */; };
+		CEE297601FBDD6BD00D12D22 /* SettingsTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE2975F1FBDD6BD00D12D22 /* SettingsTVC.swift */; };
+		CEE297631FBDDA3200D12D22 /* Settings.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CEE297611FBDDA3200D12D22 /* Settings.storyboard */; };
 		CEF1DEE61F9B8D24006050F6 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CEF1DEE51F9B8D24006050F6 /* MapKit.framework */; };
 		CEFF46A51F870E3900785233 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CEFF46A41F870E3900785233 /* CoreLocation.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 /* End PBXBuildFile section */
@@ -36,8 +38,8 @@
 		CE1EEB5C1F8E617300EBA13C /* myExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = myExtensions.swift; sourceTree = "<group>"; };
 		CE1EEB5E1F8E906500EBA13C /* MaintainCallLog.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MaintainCallLog.swift; sourceTree = "<group>"; };
 		CE31D6D91F912CB9001E8EC6 /* icons8-Settings-50.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icons8-Settings-50.png"; sourceTree = "<group>"; };
-		CE31D6DD1F91643B001E8EC6 /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
-		CE31D6DF1F916AE0001E8EC6 /* TestDateViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestDateViewController.swift; sourceTree = "<group>"; };
+		CE31D6DD1F91643B001E8EC6 /* APIKeyVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIKeyVC.swift; sourceTree = "<group>"; };
+		CE31D6DF1F916AE0001E8EC6 /* TestCallLimitsVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestCallLimitsVC.swift; sourceTree = "<group>"; };
 		CE46A3E31F995F2900C14766 /* MapVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapVC.swift; sourceTree = "<group>"; };
 		CE4BF55B1F9782F400A918D0 /* Globals.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
 		CE5186D71F3B6D8000646C80 /* Weather Central.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Weather Central.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -56,6 +58,8 @@
 		CEC1FD231F5672B7000E1660 /* FeaturePickerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeaturePickerViewController.swift; sourceTree = "<group>"; };
 		CECF66891FB5049400911DFC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		CEE0AF671F8156C60018B01F /* wuSubs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = wuSubs.swift; sourceTree = "<group>"; };
+		CEE2975F1FBDD6BD00D12D22 /* SettingsTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTVC.swift; sourceTree = "<group>"; };
+		CEE297621FBDDA3200D12D22 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = "Weather Central/Base.lproj/Settings.storyboard"; sourceTree = "<group>"; };
 		CEF1DEE51F9B8D24006050F6 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		CEFF46A41F870E3900785233 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -105,26 +109,44 @@
 		CE5186D91F3B6D8000646C80 /* Weather Central */ = {
 			isa = PBXGroup;
 			children = (
+				CEE297641FBDDC1400D12D22 /* MainStroyboard */,
+				CEE297651FBDDC3C00D12D22 /* SettingsStoryboard */,
 				CE31D6DC1F9162A6001E8EC6 /* Images */,
 				CE5186DA1F3B6D8000646C80 /* AppDelegate.swift */,
-				CEC0CB0D1F7DFFDE00152CBA /* subs.swift */,
 				CE4BF55B1F9782F400A918D0 /* Globals.swift */,
+				CEC0CB0D1F7DFFDE00152CBA /* subs.swift */,
 				CEE0AF671F8156C60018B01F /* wuSubs.swift */,
 				CE1EEB5C1F8E617300EBA13C /* myExtensions.swift */,
 				CE8CF39E1FB684E3006CC7BC /* Device.swift */,
 				CE1EEB5E1F8E906500EBA13C /* MaintainCallLog.swift */,
-				CE5186DC1F3B6D8000646C80 /* ViewController.swift */,
-				CEC1FD231F5672B7000E1660 /* FeaturePickerViewController.swift */,
-				CEC0CB0B1F7D76F100152CBA /* GeoLookup-ViewController.swift */,
-				CE46A3E31F995F2900C14766 /* MapVC.swift */,
-				CE31D6DD1F91643B001E8EC6 /* SettingsViewController.swift */,
-				CE31D6DF1F916AE0001E8EC6 /* TestDateViewController.swift */,
-				CE73B1B21FB502A900BD0525 /* Main.storyboard */,
 				CECF66881FB5049400911DFC /* LaunchScreen.storyboard */,
 				CE5186E11F3B6D8000646C80 /* Assets.xcassets */,
 				CE5186E61F3B6D8000646C80 /* Info.plist */,
 			);
 			path = "Weather Central";
+			sourceTree = "<group>";
+		};
+		CEE297641FBDDC1400D12D22 /* MainStroyboard */ = {
+			isa = PBXGroup;
+			children = (
+				CE73B1B21FB502A900BD0525 /* Main.storyboard */,
+				CE5186DC1F3B6D8000646C80 /* ViewController.swift */,
+				CEC1FD231F5672B7000E1660 /* FeaturePickerViewController.swift */,
+				CEC0CB0B1F7D76F100152CBA /* GeoLookup-ViewController.swift */,
+				CE46A3E31F995F2900C14766 /* MapVC.swift */,
+			);
+			name = MainStroyboard;
+			sourceTree = "<group>";
+		};
+		CEE297651FBDDC3C00D12D22 /* SettingsStoryboard */ = {
+			isa = PBXGroup;
+			children = (
+				CEE297611FBDDA3200D12D22 /* Settings.storyboard */,
+				CEE2975F1FBDD6BD00D12D22 /* SettingsTVC.swift */,
+				CE31D6DD1F91643B001E8EC6 /* APIKeyVC.swift */,
+				CE31D6DF1F916AE0001E8EC6 /* TestCallLimitsVC.swift */,
+			);
+			name = SettingsStoryboard;
 			sourceTree = "<group>";
 		};
 		CEFF46A31F870E3900785233 /* Frameworks */ = {
@@ -206,6 +228,7 @@
 				CE73B1B41FB502A900BD0525 /* Main.storyboard in Resources */,
 				CE5186E21F3B6D8000646C80 /* Assets.xcassets in Resources */,
 				CEC1FD221F560478000E1660 /* checkbox_yes.png in Resources */,
+				CEE297631FBDDA3200D12D22 /* Settings.storyboard in Resources */,
 				CEC1FD211F560478000E1660 /* checkbox_unchecked.png in Resources */,
 				CE31D6DA1F912CB9001E8EC6 /* icons8-Settings-50.png in Resources */,
 			);
@@ -220,6 +243,7 @@
 			files = (
 				CE8CF39F1FB684E3006CC7BC /* Device.swift in Sources */,
 				CE5186DD1F3B6D8000646C80 /* ViewController.swift in Sources */,
+				CEE297601FBDD6BD00D12D22 /* SettingsTVC.swift in Sources */,
 				CE46A3E41F995F2900C14766 /* MapVC.swift in Sources */,
 				CEC1FD241F5672B7000E1660 /* FeaturePickerViewController.swift in Sources */,
 				CEE0AF681F8156C60018B01F /* wuSubs.swift in Sources */,
@@ -227,10 +251,10 @@
 				CE1EEB5D1F8E617300EBA13C /* myExtensions.swift in Sources */,
 				CE4BF55C1F9782F400A918D0 /* Globals.swift in Sources */,
 				CEC0CB0E1F7DFFDE00152CBA /* subs.swift in Sources */,
-				CE31D6E01F916AE0001E8EC6 /* TestDateViewController.swift in Sources */,
+				CE31D6E01F916AE0001E8EC6 /* TestCallLimitsVC.swift in Sources */,
 				CE5186DB1F3B6D8000646C80 /* AppDelegate.swift in Sources */,
 				CE1EEB5F1F8E906500EBA13C /* MaintainCallLog.swift in Sources */,
-				CE31D6DE1F91643B001E8EC6 /* SettingsViewController.swift in Sources */,
+				CE31D6DE1F91643B001E8EC6 /* APIKeyVC.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -251,6 +275,14 @@
 				CECF66891FB5049400911DFC /* Base */,
 			);
 			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		CEE297611FBDDA3200D12D22 /* Settings.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				CEE297621FBDDA3200D12D22 /* Base */,
+			);
+			name = Settings.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

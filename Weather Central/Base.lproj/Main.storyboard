@@ -287,7 +287,7 @@
                         <barButtonItem key="leftBarButtonItem" title="⚙️" id="cb0-VH-4h8">
                             <inset key="imageInsets" minX="12" minY="12" maxX="12" maxY="12"/>
                             <connections>
-                                <segue destination="fqq-Gt-JIB" kind="show" id="Cmg-QC-o3F"/>
+                                <segue destination="2qV-uu-Qg8" kind="show" id="baA-ia-mOY"/>
                             </connections>
                         </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" systemItem="search" id="NlE-OP-Y7d">
@@ -315,121 +315,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="762.31884057971024" y="-12.228260869565219"/>
-        </scene>
-        <!--Test Call Limits-->
-        <scene sceneID="bTs-aV-7wJ">
-            <objects>
-                <viewController title="Test Call Limits" id="v7O-yV-kAg" customClass="TestDateViewController" customModule="Weather_Central" customModuleProvider="target" sceneMemberID="viewController">
-                    <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="1F8-kl-txt"/>
-                        <viewControllerLayoutGuide type="bottom" id="wTR-hv-1cG"/>
-                    </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="otK-BX-X8R">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PfA-yz-PiV">
-                                <rect key="frame" x="16" y="113" width="343" height="534"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="18"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5tQ-d1-rFp">
-                                <rect key="frame" x="16" y="72" width="343" height="33"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="boldSystem" pointSize="19"/>
-                                <state key="normal" title="Simulate API Call Attempt "/>
-                                <connections>
-                                    <action selector="btnTestTap:" destination="v7O-yV-kAg" eventType="touchUpInside" id="eCf-vr-GF3"/>
-                                </connections>
-                            </button>
-                        </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                    </view>
-                    <connections>
-                        <outlet property="lblResults" destination="PfA-yz-PiV" id="P1e-Do-2NO"/>
-                    </connections>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="0Tl-J5-LKQ" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-175.19999999999999" y="747.9760119940031"/>
-        </scene>
-        <!--⚙️Settings⚙️-->
-        <scene sceneID="nSz-qG-jEq">
-            <objects>
-                <viewController title="⚙️Settings⚙️" id="fqq-Gt-JIB" customClass="SettingsViewController" customModule="Weather_Central" customModuleProvider="target" sceneMemberID="viewController">
-                    <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="nCR-LA-f8V"/>
-                        <viewControllerLayoutGuide type="bottom" id="EBm-1I-vEx"/>
-                    </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="cZy-63-BE5">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rxU-R1-mcQ">
-                                <rect key="frame" x="16" y="262" width="192" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <state key="normal" title="Test Call Limits"/>
-                                <connections>
-                                    <action selector="btnTestDate:" destination="fqq-Gt-JIB" eventType="touchUpInside" id="1r5-kp-sP0"/>
-                                    <segue destination="v7O-yV-kAg" kind="show" id="G5M-Jy-gOs"/>
-                                </connections>
-                            </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Current API Key:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Vgf-ZO-oKp">
-                                <rect key="frame" x="16" y="92" width="343" height="21"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="WU API Key" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Qzt-HB-o4Z">
-                                <rect key="frame" x="16" y="122" width="180" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <nil key="textColor"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no"/>
-                                <connections>
-                                    <action selector="txtAPIKeyEdit:" destination="fqq-Gt-JIB" eventType="editingChanged" id="Pbf-5B-ysv"/>
-                                    <outlet property="delegate" destination="fqq-Gt-JIB" id="15S-Tk-GtN"/>
-                                </connections>
-                            </textField>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZPT-fs-KDb">
-                                <rect key="frame" x="204" y="122" width="48" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <state key="normal" title="update"/>
-                                <connections>
-                                    <action selector="btnUpdateAPIKeyTap:" destination="fqq-Gt-JIB" eventType="touchUpInside" id="8vl-xe-5NG"/>
-                                </connections>
-                            </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZPc-Ms-35p">
-                                <rect key="frame" x="148" y="528" width="42" height="21"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Version" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Cwe-SX-iLc">
-                                <rect key="frame" x="16" y="620" width="343" height="21"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                        </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                    </view>
-                    <connections>
-                        <outlet property="btnUpdateAPIKey" destination="ZPT-fs-KDb" id="Buq-QY-s6V"/>
-                        <outlet property="lblAPIKey" destination="Vgf-ZO-oKp" id="R54-c6-t8g"/>
-                        <outlet property="lblVersion" destination="Cwe-SX-iLc" id="dHi-YY-wOO"/>
-                        <outlet property="txtAPIKey" destination="Qzt-HB-o4Z" id="TwM-IX-gm7"/>
-                    </connections>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="Mg1-O5-wRl" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="533.60000000000002" y="747.9760119940031"/>
+            <point key="canvasLocation" x="534" y="-11"/>
         </scene>
         <!--Feature Selector-->
         <scene sceneID="N0Z-Gu-QHj">
@@ -945,7 +831,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="g3Q-vq-MJK" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1604" y="-1.3493253373313345"/>
+            <point key="canvasLocation" x="1262" y="-11"/>
         </scene>
         <!--Station Lookup-->
         <scene sceneID="XeQ-Ht-nhU">
@@ -1238,7 +1124,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="l20-qI-R4s" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1293.5999999999999" y="747.9760119940031"/>
+            <point key="canvasLocation" x="1244" y="763"/>
         </scene>
         <!--MapVC-->
         <scene sceneID="oqP-Jm-U9T">
@@ -1314,7 +1200,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="n1t-Zv-Dbu" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2008.8" y="747.9760119940031"/>
+            <point key="canvasLocation" x="1991" y="763"/>
         </scene>
         <!--navigationController-->
         <scene sceneID="psu-2X-6K1">
@@ -1336,6 +1222,14 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="b6l-rP-yJo" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-174" y="-11"/>
+        </scene>
+        <!--Settings-->
+        <scene sceneID="e06-1k-hF4">
+            <objects>
+                <viewControllerPlaceholder storyboardName="Settings" id="2qV-uu-Qg8" sceneMemberID="viewController"/>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="WKp-k5-4Kp" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-924" y="763"/>
         </scene>
     </scenes>
     <resources>

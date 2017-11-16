@@ -6,6 +6,7 @@
 //  Copyright © 2017 GeorgeBauer. All rights reserved.
 //
 //  funcs and globals for maintaining CallLog (to enforce per minute & per day limits)
+//  This only works for a 10-call-per-minute limit.  Need a new paradigm.
 //  SHOULD BE CHANGED TO A CLASS!
 
 import Foundation
@@ -22,7 +23,7 @@ var gNumCallsToday = 0
 // callLog holds the Time of each of the last 10 calls
 var callLog = [Date(),Date(),Date(),Date(),Date(), Date(),Date(),Date(),Date(),Date()]
 
-//MARK: --- Call this function before making a WU API call --
+//MARK: --- Call this function when app first loads ---
 public func CallLogInit() {
     // 1 Read perm
     gDateLastRun   = UserDefaults.standard.object(forKey: "dateLastRun"  ) as? Date ?? Date()
