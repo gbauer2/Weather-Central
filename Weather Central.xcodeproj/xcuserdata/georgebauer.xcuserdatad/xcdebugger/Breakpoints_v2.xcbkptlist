@@ -1239,27 +1239,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Weather Central/ViewController.swift"
-            timestampString = "532413872.544234"
+            timestampString = "532788247.011816"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1745"
-            endingLineNumber = "1745"
-            landmarkName = "ViewController"
-            landmarkType = "3">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Weather Central/ViewController.swift"
-            timestampString = "532413872.544688"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1628"
-            endingLineNumber = "1628"
+            startingLineNumber = "1764"
+            endingLineNumber = "1764"
             landmarkName = "DoTide(jsonResult:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1271,11 +1255,27 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Weather Central/ViewController.swift"
-            timestampString = "532413872.544993"
+            timestampString = "532788247.011908"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1620"
-            endingLineNumber = "1620"
+            startingLineNumber = "1640"
+            endingLineNumber = "1640"
+            landmarkName = "DoTide(jsonResult:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Weather Central/ViewController.swift"
+            timestampString = "532788247.011955"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1632"
+            endingLineNumber = "1632"
             landmarkName = "plannerMinAvgMax(dict:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1287,11 +1287,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Weather Central/ViewController.swift"
-            timestampString = "532413872.545276"
+            timestampString = "532788247.011997"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1607"
-            endingLineNumber = "1607"
+            startingLineNumber = "1619"
+            endingLineNumber = "1619"
             landmarkName = "plannerInchMinAvgMax(key:dictSource:metric:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1303,11 +1303,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Weather Central/ViewController.swift"
-            timestampString = "532413872.545547"
+            timestampString = "532788247.012052"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "322"
-            endingLineNumber = "322"
+            startingLineNumber = "326"
+            endingLineNumber = "326"
             landmarkName = "clearRawData()"
             landmarkType = "7">
          </BreakpointContent>
@@ -1319,11 +1319,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Weather Central/ViewController.swift"
-            timestampString = "532413872.546016"
+            timestampString = "532788247.012103"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "331"
-            endingLineNumber = "331"
+            startingLineNumber = "335"
+            endingLineNumber = "335"
             landmarkName = "enableButton(btn:enable:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1335,11 +1335,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Weather Central/ViewController.swift"
-            timestampString = "532413872.546288"
+            timestampString = "532788247.012163"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "337"
-            endingLineNumber = "337"
+            startingLineNumber = "341"
+            endingLineNumber = "341"
             landmarkName = "setFeatureButtons()"
             landmarkType = "7">
          </BreakpointContent>
@@ -1351,11 +1351,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Weather Central/ViewController.swift"
-            timestampString = "532413872.546566"
+            timestampString = "532788247.012205"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "368"
-            endingLineNumber = "368"
+            startingLineNumber = "372"
+            endingLineNumber = "372"
             landmarkName = "showError(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1367,11 +1367,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Weather Central/ViewController.swift"
-            timestampString = "532413872.546842"
+            timestampString = "532788247.012246"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "372"
-            endingLineNumber = "372"
+            startingLineNumber = "376"
+            endingLineNumber = "376"
             landmarkName = "showAlert(title:message:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1383,11 +1383,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Weather Central/ViewController.swift"
-            timestampString = "532413872.547135"
+            timestampString = "532788247.012285"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "379"
-            endingLineNumber = "379"
+            startingLineNumber = "383"
+            endingLineNumber = "383"
             landmarkName = "getJsonFromFile()"
             landmarkType = "7">
          </BreakpointContent>
@@ -1399,11 +1399,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Weather Central/ViewController.swift"
-            timestampString = "532413872.547448"
+            timestampString = "532788247.012324"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "392"
-            endingLineNumber = "392"
+            startingLineNumber = "396"
+            endingLineNumber = "396"
             landmarkName = "weatherJSON(url:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1415,11 +1415,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Weather Central/ViewController.swift"
-            timestampString = "532413872.547755"
+            timestampString = "532788247.012373"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "555"
-            endingLineNumber = "555"
+            startingLineNumber = "559"
+            endingLineNumber = "559"
             landmarkName = "DoAlerts(jsonResult:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1431,11 +1431,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Weather Central/ViewController.swift"
-            timestampString = "532413872.54805"
+            timestampString = "532788247.012414"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "598"
-            endingLineNumber = "598"
+            startingLineNumber = "602"
+            endingLineNumber = "602"
             landmarkName = "DoAlmanac(jsonResult:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1447,11 +1447,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Weather Central/ViewController.swift"
-            timestampString = "532413872.548355"
+            timestampString = "532788247.012454"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "198"
-            endingLineNumber = "198"
+            startingLineNumber = "202"
+            endingLineNumber = "202"
             landmarkName = "btnAlertsPress(_:)"
             landmarkType = "7">
          </BreakpointContent>

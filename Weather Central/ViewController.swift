@@ -12,18 +12,21 @@
     a. Allow GeoLookup to save location without picking WxStation
  2) If NO Features selected, Default to "Almanac, Astronomy, Conditions"
  3) Select Hours & Days of interest for "Hourly" (e.g. Wed,Thu,Fri 8AM-2PM)
- 4) Settings: Put on its own storyBoard
-    a. About - Version/Build #, Credits, brief instructions
-    b. Enter/Test WUnderground key.
-    c. (Default NSEW hemi)(LatLon display)(mi,nm,km)(degC,degF)(AMPM,24hr)(call limits)(WU level)
+ 4) Settings:(Default NSEW hemi)(LatLon display)(mi,nm,km)(degC,degF)(AMPM,24hr)(call limits)(WU level)
  5) Hurricane forecast & map
  6) Map: DistDir in info, dotted line to selected, bkgrndColor for airports, Select on map
  7) Customize for landscape, or 6 vs 6+ in portait
- 8) Add large Activity Indicator
- 9) Bigger Font (rearrange) - Almanac, Planner
-10) Bigger Font for 6sPlus & iPad - Forecast, Hourly
-11) Fix Tide Wrap on 6s
+ 8) Bigger Font for 6sPlus & iPad - Forecast, Hourly
 
+New Features to be added later.
+ 1) Route planning for next 5 days.
+ 2) Airport database
+ 3) Save downloads for later analysis
+
+1.0.4 Add large activityIndicator
+Fix Tide Wrap on 6s
+Map: Select Lat/Lon from Map
+ 
 Get some stuff with every query *Almanac&Astron= 1K,
                                  GeoLookup     = 8k,
                                 *Conditions    = 3k
@@ -62,13 +65,13 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
     @IBOutlet weak var btnPlanner:    UIButton!
     @IBOutlet weak var btnTide:       UIButton!
 
-    //@IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var lblRawDataHeading: UILabel!
     @IBOutlet weak var lblError:          UILabel!
-    @IBOutlet weak var txtState:        UITextField!
-    @IBOutlet weak var txtCity:         UITextField!
-    @IBOutlet weak var txtStationID:    UITextField!
-    @IBOutlet weak var txtRawData:      UITextView!
+    @IBOutlet weak var txtState:      UITextField!
+    @IBOutlet weak var txtCity:       UITextField!
+    @IBOutlet weak var txtStationID:  UITextField!
+    @IBOutlet weak var txtRawData:     UITextView!
 
     //MARK: ---- iOS built-in functions & overrides ----
     override func viewDidLoad() {
@@ -81,6 +84,8 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
         locationManager.startUpdatingLocation()
         gAppVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0"
         gAppBuild = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "0"
+        self.activityIndicator.transform = CGAffineTransform(scaleX: 2, y: 2)
+
     }//end func
    
     override func viewWillAppear(_ animated: Bool) {
@@ -89,8 +94,6 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        //txtCity.text = "Harrisburg"
-        //txtState.text = "PA"
         let screenWidth = UIScreen.main.bounds.size.width
         let screenHeight = UIScreen.main.bounds.size.height
         let ver = Device.TheCurrentDeviceVersion
@@ -145,7 +148,8 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
         // Set Buttons according to wuFeaturesArr[]
         setFeatureButtons()
         UIApplication.shared.isNetworkActivityIndicatorVisible = false
-        //self.activityIndicator.stopAnimating()
+        self.activityIndicator.stopAnimating()
+        //UIApplication.shared.endIgnoringInteractionEvents()
         numFeatures = 0
         for isSelected in wuFeaturesArr {
             if isSelected {numFeatures += 1}
@@ -400,7 +404,7 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
                 DispatchQueue.main.async {
                     self.lblError.text = "\(error!)"
                     UIApplication.shared.isNetworkActivityIndicatorVisible = false
-                    //self.activityIndicator.stopAnimating()
+                    self.activityIndicator.stopAnimating()
                     print("Err03: ",error as Any)
                     self.txtRawData.text = error.debugDescription           //??
                 }// DispatchQueue.main.async
@@ -491,7 +495,7 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
             DispatchQueue.main.async {
                 self.lblError.text = myError
                 UIApplication.shared.isNetworkActivityIndicatorVisible = false
-                //self.activityIndicator.stopAnimating()
+                self.activityIndicator.stopAnimating()
                 if myError == "" {
                     gDataIsCurrent = true
                     self.setFeatureButtons()
@@ -541,7 +545,7 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
         } //----------------------------- end task (thread) -----------------------------------
         
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
-        //self.activityIndicator.startAnimating()
+        self.activityIndicator.startAnimating()
         task.resume()
         //print ("====================== AFTER TASK =======================")
         return
@@ -597,6 +601,8 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
     //--------------------------- DoAlmanac ------------------------
     func DoAlmanac(jsonResult: AnyObject) -> String {
         clearRawData()
+        txtRawData.font = UIFont(name: rawFontDefault!.fontName, size: 17)
+
         guard let dictAlmanac = jsonResult["almanac"] as? [String: AnyObject] else {return "\"almanac\" not in downloaded data!"}
         
         var a1 = ""
@@ -622,8 +628,9 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
         let strHighRecF = dictHighRecord["F"] as! String
         let yrHigh = dictTempHigh["recordyear"] as? String ?? "?"
         
-        a1 += "Normal Low  = \( strLowNormF)°F    Record Low  = \( strLowRecF)°F  \(yrLow)\n"
-        a1 += "Normal High = \(strHighNormF)°F    Record High = \(strHighRecF)°F  \(yrHigh)\n"
+        a1 += "      Normal     Record\n"
+        a1 += "Low     \( strLowNormF)°      \( strLowRecF)° \(yrLow)\n"
+        a1 += "High    \(strHighNormF)°      \(strHighRecF)° \(yrHigh)\n"
         
         txtRawData.text =  a1 + "\n"
         
@@ -663,7 +670,7 @@ temp_high --> {
         let ssHr = dictSunset["hour"] as! String
         let ssMin = dictSunset["minute"] as! String
         
-        aa += "Sun Rise  =  \(srHr):\(srMin)   Sun Sets = \(ssHr):\(ssMin)\n"
+        aa += "Sunrise  \(srHr):\(srMin)   Sunset  \(ssHr):\(ssMin)\n"
         
         aa += "\n"
         
@@ -675,13 +682,13 @@ temp_high --> {
         let msHr = dictMoonset["hour"] as! String
         let msMin = dictMoonset["minute"] as! String
 
-        aa += "Moon Rise = \(mrHr):\(mrMin)  Moon Sets = \(msHr):\(msMin)\n"
+        aa += "Moonrise \(mrHr):\(mrMin)  Moonset  \(msHr):\(msMin)\n"
         
         let ageOfMoon  = dictMoonPhase["ageOfMoon"]!
         let percentIlluminated   = dictMoonPhase["percentIlluminated"]!
         let phaseofMoon   = dictMoonPhase["phaseofMoon"]!
 
-        aa += "\(ageOfMoon) days old   \(percentIlluminated) % lit   \(phaseofMoon)\n"
+        aa += "\(ageOfMoon) days  \(percentIlluminated)% Illuminated\n  \(phaseofMoon)\n"
         
         let a1 = txtRawData.text
         txtRawData.text = "\n" + a1! + "\n" + aa
@@ -717,7 +724,7 @@ temp_high --> {
     // ------------------------------- Do current_observation ---------------------------
     func DoCurrentObservation(jsonResult: AnyObject) -> String {
         clearRawData()
-        txtRawData.font = UIFont(name: rawFontDefault!.fontName, size: 15)
+        txtRawData.font = UIFont(name: rawFontDefault!.fontName, size: 16)
         let myError = ""
         
         guard let dictCurrentObservation = jsonResult["current_observation"] as? [String: AnyObject] else {return "\"conditions\" not in downloaded data!"}
@@ -751,7 +758,7 @@ temp_high --> {
         let lon   = Double(observationLocation.lon) ?? 0.0
         let elev  = observationLocation.elevation
         
-        aa = "\(dfull) \(dzip)\n\(full)\n\(formatLatLon(lat: lat, lon: lon, places: 3)) elevation: \(elev)"
+        aa = "\(dfull) \(dzip)\n\(full)\n\(formatLatLon(lat: lat, lon: lon, places: 3)) elev: \(elev)"
         aa += "\n--------------------------------\n"
 
         let titleLen = 17
@@ -1385,6 +1392,7 @@ date {
     //------------------------- DoPlanner ------------------------
     func DoPlanner(jsonResult: AnyObject, isMetric: Bool = false) -> String {
         clearRawData()
+        txtRawData.font = UIFont(name: rawFontDefault!.fontName, size: 15)
 
         guard let dictTrip = jsonResult["trip"] as? [String: AnyObject] else {return "\"planner\" not in downloaded data!"}
 
@@ -1402,15 +1410,18 @@ date {
         guard let dictDateEnd = dictDateEndx["date"] as? [String: AnyObject] else {return "\"date\" not in \"date_end\" data!"}
         let monthEnd = dictDateEnd["monthname_short"] as? String ?? "???"
         let dayEnd = dictDateEnd["day"] as? Int ?? 0
-        //let yearEnd = dictDateEnd["year"] as? Int ?? 0
+        let yearEnd = dictDateEnd["year"] as? Int ?? 0
 
         var title = dictTrip["title"] as? String ?? "title = ?"
         let ap = dictTrip["airport_code"] as? String ?? "?"
         title = title.replacingOccurrences(of: " for ", with: " ")
-        var a2 = title + "\n"
-        a2 += "Airport Code  \(ap)\n"
+        title = title.replacingOccurrences(of: "Historical Summary", with: "")
+        title = ap + title
+        var a2 = "\(ap) \(monthStart) \(dayStart) \(yearStart) to \(monthEnd) \(dayEnd) \(yearEnd)\n"
+        //a2 += "Airport Code  \(ap)\n"
+        //"Planner for \(ap) \(monthStart) \(dayStart) \(yearStart) to \(monthEnd) \(dayEnd)"
         DispatchQueue.main.async {
-            self.lblRawDataHeading.text = "Historical Summary for \(ap) \(monthStart) \(dayStart) \(yearStart) to \(monthEnd) \(dayEnd)"
+            self.lblRawDataHeading.text = title
         }
       
         let dictCloudCover = dictTrip["cloud_cover"] as! [String: AnyObject]
@@ -1492,10 +1503,10 @@ date {
 
         }//next
 
-        a2 += "Sky  Cloudy   Partly Cloudy    Sunny\n"
-        a2 += "       \(pctCloudy)%         \(pctPartlyCloudy)%         \(pctSunny)%\n\n"
-        a2 += "Temp   <32   32-59   60-89   90+\n"
-        a2 += "       \(pctTempBelowFreezing)%     \(pctTempOverFreezing)%     \(pctTempOver60)%     \(pctTempOver90)%\n\n"
+        a2 += "Sky  Cloudy  PartlyCloudy   Sunny\n"
+        a2 += "       \(pctCloudy)%        \(pctPartlyCloudy)%        \(pctSunny)%\n\n"
+        a2 += "Temp  <32   32-59   60-89   90+\n"
+        a2 += "       \(pctTempBelowFreezing)%     \(pctTempOverFreezing)%     \(pctTempOver60)%    \(pctTempOver90)%\n\n"
         var pctDP60Minus = ""
         if isNumeric(pctDP60plus) && isNumeric(pctDP70plus) {
             pctDP60Minus = String(100 - Int(pctDP60plus)! - Int(pctDP70plus)!)
@@ -1515,6 +1526,7 @@ date {
             var desc = dict["description"] as? String ?? "Description = ?"
 
             if pct.count == 1 { pct = " " + pct }
+            desc = desc.replacingOccurrences(of: "average wind over", with: "avg >")
             desc = desc.replacingOccurrences(of: "&deg;", with: "°")
             desc = desc.replacingOccurrences(of: " / ", with: "/")
             desc = desc.replacingOccurrences(of: "over ", with: "> ")
@@ -1703,7 +1715,16 @@ date {
             let yrStr =  dictDate["year"] as? String ?? "????"
             var strDate = "\(monStr)/\(dayStr)"
             var strType = dictData["type"]   as? String ?? "?"
-            let strHt   = dictData["height"] as? String ?? "?"
+
+            var strHt   = dictData["height"] as? String ?? "?"
+
+            //for small iPhone (7), remove "ft" if it would wrap line (??? needs check for wC)
+            if strHt != "" {
+                let htSplit = strHt.components(separatedBy: " ")
+                let ht = Double(htSplit[0]) ?? 0
+                let unit = htSplit.count>1 && ht >= 0 && ht < 9.94 ? htSplit[1] : ""
+                strHt = formatDbl(number: ht, places: 1) + unit
+            }
             let mon  = Int(monStr)
             let day  = Int(dayStr)
             let year = Int(yrStr)

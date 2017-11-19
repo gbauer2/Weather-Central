@@ -14,10 +14,12 @@ class MapVC: UIViewController, MKMapViewDelegate {
     var latDelta = 0.18
     var lonDelta = 0.18
     
+    @IBOutlet weak var mapView: MKMapView!
+
     // ---- viewDidLoad uses globals: gSearchType,gSearchName,gSearchLat,gSearchLon,[gStations] ----
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+
         gUpdateGeoLookup = false
         plotMap(lat: gSearchLat, lon: gSearchLon, latDelt: latDelta, lonDelt: lonDelta)
         mapView.showsUserLocation = true
@@ -25,14 +27,14 @@ class MapVC: UIViewController, MKMapViewDelegate {
         info += "\(formatLatLon(lat: gSearchLat, lon: gSearchLon, places: 3))"
         addMyAnnotation(title: gSearchName, subtitle: "searching from here", lat: gSearchLat, lon: gSearchLon, info: info, pinColor: UIColor.black, backgroundColor: nil)
         addAnnotations(stations: gStations)
-    }
 
-    @IBOutlet weak var mapView: MKMapView!
+        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(self.longPressAction(gestureRecognizer:)))
+        longPress.minimumPressDuration = 2
+        mapView.addGestureRecognizer(longPress)
 
-    @IBAction func btnBackTap(_ sender: UIButton) {
-        dismiss(animated: true, completion: nil)
-    }
-    
+    }//end func viewDidLoad
+
+
     @IBAction func btnZoomOut(_ sender: UIButton) {
         latDelta = latDelta * 1.5
         lonDelta = lonDelta * 1.5
@@ -50,6 +52,7 @@ class MapVC: UIViewController, MKMapViewDelegate {
         let longitude: CLLocationDegrees = lon
         let latDelta: CLLocationDegrees = latDelt
         let lonDelta: CLLocationDegrees = lonDelt
+
         let span = MKCoordinateSpan(latitudeDelta: latDelta, longitudeDelta: lonDelta)
         let location = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
         let region = MKCoordinateRegion(center: location, span: span)
@@ -84,9 +87,43 @@ class MapVC: UIViewController, MKMapViewDelegate {
         mapView.addAnnotation(ann)
     }//end func
     
+    func longPressAction(gestureRecognizer: UIGestureRecognizer) {
+        let touchPoint = gestureRecognizer.location(in: self.mapView)
+        let coordinate = mapView.convert(touchPoint, toCoordinateFrom: self.mapView)
+        gLatFromMap = coordinate.latitude
+        gLonFromMap = coordinate.longitude
+
+//        let annotation = MKPointAnnotation()
+//        annotation.coordinate = coordinate
+//        annotation.title = "New Place"
+//        annotation.subtitle = "User-defined"
+//        mapView.addAnnotation(annotation)
+
+        showAlert(title: "Attention", message: "This Lat/Lon will be entered.")
+
+    }
+
+    func showAlert(title: String = "Error", message: String) {
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+
+        let cancelAction = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.cancel) { (result : UIAlertAction) -> Void in
+            print("Cancel")
+        }
+        let okAction = UIAlertAction(title: "OK", style: UIAlertActionStyle.default) { (result : UIAlertAction) -> Void in
+            print("OK")
+            gMapDidUpdate = true
+            guard (self.navigationController?.popViewController(animated:true)) != nil else {
+                print("\n😡No navigationController"); return
+            }
+  }
+        alertController.addAction(cancelAction)
+        alertController.addAction(okAction)
+        self.present(alertController, animated: true, completion: nil)
+    }
+
+
     //========================================================
-    
-    
+
     // ---- built-in "viewFor" is run whenever an annotation is to be displayed ----
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         // 1 Define a reuse identifier. This will be used to ensure we reuse annotation views as much as possible.

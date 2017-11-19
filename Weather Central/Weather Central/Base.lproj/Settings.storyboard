@@ -21,7 +21,7 @@
                         <sections>
                             <tableViewSection headerTitle="General" id="u3E-la-fE5">
                                 <cells>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" restorationIdentifier="Cell" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="About" textLabel="FAE-GR-c8Z" style="IBUITableViewCellStyleDefault" id="MFH-AV-A6s">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="About" textLabel="FAE-GR-c8Z" style="IBUITableViewCellStyleDefault" id="MFH-AV-A6s">
                                         <rect key="frame" x="0.0" y="28" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="MFH-AV-A6s" id="eJE-u8-KYg">
@@ -37,8 +37,11 @@
                                                 </label>
                                             </subviews>
                                         </tableViewCellContentView>
+                                        <connections>
+                                            <segue destination="Vhz-AV-WSu" kind="show" id="O6d-TW-X1R"/>
+                                        </connections>
                                     </tableViewCell>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" restorationIdentifier="Cell" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="ChangeAPIKey" textLabel="12B-N2-tWI" style="IBUITableViewCellStyleDefault" id="Tqe-f7-dOA">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="ChangeAPIKey" textLabel="12B-N2-tWI" style="IBUITableViewCellStyleDefault" id="Tqe-f7-dOA">
                                         <rect key="frame" x="0.0" y="72" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Tqe-f7-dOA" id="Ime-EX-Azz">
@@ -62,7 +65,7 @@
                             </tableViewSection>
                             <tableViewSection headerTitle="Testing" id="voL-qY-Jfu">
                                 <cells>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" restorationIdentifier="Cell" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="TestCallLimits" textLabel="Eei-w6-FS0" style="IBUITableViewCellStyleDefault" id="Oma-D1-jWu">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="TestCallLimits" textLabel="Eei-w6-FS0" style="IBUITableViewCellStyleDefault" id="Oma-D1-jWu">
                                         <rect key="frame" x="0.0" y="144" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Oma-D1-jWu" id="cKi-cW-0kf">
@@ -144,7 +147,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="0Tl-J5-LKQ" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="516" y="762.36881559220399"/>
+            <point key="canvasLocation" x="-84" y="1276"/>
         </scene>
         <!--Change API Key-->
         <scene sceneID="nSz-qG-jEq">
@@ -203,7 +206,67 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Mg1-O5-wRl" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-193" y="763"/>
+            <point key="canvasLocation" x="-84" y="564"/>
+        </scene>
+        <!--About-->
+        <scene sceneID="Wtx-D2-mDH">
+            <objects>
+                <viewController title="About" id="Vhz-AV-WSu" customClass="AboutVC" customModule="Weather_Central" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="jpD-Ve-FYL"/>
+                        <viewControllerLayoutGuide type="bottom" id="Ppq-dq-l7w"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="Xpm-3u-Zur">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Version" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dct-aE-6QF">
+                                <rect key="frame" x="16" y="74" width="343" height="21"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="21" id="Bh2-yr-eqc"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Weather Central" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="n73-FX-irM">
+                                <rect key="frame" x="16" y="40" width="343" height="22"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="22" id="imA-tk-xch"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="27"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Vtl-ei-VZT">
+                                <rect key="frame" x="16" y="103" width="343" height="544"/>
+                                <mutableString key="text">Weather Central downloads weather info from the  wunderground.com API (Weather Underground).  You must obtain an API-Key from the site to enable this service.  You can get a Developer key for free, which allows 10 calls per minute, and 500 per day.  When you have the key, go back to Settings, tap 'Change API Key', enter the key, and tap 'Update'.  Now you can go back to the home page, Select the Features you wish to download, Search for the location you are interested in, and tap 'Download Data'.  When the download is complete, the Features buttons will turn blue. Tap on the Feature to show the data.</mutableString>
+                                <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="dct-aE-6QF" firstAttribute="top" secondItem="n73-FX-irM" secondAttribute="bottom" constant="12" id="0qP-Ba-H4T"/>
+                            <constraint firstItem="Vtl-ei-VZT" firstAttribute="leading" secondItem="Xpm-3u-Zur" secondAttribute="leadingMargin" id="1cg-Rq-yvG"/>
+                            <constraint firstItem="dct-aE-6QF" firstAttribute="leading" secondItem="Xpm-3u-Zur" secondAttribute="leadingMargin" id="8Wq-4C-nf3"/>
+                            <constraint firstItem="dct-aE-6QF" firstAttribute="trailing" secondItem="Xpm-3u-Zur" secondAttribute="trailingMargin" id="8uf-DY-L98"/>
+                            <constraint firstItem="Vtl-ei-VZT" firstAttribute="top" secondItem="dct-aE-6QF" secondAttribute="bottom" constant="8" id="Jzi-gJ-MQu"/>
+                            <constraint firstItem="n73-FX-irM" firstAttribute="leading" secondItem="Xpm-3u-Zur" secondAttribute="leadingMargin" id="VZ6-BR-WEA"/>
+                            <constraint firstItem="Ppq-dq-l7w" firstAttribute="top" secondItem="Vtl-ei-VZT" secondAttribute="bottom" constant="20" id="Y46-B0-FUw"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="n73-FX-irM" secondAttribute="trailing" id="b8G-B7-NEJ"/>
+                            <constraint firstItem="Vtl-ei-VZT" firstAttribute="trailing" secondItem="Xpm-3u-Zur" secondAttribute="trailingMargin" id="eZ6-dr-tlU"/>
+                            <constraint firstItem="n73-FX-irM" firstAttribute="top" secondItem="jpD-Ve-FYL" secondAttribute="bottom" constant="20" id="fRC-IV-f46"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="lblVersion" destination="dct-aE-6QF" id="zc0-yF-MDB"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="DLm-M7-Z7F" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-924" y="1530.5847076461771"/>
         </scene>
     </scenes>
 </document>

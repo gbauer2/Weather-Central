@@ -27,6 +27,7 @@ class SettingsViewController: UIViewController, UITextFieldDelegate {
             txtAPIKey.text = ""
         }
         btnUpdateAPIKey.isEnabled = false
+
         lblVersion.text = "Version \(gAppVersion)  Build \(gAppBuild)"
     }
 

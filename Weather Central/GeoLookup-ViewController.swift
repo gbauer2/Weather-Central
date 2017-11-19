@@ -16,10 +16,14 @@
 
 import UIKit
 import CoreLocation
+//MARK:---- Globals ----
 var gSearchType = ""
 var gSearchName = ""
 var gSearchLat  = 0.0
 var gSearchLon  = 0.0
+var gLatFromMap = 0.0
+var gLonFromMap = 0.0
+var gMapDidUpdate = false
 var gStations   = [Station]()
 
 class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDelegate {
@@ -36,6 +40,27 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
     var userLocation = CLLocation(latitude: 0.0, longitude: 0.0)
     //var userLat: Double = 0
     //var userLon: Double = 0
+    //MARK: ---- IBOutlet's ----
+    @IBOutlet weak var tableView:  UITableView!
+
+    @IBOutlet weak var txtCity:    UITextField!
+    @IBOutlet weak var txtState:   UITextField!
+    @IBOutlet weak var txtLat:     UITextField!
+    @IBOutlet weak var txtLon:     UITextField!
+    @IBOutlet weak var txtZip:     UITextField!
+    @IBOutlet weak var txtAirport: UITextField!
+
+    @IBOutlet weak var lblError:   UILabel!
+    @IBOutlet weak var lblDetail:  UILabel!
+
+    //@IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+
+    @IBOutlet weak var btnCity: UIButton!
+    @IBOutlet weak var btnLatLon: UIButton!
+    @IBOutlet weak var btnStation: UIButton!
+    @IBOutlet weak var btnZip: UIButton!
+    @IBOutlet weak var btnSave: UIBarButtonItem!
+    @IBOutlet weak var btnMap: UIButton!
 
     //MARK: ---- iOS built-in functions & overrides ----
     
@@ -85,9 +110,18 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
         
         lblError.text = ""
         lblDetail.text = "Find the weather station you want, then tap \"Save\" to use it for your query."
-        
+
     }
-    
+    override func viewDidAppear(_ animated: Bool) {
+        if gMapDidUpdate {
+            gMapDidUpdate = false
+            print("😃😃😃😃Update Map to \(gLatFromMap), \(gLonFromMap)😃😃😃😃")
+            txtLat.text = formatDbl(number: gLatFromMap, places: 4)
+            txtLon.text = formatDbl(number: gLonFromMap, places: 4)
+        }
+
+    }
+
     // when you get location from CLLocationManager, record gUserLat & gUserLon, and stop updates
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         //print(locations[0])
@@ -119,40 +153,7 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
     }
     
 
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
-    //MARK: ---- IBOutlet's ----
-    @IBOutlet weak var tableView:  UITableView!
-    
-    @IBOutlet weak var txtCity:    UITextField!
-    @IBOutlet weak var txtState:   UITextField!
-    @IBOutlet weak var txtLat:     UITextField!
-    @IBOutlet weak var txtLon:     UITextField!
-    @IBOutlet weak var txtZip:     UITextField!
-    @IBOutlet weak var txtAirport: UITextField!
-    
-    @IBOutlet weak var lblError:   UILabel!
-    @IBOutlet weak var lblDetail:  UILabel!
-    
-    //@IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    
-    @IBOutlet weak var btnCity: UIButton!
-    @IBOutlet weak var btnLatLon: UIButton!
-    @IBOutlet weak var btnStation: UIButton!
-    @IBOutlet weak var btnZip: UIButton!
-    @IBOutlet weak var btnSave: UIBarButtonItem!
-    @IBOutlet weak var btnMap: UIButton!
-    
     //MARK: ---- IBAction's ----
-    
     @IBAction func txtCityChanged(_ sender: UITextField) {
         enableButton(btn: btnCity, enable: cityStateIsValid())
     }
@@ -273,7 +274,17 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
         gSearchType = "Station"
         DoAirportCode()
     }
-    
+
+    @IBAction func btnMapTap(_ sender: UIButton) {
+
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let vc = storyboard.instantiateViewController(withIdentifier: "idMapVC") as! MapVC
+
+        gMapDidUpdate = false
+        navigationController?.pushViewController(vc, animated: true)
+    }
+
+
     @IBAction func btnSaveTap(_ sender: UIBarButtonItem!) {
         self.view.endEditing(true)
         if selectedStationID == "" {

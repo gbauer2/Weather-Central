@@ -231,17 +231,23 @@
                                 <fontDescription key="fontDescription" name="Menlo-Bold" family="Menlo" pointSize="12"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="T9x-fa-vw8">
+                                <rect key="frame" x="169" y="315" width="37" height="37"/>
+                                <color key="color" red="0.77282253235555542" green="0.29087022275555557" blue="0.056888572870000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" red="0.93725490570000003" green="0.93725490570000003" blue="0.95686274770000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="2rO-TV-nwK" firstAttribute="top" secondItem="WOP-Ka-QEb" secondAttribute="bottom" constant="8" id="2LG-hB-TRX"/>
                             <constraint firstItem="Cpf-71-m9A" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailingMargin" id="2OC-fY-J5b"/>
+                            <constraint firstItem="T9x-fa-vw8" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="41g-pc-nA2"/>
                             <constraint firstItem="vGw-8h-h0T" firstAttribute="top" secondItem="ihj-dR-2dV" secondAttribute="bottom" constant="8" id="4Ua-Nm-nx2"/>
                             <constraint firstItem="uVH-YO-pcn" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailingMargin" id="6BQ-pv-lDA"/>
                             <constraint firstItem="BeH-bJ-xWl" firstAttribute="top" secondItem="djD-jN-FQ8" secondAttribute="bottom" constant="4" id="6T0-P5-JND"/>
                             <constraint firstItem="djD-jN-FQ8" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="AiJ-Hm-VFL"/>
                             <constraint firstItem="web-HJ-Nww" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="CxJ-bv-wui"/>
                             <constraint firstItem="vGw-8h-h0T" firstAttribute="width" secondItem="Umq-Kt-ODa" secondAttribute="width" id="Djr-d0-4K3"/>
+                            <constraint firstItem="T9x-fa-vw8" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="IXd-rq-Hun"/>
                             <constraint firstItem="2DE-6M-2gJ" firstAttribute="leading" secondItem="Lf1-mV-f5j" secondAttribute="trailing" constant="8" id="JRs-Km-c9u"/>
                             <constraint firstItem="2DE-6M-2gJ" firstAttribute="top" secondItem="WOP-Ka-QEb" secondAttribute="bottom" constant="8" id="JVB-Hj-EsD"/>
                             <constraint firstItem="Lf1-mV-f5j" firstAttribute="top" secondItem="WOP-Ka-QEb" secondAttribute="bottom" constant="8" id="N4a-w4-gNy"/>
@@ -297,6 +303,7 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="activityIndicator" destination="T9x-fa-vw8" id="e6O-uA-gtR"/>
                         <outlet property="btnAlerts" destination="Lf1-mV-f5j" id="3JG-7k-QBa"/>
                         <outlet property="btnAlmanac" destination="2DE-6M-2gJ" id="aA9-md-eoL"/>
                         <outlet property="btnConditions" destination="ihj-dR-2dV" id="kBO-cJ-VTT"/>
@@ -1038,7 +1045,7 @@
                                     <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 </state>
                                 <connections>
-                                    <segue destination="dqR-hu-TVd" kind="presentation" id="s6q-vn-HO5"/>
+                                    <action selector="btnMapTap:" destination="MuV-8I-mJL" eventType="touchUpInside" id="Me5-fg-naM"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PGt-yE-IX1">
@@ -1129,7 +1136,7 @@
         <!--MapVC-->
         <scene sceneID="oqP-Jm-U9T">
             <objects>
-                <viewController id="dqR-hu-TVd" customClass="MapVC" customModule="Weather_Central" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="idMapVC" useStoryboardIdentifierAsRestorationIdentifier="YES" id="dqR-hu-TVd" customClass="MapVC" customModule="Weather_Central" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="u2g-pR-4KR"/>
                         <viewControllerLayoutGuide type="bottom" id="okO-Zd-zu2"/>
@@ -1144,17 +1151,6 @@
                                     <outlet property="delegate" destination="dqR-hu-TVd" id="Jsw-Hz-qjk"/>
                                 </connections>
                             </mapView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QHd-1q-wjk">
-                                <rect key="frame" x="16" y="20" width="52" height="30"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="30" id="1aH-xb-oxP"/>
-                                    <constraint firstAttribute="width" constant="52" id="BZP-uN-U6V"/>
-                                </constraints>
-                                <state key="normal" title="&lt; back"/>
-                                <connections>
-                                    <action selector="btnBackTap:" destination="dqR-hu-TVd" eventType="touchUpInside" id="RL5-Yx-pny"/>
-                                </connections>
-                            </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="85j-W3-kLz">
                                 <rect key="frame" x="293" y="20" width="30" height="30"/>
                                 <constraints>
@@ -1183,14 +1179,12 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="wns-74-YfK" firstAttribute="leading" secondItem="Ooj-cs-QDf" secondAttribute="leading" id="4Ny-e5-uX9"/>
-                            <constraint firstItem="QHd-1q-wjk" firstAttribute="top" secondItem="u2g-pR-4KR" secondAttribute="bottom" id="EML-le-Lz9"/>
                             <constraint firstAttribute="trailing" secondItem="wns-74-YfK" secondAttribute="trailing" id="HMd-rM-lf6"/>
                             <constraint firstItem="wns-74-YfK" firstAttribute="top" secondItem="u2g-pR-4KR" secondAttribute="bottom" constant="46" id="QP7-z9-AU4"/>
                             <constraint firstItem="tuT-hf-1zN" firstAttribute="trailing" secondItem="Ooj-cs-QDf" secondAttribute="trailingMargin" id="VnZ-2c-wtx"/>
                             <constraint firstItem="okO-Zd-zu2" firstAttribute="top" secondItem="wns-74-YfK" secondAttribute="bottom" id="WCV-b6-j6x"/>
                             <constraint firstItem="tuT-hf-1zN" firstAttribute="top" secondItem="u2g-pR-4KR" secondAttribute="bottom" id="qFt-DH-Q7N"/>
                             <constraint firstItem="tuT-hf-1zN" firstAttribute="leading" secondItem="85j-W3-kLz" secondAttribute="trailing" constant="6" id="vaW-1T-XlP"/>
-                            <constraint firstItem="QHd-1q-wjk" firstAttribute="leading" secondItem="Ooj-cs-QDf" secondAttribute="leadingMargin" id="vlz-y6-hhw"/>
                             <constraint firstItem="85j-W3-kLz" firstAttribute="top" secondItem="u2g-pR-4KR" secondAttribute="bottom" id="xTx-uu-iR2"/>
                         </constraints>
                     </view>
