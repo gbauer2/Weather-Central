@@ -1063,6 +1063,10 @@
                                     <action selector="btnNearbyTap:" destination="MuV-8I-mJL" eventType="touchUpInside" id="WDf-mM-K1m"/>
                                 </connections>
                             </button>
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="Fwe-hv-lAm">
+                                <rect key="frame" x="169" y="315.5" width="37" height="37"/>
+                                <color key="color" red="0.91550916429999996" green="0.67867404220000005" blue="0.056888572870000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
@@ -1082,6 +1086,7 @@
                             <constraint firstItem="nbb-RQ-IZi" firstAttribute="leading" secondItem="cfT-tV-a5g" secondAttribute="trailing" constant="8" id="PKZ-Hr-5Ps"/>
                             <constraint firstItem="ogs-Jw-eJL" firstAttribute="top" secondItem="uqE-yU-ijX" secondAttribute="bottom" constant="8" id="Prm-BC-5Hn"/>
                             <constraint firstItem="d2F-A8-0dl" firstAttribute="leading" secondItem="ogs-Jw-eJL" secondAttribute="trailing" constant="8" id="QiL-8S-Tlr"/>
+                            <constraint firstItem="Fwe-hv-lAm" firstAttribute="centerX" secondItem="Ug7-Ba-PhX" secondAttribute="centerX" id="ShJ-0V-EHU"/>
                             <constraint firstItem="Hvy-Xd-2El" firstAttribute="leading" secondItem="nbb-RQ-IZi" secondAttribute="trailing" constant="8" id="U5b-32-5kJ"/>
                             <constraint firstItem="jZh-o8-arX" firstAttribute="top" secondItem="elw-QM-fyG" secondAttribute="bottom" id="VSL-yb-2iL"/>
                             <constraint firstAttribute="trailing" secondItem="elw-QM-fyG" secondAttribute="trailing" id="VgC-Uf-85j"/>
@@ -1101,6 +1106,7 @@
                             <constraint firstItem="vvo-AV-kLS" firstAttribute="top" secondItem="d2F-A8-0dl" secondAttribute="bottom" constant="8" id="wfv-Ir-Cfe"/>
                             <constraint firstItem="gpv-1z-ooU" firstAttribute="top" secondItem="gcy-rD-9Ki" secondAttribute="bottom" constant="8" id="xqh-bT-NXN"/>
                             <constraint firstItem="Bhu-GW-sRD" firstAttribute="top" secondItem="gpv-1z-ooU" secondAttribute="bottom" constant="8" id="yHd-Ca-1BB"/>
+                            <constraint firstItem="Fwe-hv-lAm" firstAttribute="centerY" secondItem="Ug7-Ba-PhX" secondAttribute="centerY" id="ylx-0J-7WV"/>
                             <constraint firstItem="cfT-tV-a5g" firstAttribute="top" secondItem="WWN-eq-kc1" secondAttribute="bottom" constant="8" id="zOw-bY-G4R"/>
                         </constraints>
                     </view>
@@ -1112,6 +1118,7 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="activityIndicator" destination="Fwe-hv-lAm" id="4dm-rN-DhO"/>
                         <outlet property="btnCity" destination="ogs-Jw-eJL" id="hfw-dO-QED"/>
                         <outlet property="btnLatLon" destination="WWN-eq-kc1" id="tMz-V6-z8L"/>
                         <outlet property="btnMap" destination="Bhu-GW-sRD" id="eMF-jd-iM9"/>
@@ -1175,26 +1182,53 @@
                                     <action selector="btnZoomIn:" destination="dqR-hu-TVd" eventType="touchUpInside" id="Gxj-5n-IE7"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="77G-sQ-qrs">
+                                <rect key="frame" x="9" y="20" width="46" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="46" id="8OH-Dx-2hQ"/>
+                                    <constraint firstAttribute="height" constant="30" id="kqu-4e-k0z"/>
+                                </constraints>
+                                <state key="normal" title="Save"/>
+                                <connections>
+                                    <action selector="btnSave:" destination="dqR-hu-TVd" eventType="touchUpInside" id="Ri4-9M-2In"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="---" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="KkM-YT-ZUP">
+                                <rect key="frame" x="63" y="20" width="213" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="jAJ-Bg-axV"/>
+                                    <constraint firstAttribute="width" constant="213" id="y9C-Vi-mPl"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstItem="KkM-YT-ZUP" firstAttribute="top" secondItem="u2g-pR-4KR" secondAttribute="bottom" id="38D-oZ-ejH"/>
                             <constraint firstItem="wns-74-YfK" firstAttribute="leading" secondItem="Ooj-cs-QDf" secondAttribute="leading" id="4Ny-e5-uX9"/>
                             <constraint firstAttribute="trailing" secondItem="wns-74-YfK" secondAttribute="trailing" id="HMd-rM-lf6"/>
+                            <constraint firstItem="KkM-YT-ZUP" firstAttribute="leading" secondItem="77G-sQ-qrs" secondAttribute="trailing" constant="8" id="Jcj-mb-piZ"/>
                             <constraint firstItem="wns-74-YfK" firstAttribute="top" secondItem="u2g-pR-4KR" secondAttribute="bottom" constant="46" id="QP7-z9-AU4"/>
+                            <constraint firstItem="77G-sQ-qrs" firstAttribute="leading" secondItem="Ooj-cs-QDf" secondAttribute="leading" constant="9" id="VZO-uj-rMD"/>
                             <constraint firstItem="tuT-hf-1zN" firstAttribute="trailing" secondItem="Ooj-cs-QDf" secondAttribute="trailingMargin" id="VnZ-2c-wtx"/>
                             <constraint firstItem="okO-Zd-zu2" firstAttribute="top" secondItem="wns-74-YfK" secondAttribute="bottom" id="WCV-b6-j6x"/>
+                            <constraint firstItem="77G-sQ-qrs" firstAttribute="top" secondItem="u2g-pR-4KR" secondAttribute="bottom" id="nJz-lv-Ofu"/>
                             <constraint firstItem="tuT-hf-1zN" firstAttribute="top" secondItem="u2g-pR-4KR" secondAttribute="bottom" id="qFt-DH-Q7N"/>
                             <constraint firstItem="tuT-hf-1zN" firstAttribute="leading" secondItem="85j-W3-kLz" secondAttribute="trailing" constant="6" id="vaW-1T-XlP"/>
                             <constraint firstItem="85j-W3-kLz" firstAttribute="top" secondItem="u2g-pR-4KR" secondAttribute="bottom" id="xTx-uu-iR2"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="btnSave" destination="77G-sQ-qrs" id="0P7-CZ-rPz"/>
+                        <outlet property="lblSelected" destination="KkM-YT-ZUP" id="3fx-g9-ryE"/>
                         <outlet property="mapView" destination="wns-74-YfK" id="C8k-Uv-fK6"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="n1t-Zv-Dbu" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1991" y="763"/>
+            <point key="canvasLocation" x="1989.5999999999999" y="762.36881559220399"/>
         </scene>
         <!--navigationController-->
         <scene sceneID="psu-2X-6K1">

@@ -16,15 +16,26 @@
 
 import UIKit
 import CoreLocation
-//MARK:---- Globals ----
+
+enum TypeReturnedFromMap {
+    case none
+    case latlon
+    case station
+}
+
+//MARK:---- Globals for MapVC ----
+// Send to Map
 var gSearchType = ""
 var gSearchName = ""
 var gSearchLat  = 0.0
 var gSearchLon  = 0.0
+var gStations   = [Station]()
+// Get from Map
 var gLatFromMap = 0.0
 var gLonFromMap = 0.0
-var gMapDidUpdate = false
-var gStations   = [Station]()
+var gStationFromMap = ""
+var gMapReturnType = TypeReturnedFromMap.none
+var gMapDidSave = false
 
 class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDelegate {
     
@@ -43,6 +54,8 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
     //MARK: ---- IBOutlet's ----
     @IBOutlet weak var tableView:  UITableView!
 
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    
     @IBOutlet weak var txtCity:    UITextField!
     @IBOutlet weak var txtState:   UITextField!
     @IBOutlet weak var txtLat:     UITextField!
@@ -53,8 +66,6 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
     @IBOutlet weak var lblError:   UILabel!
     @IBOutlet weak var lblDetail:  UILabel!
 
-    //@IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-
     @IBOutlet weak var btnCity: UIButton!
     @IBOutlet weak var btnLatLon: UIButton!
     @IBOutlet weak var btnStation: UIButton!
@@ -64,10 +75,21 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
 
     //MARK: ---- iOS built-in functions & overrides ----
     
+    // When GeoLookup loads
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         //navigationItem.backBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: nil, action: nil)
+
+        self.activityIndicator.transform = CGAffineTransform(scaleX: 2, y: 2)   // make My activityIndicator bigger
+        UIApplication.shared.isNetworkActivityIndicatorVisible = false          // turn-off built-in activityIndicator
+        self.activityIndicator.stopAnimating()                                  // turn-off My activityIndicator
+        // Default Map Settings
+        gSearchLat = gUserLat
+        gSearchLon = gUserLon
+        gSearchName = "You"
+        gSearchType = "Nearby"
+
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -78,7 +100,7 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
         locationManager.requestWhenInUseAuthorization()
         locationManager.startUpdatingLocation()
         if !gUpdateGeoLookup {return}
-        enableButton(btn: btnMap, enable: false)
+        enableButton(btn: btnMap, enable: true)
         
         // Get City, State, Station from permanent storage & set button states
         gCity = UserDefaults.standard.object(forKey: "wucity") as? String ?? ""
@@ -112,12 +134,24 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
         lblDetail.text = "Find the weather station you want, then tap \"Save\" to use it for your query."
 
     }
+
+
     override func viewDidAppear(_ animated: Bool) {
-        if gMapDidUpdate {
-            gMapDidUpdate = false
-            print("😃😃😃😃Update Map to \(gLatFromMap), \(gLonFromMap)😃😃😃😃")
-            txtLat.text = formatDbl(number: gLatFromMap, places: 4)
-            txtLon.text = formatDbl(number: gLonFromMap, places: 4)
+        if gMapDidSave {
+            gMapDidSave = false
+            switch gMapReturnType {
+            case .latlon:
+                print("😃😃😃😃Update Map to \(gLatFromMap), \(gLonFromMap)😃😃😃😃")
+                txtLat.text = formatDbl(number: gLatFromMap, places: 4)
+                txtLon.text = formatDbl(number: gLonFromMap, places: 4)
+                enableButton(btn: btnLatLon, enable: true)
+            case .station:
+                print("😃😃Update Map to \(gStationFromMap)😃😃")
+                txtAirport.text = gStationFromMap
+                enableButton(btn: btnStation, enable: true)
+            default: break
+            }
+            gMapReturnType = TypeReturnedFromMap.none
         }
 
     }
@@ -279,8 +313,9 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
 
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let vc = storyboard.instantiateViewController(withIdentifier: "idMapVC") as! MapVC
+        gMapDidSave = false
+        gMapReturnType = TypeReturnedFromMap.none
 
-        gMapDidUpdate = false
         navigationController?.pushViewController(vc, animated: true)
     }
 
@@ -354,8 +389,9 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
                     print("\nweatherJSON Err202: ",error as AnyObject)
                     //printDictionary(dict: error as? [String: AnyObject], expandLevels: 0, dashLen: 0, title: "error")
                     self.lblError.text = "Err202:\(error!)"
-                    UIApplication.shared.isNetworkActivityIndicatorVisible = false
-                    //self.activityIndicator.stopAnimating()
+                    UIApplication.shared.isNetworkActivityIndicatorVisible = false  // turn-off built-in activityIndicator
+                    self.activityIndicator.stopAnimating()                          // turn-off My activityIndicator
+                    //UIApplication.shared.endIgnoringInteractionEvents()           // if you were ignoring events
 
                     self.lblDetail.text = error.debugDescription
                 }// DispatchQueue.main.async
@@ -440,7 +476,7 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
                         let e = "Err221:Could not get location"
                         print("\n\(e)")
                         self.lblError.text = e
-                        //self.activityIndicator.stopAnimating()
+                        self.activityIndicator.stopAnimating()
                         UIApplication.shared.isNetworkActivityIndicatorVisible = false
                     }// DispatchQueue.main.async
                     return
@@ -579,7 +615,7 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
             DispatchQueue.main.async {
                 self.lblError.text = myError
                 UIApplication.shared.isNetworkActivityIndicatorVisible = false
-                //self.activityIndicator.stopAnimating()
+                self.activityIndicator.stopAnimating()
                 self.txtCity.text = gCity
                 self.txtState.text = gState
                 self.enableButton(btn: self.btnCity, enable: self.cityStateIsValid())
@@ -594,7 +630,7 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
             
         } //----------------------------- end task (thread) -----------------------------------
         
-        //self.activityIndicator.startAnimating()
+        self.activityIndicator.startAnimating()
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
 
         task.resume()

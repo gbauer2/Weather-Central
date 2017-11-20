@@ -13,19 +13,28 @@
  2) If NO Features selected, Default to "Almanac, Astronomy, Conditions"
  3) Select Hours & Days of interest for "Hourly" (e.g. Wed,Thu,Fri 8AM-2PM)
  4) Settings:(Default NSEW hemi)(LatLon display)(mi,nm,km)(degC,degF)(AMPM,24hr)(call limits)(WU level)
+             Test new API Key before accepting it.
  5) Hurricane forecast & map
- 6) Map: DistDir in info, dotted line to selected, bkgrndColor for airports, Select on map
+ 6) Map: DistDir in info, dotted line to selected, icon for airports, Show previously found stations
  7) Customize for landscape, or 6 vs 6+ in portait
  8) Bigger Font for 6sPlus & iPad - Forecast, Hourly
+ 9) Show Version on main Settings screen
+ 
+ Issues:
+    Alerts: if just 1 Alert, put its name in heading
+    Current: 6s wraps wind, precip(1-hr)
+    Tropics: Shows 2 Storms when there is only 1
+    Hourly: wraps for long Wx (Few Showers/Wind)(Partly Cloudy/Wind)(Chance of a Thunderstorm)
 
 New Features to be added later.
  1) Route planning for next 5 days.
  2) Airport database
  3) Save downloads for later analysis
+ 4) Save Stations found for future use in Map
 
-1.0.4 Add large activityIndicator
-Fix Tide Wrap on 6s
-Map: Select Lat/Lon from Map
+1.0.5 Select Wx Station on map
+ Select Lat/Lon with LongPress on Map
+ Large Activity Indicator for geoLookup
  
 Get some stuff with every query *Almanac&Astron= 1K,
                                  GeoLookup     = 8k,
@@ -84,7 +93,7 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
         locationManager.startUpdatingLocation()
         gAppVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0"
         gAppBuild = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "0"
-        self.activityIndicator.transform = CGAffineTransform(scaleX: 2, y: 2)
+        self.activityIndicator.transform = CGAffineTransform(scaleX: 2, y: 2) // Make my activityIndicator bigger
 
     }//end func
    
@@ -148,8 +157,8 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
         // Set Buttons according to wuFeaturesArr[]
         setFeatureButtons()
         UIApplication.shared.isNetworkActivityIndicatorVisible = false
-        self.activityIndicator.stopAnimating()
-        //UIApplication.shared.endIgnoringInteractionEvents()
+        self.activityIndicator.stopAnimating()                  // make sure activityIndicator is off
+        //UIApplication.shared.endIgnoringInteractionEvents()   // if you were ignoring events
         numFeatures = 0
         for isSelected in wuFeaturesArr {
             if isSelected {numFeatures += 1}
@@ -1269,7 +1278,7 @@ date
         }//next i
         
         lblRawDataHeading.textAlignment = NSTextAlignment.left
-        lblRawDataHeading.text = "   Date      High  Low   PoP  Conditions   "
+        lblRawDataHeading.text = "   Date       High  Low   PoP  Conditions   "
         self.txtRawData.text = aa
 
         return ""

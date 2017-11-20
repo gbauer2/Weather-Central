@@ -13,19 +13,28 @@ import MapKit
 class MapVC: UIViewController, MKMapViewDelegate {
     var latDelta = 0.18
     var lonDelta = 0.18
-    
-    @IBOutlet weak var mapView: MKMapView!
 
+    //MARK:---- @IBOutlets ----
+    @IBOutlet weak var mapView: MKMapView!
+    @IBOutlet weak var lblSelected: UILabel!
+    @IBOutlet weak var btnSave: UIButton!
+
+    //MARK:---- Overrides ----
     // ---- viewDidLoad uses globals: gSearchType,gSearchName,gSearchLat,gSearchLon,[gStations] ----
     override func viewDidLoad() {
         super.viewDidLoad()
 
         gUpdateGeoLookup = false
+        gMapDidSave = false
+        gMapReturnType = .none        // we have not yet picked anything
+        btnSave.isEnabled = false
         plotMap(lat: gSearchLat, lon: gSearchLon, latDelt: latDelta, lonDelt: lonDelta)
         mapView.showsUserLocation = true
+
         var info = "\(gSearchType) search\nThis is the center of the search for weather stations close to \(gSearchName).\n"
         info += "\(formatLatLon(lat: gSearchLat, lon: gSearchLon, places: 3))"
         addMyAnnotation(title: gSearchName, subtitle: "searching from here", lat: gSearchLat, lon: gSearchLon, info: info, pinColor: UIColor.black, backgroundColor: nil)
+
         addAnnotations(stations: gStations)
 
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(self.longPressAction(gestureRecognizer:)))
@@ -34,6 +43,11 @@ class MapVC: UIViewController, MKMapViewDelegate {
 
     }//end func viewDidLoad
 
+    //MARK: ---- @IBActions ----
+    @IBAction func btnSave(_ sender: UIButton) {
+        gMapDidSave = true
+        navigationController?.popViewController(animated: true)
+    }
 
     @IBAction func btnZoomOut(_ sender: UIButton) {
         latDelta = latDelta * 1.5
@@ -46,7 +60,8 @@ class MapVC: UIViewController, MKMapViewDelegate {
         lonDelta = lonDelta / 1.5
         plotMap(lat: gSearchLat, lon: gSearchLon, latDelt: latDelta, lonDelt: lonDelta)
     }
-    
+
+    //MARK:---- general funcs ----
     func plotMap(lat: Double, lon: Double, latDelt: Double, lonDelt: Double) {
         let latitude: CLLocationDegrees = lat
         let longitude: CLLocationDegrees = lon
@@ -58,7 +73,7 @@ class MapVC: UIViewController, MKMapViewDelegate {
         let region = MKCoordinateRegion(center: location, span: span)
         mapView.setRegion(region, animated: true)
     }//end func
-    
+
     // ---- Add all the StationPin annotations from stations array ----
     func addAnnotations(stations:[Station]) {
         for station in stations {
@@ -93,36 +108,39 @@ class MapVC: UIViewController, MKMapViewDelegate {
         gLatFromMap = coordinate.latitude
         gLonFromMap = coordinate.longitude
 
-//        let annotation = MKPointAnnotation()
+//        let annotation = MKPointAnnotation()  // to add an annotation at touchPoint
 //        annotation.coordinate = coordinate
 //        annotation.title = "New Place"
 //        annotation.subtitle = "User-defined"
 //        mapView.addAnnotation(annotation)
 
-        showAlert(title: "Attention", message: "This Lat/Lon will be entered.")
-
+        //showAlert(title: "Attention", message: "This Lat/Lon will be entered.")
+        gMapReturnType = .latlon
+        lblSelected.text = formatLatLon(lat: gLatFromMap, lon: gLonFromMap, places: 2)
+        btnSave.isEnabled = true
     }
 
+    // Show a Popup message with OK/Cancel choices - Never Called
     func showAlert(title: String = "Error", message: String) {
         let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
 
         let cancelAction = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.cancel) { (result : UIAlertAction) -> Void in
-            print("Cancel")
+            print("showAlert: Cancel")
         }
         let okAction = UIAlertAction(title: "OK", style: UIAlertActionStyle.default) { (result : UIAlertAction) -> Void in
-            print("OK")
-            gMapDidUpdate = true
+            print("showAlert: OK")
+            gMapReturnType = .latlon
             guard (self.navigationController?.popViewController(animated:true)) != nil else {
                 print("\n😡No navigationController"); return
             }
-  }
+        }
         alertController.addAction(cancelAction)
         alertController.addAction(okAction)
         self.present(alertController, animated: true, completion: nil)
-    }
+    }//end func
 
 
-    //========================================================
+    //MARK:---- mapView delegates ----
 
     // ---- built-in "viewFor" is run whenever an annotation is to be displayed ----
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
@@ -168,6 +186,17 @@ class MapVC: UIViewController, MKMapViewDelegate {
         present(alertController, animated: true)
     }//end func
 
+    //---- Handles LongPress on Map ----
+    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+        if let annotationTitle = view.annotation?.title {
+            print("User tapped on annotation with title: \(annotationTitle!)")
+            gStationFromMap = annotationTitle!
+            lblSelected.text = gStationFromMap
+            gMapReturnType = .station
+            btnSave.isEnabled = true
+        }
+    }
+
 }//end class MapVC
 
 //MARK: ------- class StationPin ------
@@ -177,7 +206,7 @@ class StationPin: NSObject, MKAnnotation {
     var subtitle:   String?
     var coordinate: CLLocationCoordinate2D
     var info:       String
-    var pinColor: UIColor
+    var pinColor:        UIColor
     var backgroundColor: UIColor?
     
     init(title: String, subtitle: String, coordinate: CLLocationCoordinate2D, info: String, pinColor: UIColor, backgroundColor: UIColor?) {
