@@ -9,7 +9,6 @@
 //TODO: - ToDo list
 /*
  1) Redo Home page to allow either NearMe or LastUsed or GeoLookup.
-    a. Allow GeoLookup to save location without picking WxStation
  2) If NO Features selected, Default to "Almanac, Astronomy, Conditions"
  3) Select Hours & Days of interest for "Hourly" (e.g. Wed,Thu,Fri 8AM-2PM)
  4) Settings:(Default NSEW hemi)(LatLon display)(mi,nm,km)(degC,degF)(AMPM,24hr)(call limits)(WU level)
@@ -18,8 +17,9 @@
  6) Map: DistDir in info, dotted line to selected, icon for airports, Show previously found stations
  7) Customize for landscape, or 6 vs 6+ in portait
  8) Bigger Font for 6sPlus & iPad - Forecast, Hourly
- 9) Show Version on main Settings screen
- 
+ 9) Allow GeoLookup to Save Lat/Lon, CityState, Zip, rather than just Station
+10) Dropdown list for City
+
  Issues:
     Alerts: if just 1 Alert, put its name in heading
     Current: 6s wraps wind, precip(1-hr)
@@ -31,10 +31,10 @@ New Features to be added later.
  2) Airport database
  3) Save downloads for later analysis
  4) Save Stations found for future use in Map
+ 5) pws History: #trys, #succeeds, DateLastTry, DateLastSucceed
 
-1.0.5 Select Wx Station on map
- Select Lat/Lon with LongPress on Map
- Large Activity Indicator for geoLookup
+ (25) Show Version on main Settings screen
+Customize headings in Settings/tableView
  
 Get some stuff with every query *Almanac&Astron= 1K,
                                  GeoLookup     = 8k,
@@ -310,7 +310,10 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
         gCity = txtCity.text!
         gState = txtState.text!
         gStationID = txtStationID.text!
-        var place = gState + "/" + gCity
+        var place =  gCity
+        if gState != "" {
+            place = gState + "/" + gCity
+        }
         if gStationID.count >= 3 {
             if gStationID.count <= 4 {
                 place = gStationID
@@ -1262,8 +1265,9 @@ date
             let mo    = dictDate["monthname_short"] as! String
             var da    = String(dictDate["day"] as! Int)
             if  da.count <= 1 {da = "0" + da}
-            let date  = "\(weekD) \(mo) \(da)  "
-            let cond  = dictSimpForecastDay["conditions"] as! String
+            let date  = "\(weekD) \(mo) \(da) "
+            var cond  = dictSimpForecastDay["conditions"] as! String
+            cond = cond.replacingOccurrences(of: "Thunder", with: "T-")
 
             //var a = ""
             let dictLow = dictSimpForecastDay["low"] as! [String: AnyObject]
@@ -1274,11 +1278,11 @@ date
             let pop = String(dictSimpForecastDay["pop"] as! Int)
             //let dictQpfDay = dictSimpForecastDay["qpf_day"] as! [String: AnyObject]
             //let qpfDay = dictQpfDay["in"] as? Double ?? 0.0
-            aa += "\(date) \(tHigh.rightJust(3))℉ \(tLow.rightJust(3))℉ \(pop.rightJust(3))% \(cond) \n\n"
+            aa += "\(date)\(tHigh.rightJust(3))℉ \(tLow.rightJust(3))℉ \(pop.rightJust(3))% \(cond) \n\n"
         }//next i
         
         lblRawDataHeading.textAlignment = NSTextAlignment.left
-        lblRawDataHeading.text = "   Date       High  Low   PoP  Conditions   "
+        lblRawDataHeading.text = "   Date     High  Low   PoP  Conditions   "
         self.txtRawData.text = aa
 
         return ""

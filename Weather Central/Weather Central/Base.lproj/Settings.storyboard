@@ -93,6 +93,9 @@
                             <outlet property="delegate" destination="o3n-iz-ZBH" id="Mbh-Ow-eDX"/>
                         </connections>
                     </tableView>
+                    <connections>
+                        <outlet property="table" destination="2mP-2i-GTe" id="eV5-6m-OhB"/>
+                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="6Vh-Kd-OdF" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -240,7 +243,7 @@
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Vtl-ei-VZT">
                                 <rect key="frame" x="16" y="103" width="343" height="544"/>
-                                <mutableString key="text">Weather Central downloads weather info from the  wunderground.com API (Weather Underground).  You must obtain an API-Key from the site to enable this service.  You can get a Developer key for free, which allows 10 calls per minute, and 500 per day.  When you have the key, go back to Settings, tap 'Change API Key', enter the key, and tap 'Update'.  Now you can go back to the home page, Select the Features you wish to download, Search for the location you are interested in, and tap 'Download Data'.  When the download is complete, the Features buttons will turn blue. Tap on the Feature to show the data.</mutableString>
+                                <string key="text">Weather Central downloads weather info from the  wunderground.com API (Weather Underground).  You must obtain an API-Key from the site to enable this service.  You can get a Developer key for free, which allows 10 calls per minute, and 500 per day.  When you have the key, go back to Settings, tap 'Change API Key', enter the key, and tap 'Update'.  Now you can go back to the home page, Select the Features you wish to download, Search for the location you are interested in, and tap 'Download Data'.  When the download is complete, the Features buttons will turn blue. Tap on the Feature to show the data.</string>
                                 <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>

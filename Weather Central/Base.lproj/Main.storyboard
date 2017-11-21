@@ -1153,13 +1153,13 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="wns-74-YfK">
-                                <rect key="frame" x="0.0" y="66" width="375" height="601"/>
+                                <rect key="frame" x="0.0" y="102" width="375" height="565"/>
                                 <connections>
                                     <outlet property="delegate" destination="dqR-hu-TVd" id="Jsw-Hz-qjk"/>
                                 </connections>
                             </mapView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="85j-W3-kLz">
-                                <rect key="frame" x="293" y="20" width="30" height="30"/>
+                                <rect key="frame" x="293" y="64" width="30" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="30" id="l97-T5-gae"/>
                                     <constraint firstAttribute="height" constant="30" id="qWp-Ye-gAJ"/>
@@ -1171,7 +1171,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tuT-hf-1zN">
-                                <rect key="frame" x="329" y="20" width="30" height="30"/>
+                                <rect key="frame" x="329" y="64" width="30" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="30" id="ZtK-f9-iDj"/>
                                     <constraint firstAttribute="width" constant="30" id="p8f-WY-F4F"/>
@@ -1183,7 +1183,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="77G-sQ-qrs">
-                                <rect key="frame" x="9" y="20" width="46" height="30"/>
+                                <rect key="frame" x="9" y="64" width="46" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="46" id="8OH-Dx-2hQ"/>
                                     <constraint firstAttribute="height" constant="30" id="kqu-4e-k0z"/>
@@ -1194,7 +1194,7 @@
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="---" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="KkM-YT-ZUP">
-                                <rect key="frame" x="63" y="20" width="213" height="30"/>
+                                <rect key="frame" x="63" y="64" width="213" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="30" id="jAJ-Bg-axV"/>
                                     <constraint firstAttribute="width" constant="213" id="y9C-Vi-mPl"/>
@@ -1210,7 +1210,7 @@
                             <constraint firstItem="wns-74-YfK" firstAttribute="leading" secondItem="Ooj-cs-QDf" secondAttribute="leading" id="4Ny-e5-uX9"/>
                             <constraint firstAttribute="trailing" secondItem="wns-74-YfK" secondAttribute="trailing" id="HMd-rM-lf6"/>
                             <constraint firstItem="KkM-YT-ZUP" firstAttribute="leading" secondItem="77G-sQ-qrs" secondAttribute="trailing" constant="8" id="Jcj-mb-piZ"/>
-                            <constraint firstItem="wns-74-YfK" firstAttribute="top" secondItem="u2g-pR-4KR" secondAttribute="bottom" constant="46" id="QP7-z9-AU4"/>
+                            <constraint firstItem="wns-74-YfK" firstAttribute="top" secondItem="85j-W3-kLz" secondAttribute="bottom" constant="8" id="QRu-3m-1xd"/>
                             <constraint firstItem="77G-sQ-qrs" firstAttribute="leading" secondItem="Ooj-cs-QDf" secondAttribute="leading" constant="9" id="VZO-uj-rMD"/>
                             <constraint firstItem="tuT-hf-1zN" firstAttribute="trailing" secondItem="Ooj-cs-QDf" secondAttribute="trailingMargin" id="VnZ-2c-wtx"/>
                             <constraint firstItem="okO-Zd-zu2" firstAttribute="top" secondItem="wns-74-YfK" secondAttribute="bottom" id="WCV-b6-j6x"/>
@@ -1220,6 +1220,7 @@
                             <constraint firstItem="85j-W3-kLz" firstAttribute="top" secondItem="u2g-pR-4KR" secondAttribute="bottom" id="xTx-uu-iR2"/>
                         </constraints>
                     </view>
+                    <simulatedNavigationBarMetrics key="simulatedTopBarMetrics"/>
                     <connections>
                         <outlet property="btnSave" destination="77G-sQ-qrs" id="0P7-CZ-rPz"/>
                         <outlet property="lblSelected" destination="KkM-YT-ZUP" id="3fx-g9-ryE"/>

@@ -131,11 +131,11 @@
 		CEE297641FBDDC1400D12D22 /* MainStroyboard */ = {
 			isa = PBXGroup;
 			children = (
-				CE73B1B21FB502A900BD0525 /* Main.storyboard */,
 				CE5186DC1F3B6D8000646C80 /* ViewController.swift */,
 				CEC1FD231F5672B7000E1660 /* FeaturePickerViewController.swift */,
 				CEC0CB0B1F7D76F100152CBA /* GeoLookup-ViewController.swift */,
 				CE46A3E31F995F2900C14766 /* MapVC.swift */,
+				CE73B1B21FB502A900BD0525 /* Main.storyboard */,
 			);
 			name = MainStroyboard;
 			sourceTree = "<group>";
@@ -143,11 +143,11 @@
 		CEE297651FBDDC3C00D12D22 /* SettingsStoryboard */ = {
 			isa = PBXGroup;
 			children = (
-				CEE297611FBDDA3200D12D22 /* Settings.storyboard */,
 				CEE2975F1FBDD6BD00D12D22 /* SettingsTVC.swift */,
 				CEE297661FBE1BAD00D12D22 /* AboutVC.swift */,
 				CE31D6DD1F91643B001E8EC6 /* APIKeyVC.swift */,
 				CE31D6DF1F916AE0001E8EC6 /* TestCallLimitsVC.swift */,
+				CEE297611FBDDA3200D12D22 /* Settings.storyboard */,
 			);
 			name = SettingsStoryboard;
 			sourceTree = "<group>";

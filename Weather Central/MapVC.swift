@@ -11,6 +11,7 @@ import MapKit
 
 //MARK: ------- class MapVC (MapViewController) ------
 class MapVC: UIViewController, MKMapViewDelegate {
+    let longPressSec = 1.5
     var latDelta = 0.18
     var lonDelta = 0.18
 
@@ -31,14 +32,14 @@ class MapVC: UIViewController, MKMapViewDelegate {
         plotMap(lat: gSearchLat, lon: gSearchLon, latDelt: latDelta, lonDelt: lonDelta)
         mapView.showsUserLocation = true
 
-        var info = "\(gSearchType) search\nThis is the center of the search for weather stations close to \(gSearchName).\n"
+        var info = "\(gSearchType.rawValue) search\nThis is the center of the search for weather stations close to \(gSearchName).\n"
         info += "\(formatLatLon(lat: gSearchLat, lon: gSearchLon, places: 3))"
         addMyAnnotation(title: gSearchName, subtitle: "searching from here", lat: gSearchLat, lon: gSearchLon, info: info, pinColor: UIColor.black, backgroundColor: nil)
 
         addAnnotations(stations: gStations)
 
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(self.longPressAction(gestureRecognizer:)))
-        longPress.minimumPressDuration = 2
+        longPress.minimumPressDuration = longPressSec
         mapView.addGestureRecognizer(longPress)
 
     }//end func viewDidLoad
@@ -116,7 +117,7 @@ class MapVC: UIViewController, MKMapViewDelegate {
 
         //showAlert(title: "Attention", message: "This Lat/Lon will be entered.")
         gMapReturnType = .latlon
-        lblSelected.text = formatLatLon(lat: gLatFromMap, lon: gLonFromMap, places: 2)
+        lblSelected.text = formatLatLon(lat: gLatFromMap, lon: gLonFromMap, places: 3)
         btnSave.isEnabled = true
     }
 
@@ -188,14 +189,16 @@ class MapVC: UIViewController, MKMapViewDelegate {
 
     //---- Handles LongPress on Map ----
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-        if let annotationTitle = view.annotation?.title {
-            print("User tapped on annotation with title: \(annotationTitle!)")
-            gStationFromMap = annotationTitle!
-            lblSelected.text = gStationFromMap
-            gMapReturnType = .station
-            btnSave.isEnabled = true
-        }
-    }
+        if let title = view.annotation?.title as? String {
+            print("User tapped on annotation with title: \(title)")
+            if title != gSearchName && title != "My Location" {
+                gStationFromMap = title
+                lblSelected.text = gStationFromMap
+                gMapReturnType = .station
+                btnSave.isEnabled = true
+            }
+        }//endif let title
+    }//end func
 
 }//end class MapVC
 

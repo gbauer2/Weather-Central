@@ -17,6 +17,15 @@
 import UIKit
 import CoreLocation
 
+enum LocationSelectionType: String {
+    case none = ""
+    case near = "nearby"
+    case city = "city"
+    case zip
+    case latlon = "LatLon"
+    case station
+}
+
 enum TypeReturnedFromMap {
     case none
     case latlon
@@ -25,7 +34,7 @@ enum TypeReturnedFromMap {
 
 //MARK:---- Globals for MapVC ----
 // Send to Map
-var gSearchType = ""
+var gSearchType = LocationSelectionType.none
 var gSearchName = ""
 var gSearchLat  = 0.0
 var gSearchLon  = 0.0
@@ -88,7 +97,7 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
         gSearchLat = gUserLat
         gSearchLon = gUserLon
         gSearchName = "You"
-        gSearchType = "Nearby"
+        gSearchType = .near
 
     }
 
@@ -251,7 +260,7 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
         gSearchLat = Double(txtLat.text!) ?? 0.0
         gSearchLon = Double(txtLon.text!) ?? 0.0
         gSearchName = "LatLon"
-        gSearchType = "LatLon"
+        gSearchType = .latlon
         let place = txtLat.text! + "," + txtLon.text!
         lookupPlace(place: place)
     }
@@ -263,7 +272,7 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
         gSearchLat = 0.0
         gSearchLon = 0.0
         gSearchName = txtCity.text!
-        gSearchType = "City"
+        gSearchType = .city
         let stateCity = txtState.text! + "/" + txtCity.text!
         let place = stateCity.replacingOccurrences(of: " ", with: "_")
         lookupPlace(place: place)
@@ -279,7 +288,7 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
         gSearchLat = 0.0
         gSearchLon = 0.0
         gSearchName = "zip: " + place
-        gSearchType = "Zip"
+        gSearchType = .zip
         lookupPlace(place: place)
     }
    
@@ -292,7 +301,7 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
         gSearchLat = gUserLat
         gSearchLon = gUserLon
         gSearchName = "You"
-        gSearchType = "Nearby"
+        gSearchType = .near
         txtLat.text = formatDbl(number: gUserLat, places: 3)
         txtLon.text = formatDbl(number: gUserLon, places: 3)
         enableButton(btn: btnLatLon, enable: latLonIsValid())
@@ -305,7 +314,7 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
         gSearchLat = 0.0
         gSearchLon = 0.0
         gSearchName = txtAirport.text!
-        gSearchType = "Station"
+        gSearchType = .station
         DoAirportCode()
     }
 
