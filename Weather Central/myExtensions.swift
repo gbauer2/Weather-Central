@@ -7,6 +7,9 @@
 //
 
 import UIKit
+
+// String extension:
+// subscript(i), subscript(range), left(i), right(i), mid(i,len), rightJust(len), indexOf(str), trim()
 extension String {
     subscript (i: Int) -> Character {
         return self[index(startIndex, offsetBy: i)]
@@ -46,16 +49,16 @@ extension String {
         return s
     }
     
+    // extract a string starting at 'begin', of length 'length'
     func mid(begin: Int, length: Int = 0) -> String {
-        let lenOrig = self.count
-        var lenNew = lenOrig
-        if length > 0  {lenNew = length}
-        if begin > lenOrig || begin < 0  {
-            return ""
-        }
-        if begin + length > lenOrig {
+        let lenOrig = self.count                // length of subject str
+        if begin > lenOrig || begin < 0  { return "" }
+
+        var lenNew = length                     // length of extracted string
+        if length == 0 ||  begin + length > lenOrig {
             lenNew = lenOrig - begin
         }
+
         let startIndexNew = index(startIndex, offsetBy: begin)
         let endIndex = index(startIndex, offsetBy: begin + lenNew)
         return self[Range(startIndexNew ..< endIndex)]
@@ -72,8 +75,33 @@ extension String {
         }
         return -1
     }
-}
+    func indexOfRev(searchforStr: String) -> Int {
+        let lenOrig = self.count
+        let lenSearchFor = searchforStr.count
+        var p = lenOrig - lenSearchFor
 
+        while p >= 0 {
+            if self.mid(begin: p, length: lenSearchFor) == searchforStr {
+                return p
+            }
+            p -= 1
+        }
+        return -1
+    }
+
+    func trim() -> String {
+        return self.trimmingCharacters(in: .whitespacesAndNewlines)
+        //self.trimmingCharacters(in: .whitespaces)
+    }
+
+//    func contains(_ find: String) -> Bool{
+//        return self.range(of: find) != nil
+//    }
+//    func containsIgnoringCase(_ find: String) -> Bool{
+//        return self.range(of: find, options: .caseInsensitive) != nil
+//    }
+
+}
 
 extension UIColor {
     public convenience init?(hexString: String) {

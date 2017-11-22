@@ -189,6 +189,54 @@ public func makeWuUrlJson(APIKey: String, features: String, place: String) -> (u
     return (url, "")
 }
 
+//MARK: -------- Checks for valid text inputs --------
+public func getSearchType(searchText: String) -> LocationSelectionType {
+    if isZipValid(searchText) { return .zip }
+    if isStationValid(searchText) { return .station }
+    if isCityStateValid(searchText)  { return .city }
+    return .none
+}
+
+public func isStationValid(_ stationName: String) -> Bool {
+    let sta = stationName.trim()
+    let n = sta.count
+    if n < 3 || ( n > 4 && n < 8) || n > 11    { return false }
+    if sta.contains(",") || sta.contains(" ")  { return false }
+    //???? check for legal chars letters & digits
+    //???? if n>3 1st char must be a letter
+    //???? if n>=8 1st 7 chars must be letters; last n-7 chars must be digits
+    return true
+}
+
+public func isCityStateValid(_ cityState: String) -> Bool {
+    if cityState.count < 4      { return false }
+    if !cityState.contains(",") { return false }
+    if cityState.indexOf(searchforStr: ",") > cityState.count - 3 { return false }
+    //????check for legal chars letters, " ", ","
+    return true
+}
+
+public func isZipValid(_ zip: String) -> Bool {
+    //let zip = txtZip.text!
+    if zip.count != 5 {return false}
+    if Int(zip) != nil {return true}
+    return false
+}
+
+public func isLatLonValid(latTxt: String, lonTxt: String ) -> Bool {
+    if latTxt.count < 2                 {return false}
+    //???? Allow "N","S"
+guard let lat = Double(latTxt) else {return false}
+    if lat < -90.0 || lat > 90.0        {return false}
+
+    if lonTxt.count < 2                 {return false}
+    //???? Allow "E","W"
+    guard let lon = Double(lonTxt) else {return false}
+    if lon < -180.0 || lon > 180.0      {return false}
+    return true
+
+}
+
 
 /*  ----- URLSession with taskCallback -----
 import UIKit

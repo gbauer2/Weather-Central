@@ -19,12 +19,14 @@
  8) Bigger Font for 6sPlus & iPad - Forecast, Hourly
  9) Allow GeoLookup to Save Lat/Lon, CityState, Zip, rather than just Station
 10) Dropdown list for City
+11) If nothing in HomeScreen text box, search local.
 
  Issues:
     Alerts: if just 1 Alert, put its name in heading
     Current: 6s wraps wind, precip(1-hr)
     Tropics: Shows 2 Storms when there is only 1
     Hourly: wraps for long Wx (Few Showers/Wind)(Partly Cloudy/Wind)(Chance of a Thunderstorm)
+    If txtCity.text not legal in Home, do not save or set globals
 
 New Features to be added later.
  1) Route planning for next 5 days.
@@ -33,9 +35,12 @@ New Features to be added later.
  4) Save Stations found for future use in Map
  5) pws History: #trys, #succeeds, DateLastTry, DateLastSucceed
 
- (25) Show Version on main Settings screen
-Customize headings in Settings/tableView
- 
+1.0.6(28) City,State now combined.
+Home screen can enter Zip or StationID in addition to CityState
+Added trim(), indexOfRev() to String extension
+Fixed String extension mid()
+
+
 Get some stuff with every query *Almanac&Astron= 1K,
                                  GeoLookup     = 8k,
                                 *Conditions    = 3k
@@ -77,14 +82,22 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var lblRawDataHeading: UILabel!
     @IBOutlet weak var lblError:          UILabel!
-    @IBOutlet weak var txtState:      UITextField!
     @IBOutlet weak var txtCity:       UITextField!
-    @IBOutlet weak var txtStationID:  UITextField!
     @IBOutlet weak var txtRawData:     UITextView!
 
     //MARK: ---- iOS built-in functions & overrides ----
     override func viewDidLoad() {
         super.viewDidLoad()
+        let screenWidth  = UIScreen.main.bounds.size.width
+        let screenHeight = UIScreen.main.bounds.size.height
+        let ver          = Device.TheCurrentDeviceVersion
+        let orientation  = UIDevice.current.orientation.isLandscape ? "Landscape" : "Portrait"
+        let devName      = UIDevice.current.name
+        let devSystem    = UIDevice.current.systemName
+        //let d          = UIDevice.current.batteryLevel
+        //print(d)
+        print("😁 W=\(Int(screenWidth)), H=\(Int(screenHeight)), \(Device.PHONE_OR_PAD) in \(orientation), \(devName), \(devSystem) \(ver) 😁\n")
+
         rawFontDefault = txtRawData.font
         CallLogInit()
         locationManager.delegate = self
@@ -94,7 +107,6 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
         gAppVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0"
         gAppBuild = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "0"
         self.activityIndicator.transform = CGAffineTransform(scaleX: 2, y: 2) // Make my activityIndicator bigger
-
     }//end func
    
     override func viewWillAppear(_ animated: Bool) {
@@ -103,15 +115,6 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        let screenWidth = UIScreen.main.bounds.size.width
-        let screenHeight = UIScreen.main.bounds.size.height
-        let ver = Device.TheCurrentDeviceVersion
-        let orientation = UIDevice.current.orientation.isLandscape ? "Landscape" : "Portrait"
-        let devName = UIDevice.current.name
-        let devSystem = UIDevice.current.systemName
-        //let d = UIDevice.current.batteryLevel
-        //print(d)
-        print("😁 W=\(Int(screenWidth)), H=\(Int(screenHeight)), \(Device.PHONE_OR_PAD) in \(orientation), \(devName), \(devSystem) \(ver) 😁\n")
 
         gUpdateGeoLookup = true
         var nameObject = UserDefaults.standard.object(forKey: "wuapikey")
@@ -122,34 +125,22 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
             print("UserDefaults.standard.object(forKey: \"wuapikey\") NOT Found.")
         } //end if let name
         
-        gCity = UserDefaults.standard.object(forKey: "wucity") as? String ?? ""
-        txtCity.text = gCity
-        
-        gState = UserDefaults.standard.object(forKey: "wustate") as? String ?? ""
-        txtState.text = gState
-        
-        gStationID = UserDefaults.standard.object(forKey: "wuStationID") as? String ?? ""
-        txtStationID.text = gStationID
-        
-        nameObject = UserDefaults.standard.object(forKey: "wuFeaturesArray")
+        gStation   = UserDefaults.standard.object(forKey: stdUDKey.station.rawValue)     as? String ?? ""
+        gCityState = UserDefaults.standard.object(forKey: stdUDKey.cityState.rawValue)   as? String ?? ""
+        gZip       = UserDefaults.standard.object(forKey: stdUDKey.zip.rawValue)         as? String ?? ""
+        gLastSearch = UserDefaults.standard.object(forKey: stdUDKey.lastSearch.rawValue) as? String ?? ""
+        txtCity.text = gLastSearch
+
+        nameObject = UserDefaults.standard.object(forKey: stdUDKey.featuresArr.rawValue)
         if let temp = nameObject as? [Bool] {
-            //print("wuFeaturesArray = \(temp)")
             wuFeaturesArr = temp
         } else {
-            print("UserDefaults.standard.object(forKey: \"wuFeaturesArray\") NOT Found.")
-            
+            print("UserDefaults.standard.object(forKey: \"\(stdUDKey.featuresArr.rawValue)\") NOT Found.")
         } //end if let name
-        
-        
-        nameObject = UserDefaults.standard.object(forKey: "wuFeatures")
-        if let name = nameObject as? String {
-            print(name)
-            featuresStr = name
-        } else {
-            print("UserDefaults.standard.object(forKey: \"wuFeatures\") NOT Found.")
-            featuresStr = "geolookup/"
-        } //end if let name
-        
+
+        featuresStr = UserDefaults.standard.object(forKey: stdUDKey.featuresStr.rawValue) as? String ?? "geolookup/"
+        //print("featuresStr = \(featuresStr)")
+
         txtRawData.text = ""
         lblError.textAlignment = NSTextAlignment.center
         lblError.text = "----"
@@ -173,15 +164,45 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         //————— Permanent Storage —————-
-        UserDefaults.standard.set(txtCity.text, forKey: "wucity")
-        gCity = txtCity.text!
-        UserDefaults.standard.set(txtState.text, forKey: "wustate")
-        gState = txtState.text!
-        UserDefaults.standard.set(txtStationID.text, forKey: "wuStationID")
-        gStationID = txtStationID.text!
-        
-        print("Saved \(txtStationID.text!)  \(txtCity.text!), \(txtState.text!)")
-    }
+
+        segueList: switch segue.identifier {
+        case "segueSettings"?:
+            break segueList
+
+        case "segueGeoLookup"?:
+            gSearchType = getSearchType(searchText: txtCity.text!)
+            locType: switch gSearchType {
+            case .city:
+                gCityState = txtCity.text!
+                UserDefaults.standard.set(gCityState, forKey: "CityState")
+                gLastSearch = txtCity.text!
+                UserDefaults.standard.set(gLastSearch, forKey: "LastSearch")
+                print("Home view saved City/State = \(gCityState)")
+            case .station:
+                gStation = txtCity.text!
+                UserDefaults.standard.set(gStation, forKey: "wuStationID")
+                gLastSearch = txtCity.text!
+                UserDefaults.standard.set(gLastSearch, forKey: "LastSearch")
+                print("Home view saved Station ID = \(gStation)")
+            case .zip:
+                gZip = txtCity.text!
+                UserDefaults.standard.set(gZip, forKey: "Zip")
+                gLastSearch = txtCity.text!
+                UserDefaults.standard.set(gLastSearch, forKey: "LastSearch")
+                print("Home view saved Zip = \(gZip)")
+            default:
+                break locType
+            }
+
+        case "segueFeatures"?:
+            break segueList
+
+        default:
+            print("Unknown segue identifier: '\(segue.identifier ?? "nil")'")
+            break segueList
+        }
+
+    }//end func Seque
     
     // when you get location from CLLocationManager, record gUserLat & gUserLon, and stop updates
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -201,9 +222,7 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
     // ------ Dismiss Keybooard if user taps "Return" ------
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
-        print("\ntextFieldShouldReturn called by:")
-        print(textField)
-        print("\n")
+        print("\ntextFieldShouldReturn called by:\(textField.text!)\n")
         return true
     }
     
@@ -259,8 +278,10 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
     
     //-------------------- City - Editing Change ----------
     @IBAction func txtCityEditChange(_ sender: Any) {
+
+        gSearchType = .none
         if gDataIsCurrent {
-            gDataIsCurrent = false
+            gDataIsCurrent = false      // disable Feature Buttons
             setFeatureButtons()
         }
         let citytxt = txtCity.text!     // text after change
@@ -277,14 +298,36 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
         }
         guard let combName = cityAbrev[citytxt] else { return } // dictionary lookup of stored "City,States"
         // If a match is found in the cityAbrev dictionary, do the following
-        let splitNames = combName.components(separatedBy: ",")  // separate city & state
-        cityLockLen   = splitNames[0].count                     // stop user from adding more chars
+        cityLockLen   = combName.count                     // stop user from adding more chars
         prevCityLen   = cityLockLen                             // update prevCityLen
-        txtCity.text  = splitNames[0]                           // set the text fields to stored values
-        txtState.text = splitNames[1]
+        txtCity.text  = combName                                // set the text fields to stored values
 
     }//end @IBAction func txtCityEditChange
 
+    // txtCity Editing Ended
+    @IBAction func txtCityEditEnd(_ sender: UITextField) {
+        var str = txtCity.text!.trim()
+        print("Home view: txtCityEditEnd '\(str)'")
+        if str.count == 5 && isNumeric(str) {
+            gSearchType = .zip
+        }
+
+        str = str.replacingOccurrences(of: "  ", with: " ")
+        if !str.contains(",") {
+            //let sp1 = str.indexOf(searchforStr: " ")
+            let sp2 = str.indexOfRev(searchforStr: " ")
+            if sp2 > 0 {
+                var state =  str.mid(begin: sp2 + 1)
+                if state.count == 2 { state = state.uppercased() }
+                str = str.left(sp2) + "," + state
+                txtCity.text = str
+            } else {
+                str = str.uppercased()
+                txtCity.text = str
+            }
+            //enableButton(btn: btnCity, enable: cityStateIsValid())
+        }//endif
+    }
 //=========================================================
 
     //-------------------- GetData Button -------------------
@@ -294,12 +337,7 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
         lblError.text   = ""
         
         if txtCity.text!.count < 3 {
-            showError("You must enter a proper city name.")
-            return
-        }
-        
-        if txtState.text!.count != 2 && txtState.text != "" {
-            showError("You must enter blank or 2-letter state code.")
+            showError("You must enter a City,State or Station ID.")
             return
         }
         
@@ -307,20 +345,44 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
             showError("You must select at least 1 feature.")
             return
         }
-        gCity = txtCity.text!
-        gState = txtState.text!
-        gStationID = txtStationID.text!
-        var place =  gCity
-        if gState != "" {
-            place = gState + "/" + gCity
-        }
-        if gStationID.count >= 3 {
-            if gStationID.count <= 4 {
-                place = gStationID
+
+        var place =  txtCity.text!
+
+        gSearchType = getSearchType(searchText: txtCity.text!)
+        switch gSearchType {
+        case .city:
+            gCityState = txtCity.text!.trim()
+            let splitCityState = gCityState.components(separatedBy: ",")
+            let city  = splitCityState[0].trim()
+            let state = splitCityState[1].trim()
+            place = state + "/" + city
+            UserDefaults.standard.set(gCityState, forKey: "CityState")
+            gLastSearch = txtCity.text!
+            UserDefaults.standard.set(gLastSearch, forKey: "LastSearch")
+
+        case .station:
+            gStation = txtCity.text!
+            UserDefaults.standard.set(gStation, forKey: "wuStationID")
+            gLastSearch = txtCity.text!
+            UserDefaults.standard.set(gLastSearch, forKey: "LastSearch")
+            if gStation.count <= 4 {
+                place = gStation
             } else {
-                place = "pws:" + gStationID
+                place = "pws:" + gStation
             }
+
+        case .zip:
+            gZip = txtCity.text!
+            UserDefaults.standard.set(gZip, forKey: "Zip")
+            gLastSearch = txtCity.text!
+            UserDefaults.standard.set(gLastSearch, forKey: "LastSearch")
+            place = "zip: " + gZip
+
+        default:
+            showError("Not a legal City,State or Station ID or Zip")
+            return
         }
+
         let urlTuple = makeWuUrlJson(APIKey: gAPIKey, features: featuresStr, place: place)
         if urlTuple.errorStr != "" {
             showError(urlTuple.errorStr)
@@ -486,9 +548,9 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
                 
                 resultsTry: do {                            //See if there is a "results" entry in jsonResult.response (suggests cities in other states)
                     guard let oResults = dictResponse["results"] else {myError = "";  break resultsTry}
-                        print("\(gCity) not found in \(gState)\n")
+                        myError = "\(gCityState) not found!)"
+                        print("\(myError)\n")
                         print(oResults)
-                        myError = "\(gCity) not found in \(gState)"
                         break jsonTry
                 }//end resultsTry
                 
@@ -499,8 +561,8 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
                 wuFeaturesWithDataArr = wuFeaturesArr
                 
             } catch { //jsonTry:do Try/Catch -  (try JSONSerialization.jsonObject) = failed
-                print("Uh oh. You have an error with \(gCity), \(gState)!")
-                myError = "Err03: Can't get \(self.featuresStr) in \(gCity), \(gState)!"
+                print("Uh oh. You have an error with \(gCityState)!")
+                myError = "Err03: Can't get \(self.featuresStr) in \(gCityState)!"
             }//end jsonTry:do Try/Catch
             
             // Success again! We have made it through everything,so save stuff for next time.
@@ -512,8 +574,6 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
                     gDataIsCurrent = true
                     self.setFeatureButtons()
                     //————— Permanent Storage —————-
-                    UserDefaults.standard.set(gCity, forKey: "wucity")
-                    UserDefaults.standard.set(gState, forKey: "wustate")
                     UserDefaults.standard.set(self.featuresStr, forKey: "wuFeatures")
                     if self.numFeatures == 1  {
                         var singleItem = 0

@@ -38,7 +38,7 @@
                                             </subviews>
                                         </tableViewCellContentView>
                                         <connections>
-                                            <segue destination="Vhz-AV-WSu" kind="show" id="O6d-TW-X1R"/>
+                                            <segue destination="Vhz-AV-WSu" kind="show" identifier="segueAbout" id="O6d-TW-X1R"/>
                                         </connections>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="ChangeAPIKey" textLabel="12B-N2-tWI" style="IBUITableViewCellStyleDefault" id="Tqe-f7-dOA">
@@ -58,7 +58,7 @@
                                             </subviews>
                                         </tableViewCellContentView>
                                         <connections>
-                                            <segue destination="fqq-Gt-JIB" kind="show" id="maa-nI-qvc"/>
+                                            <segue destination="fqq-Gt-JIB" kind="show" identifier="segueAPIKey" id="maa-nI-qvc"/>
                                         </connections>
                                     </tableViewCell>
                                 </cells>
@@ -82,7 +82,7 @@
                                             </subviews>
                                         </tableViewCellContentView>
                                         <connections>
-                                            <segue destination="v7O-yV-kAg" kind="show" id="S8p-qG-g4N"/>
+                                            <segue destination="v7O-yV-kAg" kind="show" identifier="segueTestCallLimits" id="S8p-qG-g4N"/>
                                         </connections>
                                     </tableViewCell>
                                 </cells>

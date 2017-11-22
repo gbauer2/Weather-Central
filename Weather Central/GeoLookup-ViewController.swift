@@ -17,19 +17,13 @@
 import UIKit
 import CoreLocation
 
-enum LocationSelectionType: String {
+public enum LocationSelectionType: String {
     case none = ""
-    case near = "nearby"
-    case city = "city"
-    case zip
-    case latlon = "LatLon"
-    case station
-}
-
-enum TypeReturnedFromMap {
-    case none
-    case latlon
-    case station
+    case near = "Nearby"
+    case city = "City"
+    case zip  = "Zip"
+    case latlon  = "LatLon"
+    case station = "Station"
 }
 
 //MARK:---- Globals for MapVC ----
@@ -39,17 +33,17 @@ var gSearchName = ""
 var gSearchLat  = 0.0
 var gSearchLon  = 0.0
 var gStations   = [Station]()
+
 // Get from Map
+var gMapReturnType = LocationSelectionType.none
 var gLatFromMap = 0.0
 var gLonFromMap = 0.0
 var gStationFromMap = ""
-var gMapReturnType = TypeReturnedFromMap.none
 var gMapDidSave = false
 
 class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDelegate {
     
     //MARK: ---- my vars ----
-    var zip = "-----"
     var Detail = ""
     var selectedStationID = ""
     var infoStations = [StationInfo]()
@@ -66,11 +60,10 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     @IBOutlet weak var txtCity:    UITextField!
-    @IBOutlet weak var txtState:   UITextField!
     @IBOutlet weak var txtLat:     UITextField!
     @IBOutlet weak var txtLon:     UITextField!
     @IBOutlet weak var txtZip:     UITextField!
-    @IBOutlet weak var txtAirport: UITextField!
+    @IBOutlet weak var txtStation: UITextField!
 
     @IBOutlet weak var lblError:   UILabel!
     @IBOutlet weak var lblDetail:  UILabel!
@@ -93,17 +86,16 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
         self.activityIndicator.transform = CGAffineTransform(scaleX: 2, y: 2)   // make My activityIndicator bigger
         UIApplication.shared.isNetworkActivityIndicatorVisible = false          // turn-off built-in activityIndicator
         self.activityIndicator.stopAnimating()                                  // turn-off My activityIndicator
-        // Default Map Settings
-        gSearchLat = gUserLat
-        gSearchLon = gUserLon
+        // Default Map Settings - Show local map
+        gSearchLat  = gUserLat
+        gSearchLon  = gUserLon
         gSearchName = "You"
         gSearchType = .near
-
     }
 
     override func viewWillAppear(_ animated: Bool) {
 
-        // Start process to get user location
+        // Start process to update user location
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         locationManager.requestWhenInUseAuthorization()
@@ -112,28 +104,19 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
         enableButton(btn: btnMap, enable: true)
         
         // Get City, State, Station from permanent storage & set button states
-        gCity = UserDefaults.standard.object(forKey: "wucity") as? String ?? ""
-        txtCity.text = gCity
-
-        gState = UserDefaults.standard.object(forKey: "wustate") as? String ?? ""
-        txtState.text = gState
-        enableButton(btn: self.btnCity, enable: self.cityStateIsValid())
-
-        gStationID = UserDefaults.standard.object(forKey: "wuStationID") as? String ?? ""
-        txtAirport.text = gStationID
-        enableButton(btn: btnStation, enable: stationIsValid())
+        gSearchType = UserDefaults.standard.object(forKey: "LocationSearchType") as? LocationSelectionType ?? .near
+        gCityState  = UserDefaults.standard.object(forKey: "CityState")          as? String ?? ""
+        gZip        = UserDefaults.standard.object(forKey: "Zip")                as? String ?? ""
+        txtCity.text = gCityState
+        enableButton(btn: self.btnCity, enable: isCityStateValid(txtCity.text!))
+        txtZip.text = gZip
+        enableButton(btn: self.btnZip, enable: isZipValid(txtZip.text!))
+        gStation = UserDefaults.standard.object(forKey: "wuStationID") as? String ?? ""
+        txtStation.text = gStation
+        enableButton(btn: btnStation, enable: isStationValid(gStation))
         
-        btnCity.isEnabled = gCity.count >= 2 && gState.count >= 2
-        btnCity.backgroundColor = btnCity.isEnabled ? colorButtonNorm : colorButtonGray   //blue=(0x007AFF)
+        enableButton(btn: btnLatLon, enable: false)
 
-        let n = gStationID.count
-        btnStation.isEnabled = (n == 3 || n == 4) || (n >= 8 && n <= 11)
-        
-        btnLatLon.isEnabled = false
-        btnLatLon.backgroundColor = colorButtonGray
-        btnZip.isEnabled = false
-        btnZip.backgroundColor = colorButtonGray
-        
         // Clean out the Stations arrays & clear the TableView
         gStations = []
         infoStations = []
@@ -146,6 +129,7 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
 
 
     override func viewDidAppear(_ animated: Bool) {
+        // If we are returning from the Map, and the user saved a LatLon or WxStation
         if gMapDidSave {
             gMapDidSave = false
             switch gMapReturnType {
@@ -156,11 +140,11 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
                 enableButton(btn: btnLatLon, enable: true)
             case .station:
                 print("😃😃Update Map to \(gStationFromMap)😃😃")
-                txtAirport.text = gStationFromMap
+                txtStation.text = gStationFromMap
                 enableButton(btn: btnStation, enable: true)
             default: break
             }
-            gMapReturnType = TypeReturnedFromMap.none
+            gMapReturnType = .none
         }
 
     }
@@ -197,30 +181,51 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
     
 
     //MARK: ---- IBAction's ----
+
+    // txtCity Editing Change
     @IBAction func txtCityChanged(_ sender: UITextField) {
-        enableButton(btn: btnCity, enable: cityStateIsValid())
+        enableButton(btn: btnCity, enable: isCityStateValid(txtCity.text!))
     }
-    @IBAction func txtStateChanged(_ sender: UITextField) {
-        enableButton(btn: btnCity, enable: cityStateIsValid())
+
+    // txtCity Editing Ended
+    @IBAction func txtCityEditEnd(_ sender: UITextField) {
+        print("txtCityEditEnd")
+        var str = txtCity.text!.trim()
+        var state = ""
+        if !isCityStateValid(txtCity.text!) {
+            str = str.replacingOccurrences(of: "  ", with: " ")
+            //let sp1 = str.indexOf(searchforStr: " ")
+            let sp2 = str.indexOfRev(searchforStr: " ")
+            if sp2 <= 0 { return }
+            state =  str.mid(begin: sp2 + 1)
+            if state.count == 2 { state = state.uppercased() }
+            str = str.left(sp2) + "," + state
+            enableButton(btn: btnCity, enable: isCityStateValid(str))
+        }//endif
+        let pComma = str.indexOf(searchforStr: ",")
+        state =  str.mid(begin: pComma + 1)
+        if state.count == 2 { state = state.uppercased() }
+        str = str.left(pComma + 1) + state
+        txtCity.text = str
     }
 
     @IBAction func txtLatChanged(_ sender: UITextField) {
-        enableButton(btn: btnLatLon, enable: latLonIsValid())
+        enableButton(btn: btnLatLon, enable: isLatLonValid(latTxt: txtLat.text!, lonTxt: txtLon.text!) )
     }
     @IBAction func txtLonChanged(_ sender: UITextField) {
-        enableButton(btn: btnLatLon, enable: latLonIsValid())
+        enableButton(btn: btnLatLon, enable:  isLatLonValid(latTxt: txtLat.text!, lonTxt: txtLon.text!) )
     }
     
     //---- Limit Airport Codes to 11 characters ----
-    @IBAction func txtAirportChanged(_ sender: Any) {
-        let text = txtAirport.text!
+    @IBAction func txtStationChanged(_ sender: Any) {
+        let text = txtStation.text!
         let nChars = text.count
         lblError.text = ""
         if nChars > 11 {
             lblError.text = "No more than 11 characters allowed."
-            txtAirport.deleteBackward()
+            txtStation.deleteBackward()
         }
-        enableButton(btn: btnStation, enable: stationIsValid())
+        enableButton(btn: btnStation, enable: isStationValid(text))
     }
     
     //---- Limit Zip to 5 digits only ----
@@ -233,12 +238,12 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
                 lblError.text = "Only a 5-digit zip allowed."
                 txtZip.deleteBackward()
             }
-            if !isStringAnInt(text) {
+            if !isStringAnInt(txtZip.text!) {
                 lblError.text = "Zip must be a number."
                 txtZip.deleteBackward()
             }
         }
-        enableButton(btn: btnZip, enable: zipIsValid())
+        enableButton(btn: btnZip, enable: isZipValid(txtZip.text!))
     }
     
     //MARK: ---------- Button Actions ----------
@@ -257,6 +262,8 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
             showError("\(lon) is not a legal Longitude.\nIt must be between -180.0 and 180.0")
             return
         }
+        gStation = ""
+        txtStation.text = gStation
         gSearchLat = Double(txtLat.text!) ?? 0.0
         gSearchLon = Double(txtLon.text!) ?? 0.0
         gSearchName = "LatLon"
@@ -267,13 +274,17 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
    
     @IBAction func btnCityPress(_ sender: Any) {
         self.view.endEditing(true)
-        gCity = txtCity.text!
-        gState = txtState.text!
+        gCityState = txtCity.text!
         gSearchLat = 0.0
         gSearchLon = 0.0
+        gStation = ""
+        txtStation.text = gStation
         gSearchName = txtCity.text!
         gSearchType = .city
-        let stateCity = txtState.text! + "/" + txtCity.text!
+        let splitCityState = gCityState.components(separatedBy: ",")
+        let city =  splitCityState[0].trim()
+        let state = splitCityState[1].trim()
+        let stateCity = state + "/" + city
         let place = stateCity.replacingOccurrences(of: " ", with: "_")
         lookupPlace(place: place)
     }
@@ -285,6 +296,8 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
             showError( "Zip must be a 5 digit number!")
             return
         }
+        gStation = ""
+        txtStation.text = gStation
         gSearchLat = 0.0
         gSearchLon = 0.0
         gSearchName = "zip: " + place
@@ -298,22 +311,24 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
             showError("Your location not available")
             return
         }
+        gStation = ""
+        txtStation.text = gStation
         gSearchLat = gUserLat
         gSearchLon = gUserLon
         gSearchName = "You"
         gSearchType = .near
         txtLat.text = formatDbl(number: gUserLat, places: 3)
         txtLon.text = formatDbl(number: gUserLon, places: 3)
-        enableButton(btn: btnLatLon, enable: latLonIsValid())
+        enableButton(btn: btnLatLon, enable: isLatLonValid(latTxt: txtLat.text!, lonTxt: txtLon.text!) )
         let place = "\(gUserLat),\(gUserLon)"
         lookupPlace(place: place)
     }
 
-    @IBAction func btnAirportPress(_ sender: Any) {
+    @IBAction func btnStationTap(_ sender: Any) {
         self.view.endEditing(true)
         gSearchLat = 0.0
         gSearchLon = 0.0
-        gSearchName = txtAirport.text!
+        gSearchName = txtStation.text!
         gSearchType = .station
         DoAirportCode()
     }
@@ -323,11 +338,10 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let vc = storyboard.instantiateViewController(withIdentifier: "idMapVC") as! MapVC
         gMapDidSave = false
-        gMapReturnType = TypeReturnedFromMap.none
+        gMapReturnType = .none
 
         navigationController?.pushViewController(vc, animated: true)
     }
-
 
     @IBAction func btnSaveTap(_ sender: UIBarButtonItem!) {
         self.view.endEditing(true)
@@ -335,16 +349,14 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
             showError("You have not selected a weather station")
             return
         }
-        gStationID = selectedStationID
-        UserDefaults.standard.set(txtCity.text, forKey: "wucity")
-        gCity = txtCity.text!
-        UserDefaults.standard.set(txtState.text, forKey: "wustate")
-        gState = txtState.text!
-        UserDefaults.standard.set(txtAirport.text, forKey: "wuStationID")
-        gState = txtState.text!
+        gLastSearch = selectedStationID
+        gStation = selectedStationID
+        UserDefaults.standard.set(gCityState,      forKey: stdUDKey.cityState.rawValue)
+        UserDefaults.standard.set(txtStation.text, forKey: stdUDKey.station.rawValue)
+        UserDefaults.standard.set(gLastSearch,     forKey: stdUDKey.lastSearch.rawValue)
         gDataIsCurrent = false
-        print("Saved \(txtAirport.text!)  \(txtCity.text!), \(txtState.text!)")
-        print("Saving stationID: \(selectedStationID)")
+        print("GeoLookup saved \(gCityState)")
+        print("GeoLookup saved \(gStation)")
         guard (navigationController?.popViewController(animated:true)) != nil else {
             print("No navigationController"); return
         }
@@ -352,10 +364,10 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
     
     //MARK: ---- funcs for Buttons ----
     func DoAirportCode() {
-        var place = txtAirport.text!
+        var place = txtStation.text!
         let n = place.count
         if n < 3 || n > 11 || (n < 8 && n > 4) {
-            showError("3 or 4 characters for an airport\nor 8-11 characters for a pws")
+            showError("3 or 4 characters for an airport or 8-11 characters for a pws")
             return
         }
         if n>4 {place = "pws:" + place}
@@ -495,15 +507,18 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
                 print("\n\n\(loc)\n")
                 //let dictLocation = dictJson["location"] as! [String: AnyObject]
                 
-                self.zip = loc.zip
-                gCity = loc.city
+                gZip = loc.zip
+                gCityState = loc.city
+                var state = ""
                 if loc.type == "CITY" {
-                    gState = loc.state
+                    state = loc.state
                 } else if loc.country_name.count < 10 {
-                    gState = loc.country_name
+                    state = loc.country_name
                 } else {
-                    gState = loc.country
+                    state = loc.country
                 }
+                if state != "" { gCityState = gCityState + "," + state }
+
                 var latVal = 0.0
                 var lonVal = 0.0
                 if abs(gSearchLat) < 0.0001 && abs(gSearchLon) < 0.0001 {
@@ -521,7 +536,7 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
                 self.lonStr = formatDbl(number: lonVal, places: 3)
                 //printDictionary(dict: dictLocation, expandLevels: 0, dashLen: 0, title: "Location")
                 //printDictionary(dict: dictLocation, expandLevels: 1, dashLen: 0, title: "Location")
-                
+
                 let dictNearby =  dictLocation["nearby_weather_stations"] as![String: AnyObject]
                 printDictionary(dict: dictNearby, expandLevels: 0, dashLen: 0, title: "Nearby")
                 
@@ -607,9 +622,6 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
                 }//next
                 
                 DispatchQueue.main.async {
-                    
-                    self.enableButton(btn: self.btnMap, enable: true)
-                    
                     self.tableView.reloadData()
                 }// DispatchQueue.main.async
                 
@@ -625,15 +637,14 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
                 self.lblError.text = myError
                 UIApplication.shared.isNetworkActivityIndicatorVisible = false
                 self.activityIndicator.stopAnimating()
-                self.txtCity.text = gCity
-                self.txtState.text = gState
-                self.enableButton(btn: self.btnCity, enable: self.cityStateIsValid())
+                self.txtCity.text = gCityState
+                self.enableButton(btn: self.btnCity, enable: isCityStateValid(gCityState))
 
-                self.txtZip.text = self.zip
-                self.enableButton(btn: self.btnZip, enable: self.zipIsValid())
+                self.txtZip.text = gZip
+                self.enableButton(btn: self.btnZip, enable: isZipValid(gZip))
                 self.txtLat.text = self.latStr
                 self.txtLon.text = self.lonStr
-                self.enableButton(btn: self.btnLatLon, enable: self.latLonIsValid())
+                self.enableButton(btn: self.btnLatLon, enable: isLatLonValid(latTxt: self.latStr, lonTxt: self.lonStr))
                 self.lblDetail.text = self.Detail
             }// DispatchQueue.main.async
             
@@ -664,40 +675,6 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
         btn.backgroundColor = enable ? colorButtonNorm : colorButtonGray    //blue=(0x007AFF) or gray
     }
     
-    func zipIsValid() -> Bool {
-        let zip = txtZip.text!
-        if zip.count != 5 {return false}
-        if Int(zip) != nil {return true}
-        return false
-    }
-    
-    func stationIsValid() -> Bool {
-        let sta = txtAirport.text!
-        let n = sta.count
-        if n < 3 || ( n > 4 && n < 8) || n > 11 {return false}
-        return true
-    }
-
-    func cityStateIsValid() -> Bool {
-        if txtCity.text!.count < 2 {return false}
-        if txtState.text!.count < 2 {return false}
-        return true
-    }
-    
-    func latLonIsValid() -> Bool {
-        var txt = ""
-        txt  = txtLat.text!
-        if txt.count < 2 {return false}
-        guard let lat = Double(txt) else {return false}
-        if lat < -90.0 || lat > 90.0 {return false}
-        
-        txt  = txtLon.text!
-        if txt.count < 2 {return false}
-        guard let lon = Double(txt) else {return false}
-        if lon < -180.0 || lon > 180.0 {return false}
-        return true
-    }
-    
 }//end class
 
 //MARK: ================== TableView Extension =======================
@@ -724,8 +701,8 @@ extension GeoLookup_ViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         selectedStationID = gStations[indexPath.row].id
-        txtAirport.text = selectedStationID
-        enableButton(btn: btnStation, enable: stationIsValid())
+        txtStation.text = selectedStationID
+        enableButton(btn: btnStation, enable: isStationValid(selectedStationID))
         lblDetail.text = infoStations[indexPath.row].detail
     }
     
