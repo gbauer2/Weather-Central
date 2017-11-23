@@ -34,12 +34,12 @@ class FeaturePickerViewController: UIViewController, UITextFieldDelegate {
         super.viewDidLoad()
         
         // 1. Load wuFeaturesArr[] from permanent storage "wuFeaturesArray"
-        let nameObject = UserDefaults.standard.object(forKey: "wuFeaturesArray")
+        let nameObject = UserDefaults.standard.object(forKey: UDKey.featuresArr.rawValue)//"wuFeaturesArray")
         if let temp = nameObject as? [Bool] {
             print("wuFeaturesArray = \(temp)")
             wuFeaturesArr = temp
         } else {
-            print("UserDefaults.standard.object(forKey: \"wuFeaturesArray\") NOT Found.")
+            print("UserDefaults.standard.object(forKey: \"\(UDKey.featuresArr.rawValue)\") NOT Found.")
         } //end if let name
         
         // 2. Set Selection Status on Check Buttons according to wuFeaturesArr[]
@@ -51,10 +51,10 @@ class FeaturePickerViewController: UIViewController, UITextFieldDelegate {
         }//next i
         
         // 3. Load planner date1 from permanent storage "wuPlannerDate1"
-        txtDate1.text = UserDefaults.standard.object(forKey: "wuPlannerDate1") as? String ?? ""
+        txtDate1.text = UserDefaults.standard.object(forKey: UDKey.wuPlannerDate1.rawValue) as? String ?? ""
 
         // 4. Load planner date2 from permanent storage "wuPlannerDate2"
-        txtDate2.text = UserDefaults.standard.object(forKey: "wuPlannerDate2") as? String ?? ""
+        txtDate2.text = UserDefaults.standard.object(forKey: UDKey.wuPlannerDate2.rawValue) as? String ?? ""
 
         didAddFeature = false
         btnSave.isEnabled = false
@@ -96,7 +96,7 @@ class FeaturePickerViewController: UIViewController, UITextFieldDelegate {
     @IBAction func btnSaveTap(_ sender: UIButton) {
         // Save wuFeaturesArr[] in permanent storage "wuFeaturesArray"
         self.view.endEditing(true)
-        UserDefaults.standard.set(wuFeaturesArr, forKey: "wuFeaturesArray")
+        UserDefaults.standard.set(wuFeaturesArr, forKey: UDKey.featuresArr.rawValue)//"wuFeaturesArray")
         
         // Create featuresStr string from wuFeaturesArr[]
         if wuFeaturesArr[iPlanner] {
@@ -105,8 +105,8 @@ class FeaturePickerViewController: UIViewController, UITextFieldDelegate {
                 lblError.text = plannerSuffix
                 return
             }
-            UserDefaults.standard.set(txtDate1.text!, forKey: "wuPlannerDate1")
-            UserDefaults.standard.set(txtDate2.text!, forKey: "wuPlannerDate2")
+            UserDefaults.standard.set(txtDate1.text!, forKey: UDKey.wuPlannerDate1.rawValue)//"wuPlannerDate1")
+            UserDefaults.standard.set(txtDate2.text!, forKey: UDKey.wuPlannerDate2.rawValue)//"wuPlannerDate2")
         }//endif wuFeaturesArr[idxPlanner]
         
         if didAddFeature { gDataIsCurrent = false }
@@ -120,7 +120,7 @@ class FeaturePickerViewController: UIViewController, UITextFieldDelegate {
         featuresStr = featuresStr.replacingOccurrences(of: "--------", with: plannerSuffix)
         
         // Save featuresStr string in permanent storage "wuFeatures"
-        UserDefaults.standard.set(featuresStr, forKey: "wuFeatures")
+        UserDefaults.standard.set(featuresStr, forKey: UDKey.featuresStr.rawValue)//"wuFeatures")
         
         print("featuresStr = \n\(featuresStr)")
         //navigationController?.popViewController(animated: true)

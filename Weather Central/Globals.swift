@@ -11,15 +11,20 @@ import UIKit
 //MARK: -------- Global Variables --------
 var gDataIsCurrent = false
 var globalDictJSON = NSDictionary()
-var wuFeaturesArr = [false,false,false,false,false,false,false, false,false,false,false,false,false,false,false,false,false,false]
-var wuFeaturesWithDataArr = [false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]
+var wuFeaturesArrEmpty = [false,false,false,false,false,false,false, false,false,false,false,false,false,false,false,false,false,false]
+var wuFeaturesArr         = wuFeaturesArrEmpty      // WU Features that have been selected
+var wuFeaturesWithDataArr = wuFeaturesArr           // Those Features with current data (not used)
+
 var gCityState = ""
-var gZip        = ""
+var gZip       = ""
+var gStation   = ""
+var gLat = 0.0
+var gLon = 0.0
+
 var gLastSearch = ""
+
 var gAPIKey = ""
 var gPreviousAPIKey = ""
-var gStation = ""
-var gUpdateGeoLookup = true
 var gUserLat = 0.0
 var gUserLon = 0.0
 var gAppVersion = "0"
@@ -51,12 +56,28 @@ let iTide        = 15
 let iWebcams     = 16
 let iYesterday   = 17
 
-public enum stdUDKey: String {
+// persistant storage: UserDefaults.standard.object Keys
+public enum UDKey: String {
     case wuAPIKey    = "wuapikey"
     case station     = "wuStationID"
     case cityState   = "CityState"
     case zip         = "Zip"
+    case lat         = "searchLat"
+    case lon         = "searchLon"
     case lastSearch  = "LastSearch"
     case featuresArr = "wuFeaturesArray"
     case featuresStr = "wuFeatures"
+    case wuPlannerDate1 = "wuPlannerDate1"
+    case wuPlannerDate2 = "wuPlannerDate2"
+    case dateLastRun    = "dateLastRun"
+    case wuDateLastCall = "wuDateLastCall"
+    case wuYmdLastCallET = "wuYmdLastCallET"
+    case wuNumCallsToday = "wuNumCallsToday"
+}
+
+// segue identifiers
+public enum segueID: String {
+    case HomeToSettings  = "segueSettings"
+    case HomeToGeoLookup = "segueGeoLookup"
+    case HomeToFeatures  = "segueFeatures"
 }

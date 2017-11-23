@@ -164,16 +164,21 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Current API Key:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Vgf-ZO-oKp">
-                                <rect key="frame" x="16" y="92" width="343" height="21"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Current API Key:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Vgf-ZO-oKp">
+                                <rect key="frame" x="16" y="28" width="343" height="21"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="21" id="m8Q-Y2-cFu"/>
+                                </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="WU API Key" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Qzt-HB-o4Z">
-                                <rect key="frame" x="16" y="122" width="180" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="WU API Key" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Qzt-HB-o4Z">
+                                <rect key="frame" x="16" y="57" width="180" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="AUY-L3-LRa"/>
+                                    <constraint firstAttribute="width" constant="180" id="moG-14-9zn"/>
+                                </constraints>
                                 <nil key="textColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no"/>
@@ -182,34 +187,49 @@
                                     <outlet property="delegate" destination="fqq-Gt-JIB" id="15S-Tk-GtN"/>
                                 </connections>
                             </textField>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZPT-fs-KDb">
-                                <rect key="frame" x="204" y="122" width="48" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="i3q-nq-CrB">
+                                <rect key="frame" x="16" y="95" width="343" height="572"/>
+                                <mutableString key="text">Weather Central downloads weather info from the  Weather Underground API. You must obtain an API-Key from wunderground.com to enable this service.  You can get a Developer key for free, which allows 10 calls per minute, and 500 per day.  When you have the key, enter it above, and tap 'Update'. </mutableString>
+                                <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZPT-fs-KDb">
+                                <rect key="frame" x="204" y="57" width="48" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="fP1-3e-oIg"/>
+                                    <constraint firstAttribute="width" constant="48" id="lXK-ea-FIc"/>
+                                </constraints>
                                 <state key="normal" title="update"/>
                                 <connections>
                                     <action selector="btnUpdateAPIKeyTap:" destination="fqq-Gt-JIB" eventType="touchUpInside" id="8vl-xe-5NG"/>
                                 </connections>
                             </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Version" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Cwe-SX-iLc">
-                                <rect key="frame" x="16" y="620" width="343" height="21"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="i3q-nq-CrB" firstAttribute="trailing" secondItem="cZy-63-BE5" secondAttribute="trailingMargin" id="ESe-Dj-Tvx"/>
+                            <constraint firstItem="Qzt-HB-o4Z" firstAttribute="top" secondItem="Vgf-ZO-oKp" secondAttribute="bottom" constant="8" id="JtS-y9-MQj"/>
+                            <constraint firstItem="i3q-nq-CrB" firstAttribute="leading" secondItem="cZy-63-BE5" secondAttribute="leadingMargin" id="KiF-7v-zuP"/>
+                            <constraint firstItem="ZPT-fs-KDb" firstAttribute="leading" secondItem="Qzt-HB-o4Z" secondAttribute="trailing" constant="8" id="Krc-q5-DxX"/>
+                            <constraint firstItem="EBm-1I-vEx" firstAttribute="top" secondItem="i3q-nq-CrB" secondAttribute="bottom" id="S5k-7r-LXA"/>
+                            <constraint firstItem="i3q-nq-CrB" firstAttribute="top" secondItem="Qzt-HB-o4Z" secondAttribute="bottom" constant="8" id="SAU-I1-w3H"/>
+                            <constraint firstItem="Vgf-ZO-oKp" firstAttribute="top" secondItem="nCR-LA-f8V" secondAttribute="bottom" constant="8" id="SLg-ge-cVk"/>
+                            <constraint firstItem="Qzt-HB-o4Z" firstAttribute="leading" secondItem="cZy-63-BE5" secondAttribute="leadingMargin" id="VGE-3G-CJD"/>
+                            <constraint firstItem="ZPT-fs-KDb" firstAttribute="top" secondItem="Vgf-ZO-oKp" secondAttribute="bottom" constant="8" id="ad1-zq-emq"/>
+                            <constraint firstItem="Vgf-ZO-oKp" firstAttribute="trailing" secondItem="cZy-63-BE5" secondAttribute="trailingMargin" id="s4j-cf-5GV"/>
+                            <constraint firstItem="Vgf-ZO-oKp" firstAttribute="leading" secondItem="cZy-63-BE5" secondAttribute="leadingMargin" id="vbl-MM-mDx"/>
+                        </constraints>
                     </view>
                     <connections>
                         <outlet property="btnUpdateAPIKey" destination="ZPT-fs-KDb" id="Buq-QY-s6V"/>
                         <outlet property="lblAPIKey" destination="Vgf-ZO-oKp" id="R54-c6-t8g"/>
-                        <outlet property="lblVersion" destination="Cwe-SX-iLc" id="dHi-YY-wOO"/>
                         <outlet property="txtAPIKey" destination="Qzt-HB-o4Z" id="TwM-IX-gm7"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Mg1-O5-wRl" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-84" y="564"/>
+            <point key="canvasLocation" x="-84" y="563.56821589205401"/>
         </scene>
         <!--About-->
         <scene sceneID="Wtx-D2-mDH">
@@ -224,7 +244,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Version" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dct-aE-6QF">
-                                <rect key="frame" x="16" y="74" width="343" height="21"/>
+                                <rect key="frame" x="16" y="102" width="343" height="21"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="21" id="Bh2-yr-eqc"/>
                                 </constraints>
@@ -233,7 +253,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Weather Central" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="n73-FX-irM">
-                                <rect key="frame" x="16" y="40" width="343" height="22"/>
+                                <rect key="frame" x="16" y="72" width="343" height="22"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="22" id="imA-tk-xch"/>
                                 </constraints>
@@ -242,8 +262,8 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Vtl-ei-VZT">
-                                <rect key="frame" x="16" y="103" width="343" height="544"/>
-                                <string key="text">Weather Central downloads weather info from the  wunderground.com API (Weather Underground).  You must obtain an API-Key from the site to enable this service.  You can get a Developer key for free, which allows 10 calls per minute, and 500 per day.  When you have the key, go back to Settings, tap 'Change API Key', enter the key, and tap 'Update'.  Now you can go back to the home page, Select the Features you wish to download, Search for the location you are interested in, and tap 'Download Data'.  When the download is complete, the Features buttons will turn blue. Tap on the Feature to show the data.</string>
+                                <rect key="frame" x="16" y="131" width="343" height="516"/>
+                                <mutableString key="text">Weather Central downloads weather info from the  Weather Underground API.  You must obtain an API-Key from the site to enable this service.  See Settings/Change API Key for more info.  From the home page, Select the Features you wish to download, Search for the location you are interested in, and tap 'Download Data'.  When the download is complete, the Features buttons will turn blue. Tap on the Feature to show the data.</mutableString>
                                 <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -251,7 +271,7 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="dct-aE-6QF" firstAttribute="top" secondItem="n73-FX-irM" secondAttribute="bottom" constant="12" id="0qP-Ba-H4T"/>
+                            <constraint firstItem="dct-aE-6QF" firstAttribute="top" secondItem="n73-FX-irM" secondAttribute="bottom" constant="8" id="0qP-Ba-H4T"/>
                             <constraint firstItem="Vtl-ei-VZT" firstAttribute="leading" secondItem="Xpm-3u-Zur" secondAttribute="leadingMargin" id="1cg-Rq-yvG"/>
                             <constraint firstItem="dct-aE-6QF" firstAttribute="leading" secondItem="Xpm-3u-Zur" secondAttribute="leadingMargin" id="8Wq-4C-nf3"/>
                             <constraint firstItem="dct-aE-6QF" firstAttribute="trailing" secondItem="Xpm-3u-Zur" secondAttribute="trailingMargin" id="8uf-DY-L98"/>
@@ -260,9 +280,10 @@
                             <constraint firstItem="Ppq-dq-l7w" firstAttribute="top" secondItem="Vtl-ei-VZT" secondAttribute="bottom" constant="20" id="Y46-B0-FUw"/>
                             <constraint firstAttribute="trailingMargin" secondItem="n73-FX-irM" secondAttribute="trailing" id="b8G-B7-NEJ"/>
                             <constraint firstItem="Vtl-ei-VZT" firstAttribute="trailing" secondItem="Xpm-3u-Zur" secondAttribute="trailingMargin" id="eZ6-dr-tlU"/>
-                            <constraint firstItem="n73-FX-irM" firstAttribute="top" secondItem="jpD-Ve-FYL" secondAttribute="bottom" constant="20" id="fRC-IV-f46"/>
+                            <constraint firstItem="n73-FX-irM" firstAttribute="top" secondItem="jpD-Ve-FYL" secondAttribute="bottom" constant="8" id="fRC-IV-f46"/>
                         </constraints>
                     </view>
+                    <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
                     <connections>
                         <outlet property="lblVersion" destination="dct-aE-6QF" id="zc0-yF-MDB"/>
                     </connections>

@@ -14,7 +14,7 @@ class SettingsViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var btnUpdateAPIKey: UIButton!
     @IBOutlet weak var lblAPIKey: UILabel!
 
-    @IBOutlet weak var lblVersion: UILabel!
+    //@IBOutlet weak var lblVersion: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -28,7 +28,7 @@ class SettingsViewController: UIViewController, UITextFieldDelegate {
         }
         btnUpdateAPIKey.isEnabled = false
 
-        lblVersion.text = "Version \(gAppVersion)  Build \(gAppBuild)"
+        //lblVersion.text = "Version \(gAppVersion)  Build \(gAppBuild)"
     }
 
     // ------ Dismiss Keybooard if user taps empty area ------
@@ -64,8 +64,8 @@ class SettingsViewController: UIViewController, UITextFieldDelegate {
                 showError("No upper-case characters allowed")
             } else {
                 //————— Permanent Storage —————-
-                UserDefaults.standard.set(APItxt, forKey: "wuapikey")
                 gAPIKey = APItxt
+                UserDefaults.standard.set(gAPIKey, forKey: UDKey.wuAPIKey.rawValue)//wuapikey")
                 showAlert(title: "Success", message: "APIKey updated to \(APItxt)")
             } //end if APItxt
         } //end if len

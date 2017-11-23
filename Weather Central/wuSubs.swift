@@ -191,20 +191,40 @@ public func makeWuUrlJson(APIKey: String, features: String, place: String) -> (u
 
 //MARK: -------- Checks for valid text inputs --------
 public func getSearchType(searchText: String) -> LocationSelectionType {
-    if isZipValid(searchText) { return .zip }
-    if isStationValid(searchText) { return .station }
-    if isCityStateValid(searchText)  { return .city }
+    if isLocalValid(searchText)     { return .near }
+    if isZipValid(searchText)       { return .zip }
+    if isStationValid(searchText)   { return .station }
+    if isCityStateValid(searchText) { return .city }
+    if isLatLonValid(searchText)    { return .latlon }
     return .none
 }
 
+public func isLocalValid(_ text: String) -> Bool {
+    let txt = getFirstPart(text).lowercased()
+    if txt == "" || txt == "local" || txt == "near" || txt == "nearby" || txt == "me" { return true }
+    return false
+}
+
+// Station has 3-4 chars for AP, mixed letters & digits for pws
 public func isStationValid(_ stationName: String) -> Bool {
     let sta = stationName.trim()
     let n = sta.count
     if n < 3 || ( n > 4 && n < 8) || n > 11    { return false }
     if sta.contains(",") || sta.contains(" ")  { return false }
-    //???? check for legal chars letters & digits
-    //???? if n>3 1st char must be a letter
-    //???? if n>=8 1st 7 chars must be letters; last n-7 chars must be digits
+
+    let letters = CharacterSet.letters
+    let digits = CharacterSet.decimalDigits
+
+    for uni in stationName.unicodeScalars {
+        if !letters.contains(uni) && !digits.contains(uni) { return false }
+    }
+    //if n>3 1st char must be a letter, last char must be digit
+    if n > 3 {
+        if !letters.contains(stationName.unicodeScalars.first!) { return false }
+        if n > 4 {
+            if !digits.contains(stationName.unicodeScalars.last!) { return false }
+        }
+    }
     return true
 }
 
@@ -213,30 +233,72 @@ public func isCityStateValid(_ cityState: String) -> Bool {
     if !cityState.contains(",") { return false }
     if cityState.indexOf(searchforStr: ",") > cityState.count - 3 { return false }
     //????check for legal chars letters, " ", ","
+
+    let letters = CharacterSet.letters
+    let digits = CharacterSet.decimalDigits
+
+    for uni in cityState.unicodeScalars {
+        if !letters.contains(uni) && !digits.contains(uni) && uni != " " && uni != "," && uni != "." && uni != " "
+            { return false }
+    }
     return true
 }
 
 public func isZipValid(_ zip: String) -> Bool {
-    //let zip = txtZip.text!
-    if zip.count != 5 {return false}
-    if Int(zip) != nil {return true}
+    let zp = getFirstPart(zip)
+    if zp.count != 5 {return false}
+    if Int(zp) != nil {return true}
     return false
 }
 
-public func isLatLonValid(latTxt: String, lonTxt: String ) -> Bool {
+public func isLatValid(latTxt: String) -> Bool {
     if latTxt.count < 2                 {return false}
     //???? Allow "N","S"
-guard let lat = Double(latTxt) else {return false}
+    guard let lat = Double(latTxt) else {return false}
     if lat < -90.0 || lat > 90.0        {return false}
+    return true
+}
 
+public func isLonValid(lonTxt: String ) -> Bool {
     if lonTxt.count < 2                 {return false}
     //???? Allow "E","W"
     guard let lon = Double(lonTxt) else {return false}
     if lon < -180.0 || lon > 180.0      {return false}
     return true
-
 }
 
+public func isLatLonValid(_ latLonTxt: String) -> Bool {
+    let  tupleLL = decodeLL(latLonTxt: latLonTxt)
+    if tupleLL.errorLL != ""            {return false}
+    return true
+}
+
+public func decodeLL(latLonTxt: String) -> (lat: Double, lon: Double, errorLL: String ) {
+    let LL = getFirstPart(latLonTxt)
+    var sep = " "
+    if LL.contains(",") { sep = "," }
+    let splitLL = LL.components(separatedBy: sep)
+    if splitLL.count != 2               { return (0.0, 0.0, "error") }
+    let latTxt = splitLL[0].trim()
+    let lonTxt = splitLL[1].trim()
+    if latTxt.count < 2                 { return (0.0, 0.0, "error") }
+    //???? Allow "N","S"
+    guard let lat = Double(latTxt) else { return (0.0, 0.0, "error") }
+    if lat < -90.0 || lat > 90.0        { return (lat, 0.0, "error") }
+
+    if lonTxt.count < 2                 { return (lat, 0.0, "error") }
+    //???? Allow "E","W"
+    guard let lon = Double(lonTxt) else { return (lat, 0.0, "error") }
+    if lon < -180.0 || lon > 180.0      { return (lat, lon, "error") }
+    return (lat, lon, "")
+}
+
+// get the 1st part of a String, separated by 'separator' (default ":") trimmed
+public func getFirstPart(_ text: String, separator: String = ":") -> String {
+    if !text.contains(separator) { return text }
+    let p = text.indexOf(searchforStr: separator)
+    return text.left(p).trim()
+}
 
 /*  ----- URLSession with taskCallback -----
 import UIKit
@@ -256,7 +318,6 @@ class ViewController: UIViewController {
     }
 }
  
-
 private class func execTask(request: URLRequest, taskCallback: @escaping (Bool, AnyObject?) -> ()) {
     
     let session = URLSession(configuration: URLSessionConfiguration.default)

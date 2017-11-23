@@ -11,10 +11,10 @@ import UIKit
 // String extension:
 // subscript(i), subscript(range), left(i), right(i), mid(i,len), rightJust(len), indexOf(str), trim()
 extension String {
-    subscript (i: Int) -> Character {
+    subscript (_ i: Int) -> Character {
         return self[index(startIndex, offsetBy: i)]
     }
-    subscript (i: Int) -> String {
+    subscript (_ i: Int) -> String {
         return String(self[i] as Character)
     }
     subscript (r: Range<Int>) -> String {
@@ -23,9 +23,8 @@ extension String {
         return self[Range(start ..< end)]
     }
     func left(_ length: Int) -> String {
-        if length > self.count {
-            return self
-        }
+        if length <= 0          { return "" }
+        if length > self.count  { return self }
         let end = index(startIndex, offsetBy: length)
         return self[Range(startIndex ..< end)]
     }

@@ -25,7 +25,6 @@ class MapVC: UIViewController, MKMapViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        gUpdateGeoLookup = false
         gMapDidSave = false
         gMapReturnType = .none        // we have not yet picked anything
         btnSave.isEnabled = false

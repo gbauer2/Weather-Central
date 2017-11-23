@@ -26,15 +26,15 @@ var callLog = [Date(),Date(),Date(),Date(),Date(), Date(),Date(),Date(),Date(),D
 //MARK: --- Call this function when app first loads ---
 public func CallLogInit() {
     // 1 Read perm
-    gDateLastRun   = UserDefaults.standard.object(forKey: "dateLastRun"  ) as? Date ?? Date()
-    gDateLastCall  = UserDefaults.standard.object(forKey: "dateLastCall" ) as? Date ?? Date()
-    gYmdLastCallET = UserDefaults.standard.object(forKey: "ymdLastCallET") as? Int  ?? 0
-    gNumCallsToday = UserDefaults.standard.object(forKey: "numCallsToday") as? Int  ?? 0
+    gDateLastRun   = UserDefaults.standard.object(forKey: UDKey.dateLastRun.rawValue)    as? Date ?? Date()
+    gDateLastCall  = UserDefaults.standard.object(forKey: UDKey.wuDateLastCall.rawValue) as? Date ?? Date()
+    gYmdLastCallET = UserDefaults.standard.object(forKey: UDKey.wuYmdLastCallET.rawValue) as? Int ?? 0
+    gNumCallsToday = UserDefaults.standard.object(forKey: UDKey.wuNumCallsToday.rawValue) as? Int ?? 0
     callLog[0]     = Date(timeIntervalSinceNow: -61)     // init the time of last call to more than a munute ago
     
     _ = checkDailyLimit()
     
-    UserDefaults.standard.set(Date(), forKey: "dateLastRun")
+    UserDefaults.standard.set(Date(), forKey: UDKey.dateLastRun.rawValue)
     
     let secHowLong = Date().timeIntervalSince(gDateLastRun)
     if secHowLong <= 99 {
@@ -77,8 +77,8 @@ public func tryToLogCall(makeCall: Bool) -> (isOK:Bool, numCallsLastMinute: Int,
         gNumCallsToday += 1
         numCallsLastMinute += 1
         gDateLastCall = Date()
-        UserDefaults.standard.set(gNumCallsToday, forKey: "numCallsToday")
-        UserDefaults.standard.set(gDateLastCall,  forKey: "dateLastCall")
+        UserDefaults.standard.set(gNumCallsToday, forKey: UDKey.wuNumCallsToday.rawValue)
+        UserDefaults.standard.set(gDateLastCall,  forKey: UDKey.wuDateLastCall.rawValue)
     }
     return (true, numCallsLastMinute, "")
 }//end func
@@ -95,8 +95,8 @@ public func checkDailyLimit() -> Bool {
         print("was \(gYmdLastCallET) ET, now is \(ymdNowET) ET.  Reset numCallsToday to 0")
         gNumCallsToday = 0
         gYmdLastCallET = ymdNowET
-        UserDefaults.standard.set(gYmdLastCallET, forKey: "ymdLastCallET")
-        UserDefaults.standard.set(gNumCallsToday, forKey: "numCallsToday")
+        UserDefaults.standard.set(gYmdLastCallET, forKey: UDKey.wuYmdLastCallET.rawValue)
+        UserDefaults.standard.set(gNumCallsToday, forKey: UDKey.wuNumCallsToday.rawValue)
     }
     return gNumCallsToday < gMaxCallsPerDay
 }//end func

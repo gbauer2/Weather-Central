@@ -8,18 +8,18 @@
 
 //TODO: - ToDo list
 /*
- 1) Redo Home page to allow either NearMe or LastUsed or GeoLookup.
- 2) If NO Features selected, Default to "Almanac, Astronomy, Conditions"
- 3) Select Hours & Days of interest for "Hourly" (e.g. Wed,Thu,Fri 8AM-2PM)
- 4) Settings:(Default NSEW hemi)(LatLon display)(mi,nm,km)(degC,degF)(AMPM,24hr)(call limits)(WU level)
+ 1) If no Features selected, Default to "Almanac, Astronomy, Conditions"
+ 2) Select Hours & Days of interest for "Hourly" (e.g. Wed,Thu,Fri 8AM-2PM)
+ 3) Settings:(Default NSEW hemi)(LatLon display)(mi,nm,km)(degC,degF)(AMPM,24hr)(call limits)(WU level)
              Test new API Key before accepting it.
- 5) Hurricane forecast & map
- 6) Map: DistDir in info, dotted line to selected, icon for airports, Show previously found stations
- 7) Customize for landscape, or 6 vs 6+ in portait
- 8) Bigger Font for 6sPlus & iPad - Forecast, Hourly
- 9) Allow GeoLookup to Save Lat/Lon, CityState, Zip, rather than just Station
-10) Dropdown list for City
-11) If nothing in HomeScreen text box, search local.
+ 4) Hurricane forecast & map
+ 5) Map: DistDir in info, dotted line to selected, icon for airports, Show previously found stations
+ 6) Customize for landscape, or 6 vs 6+ in portait
+ 7) Bigger Font for 6sPlus & iPad - Forecast, Hourly
+ 8) Allow GeoLookup to Save Lat/Lon, CityState, Zip, rather than just Station
+ 9) Dropdown list for City
+10) GeoLookup - When Station is Selected, it should udate City & clear zip
+11) Save Time for each feature download.
 
  Issues:
     Alerts: if just 1 Alert, put its name in heading
@@ -35,11 +35,13 @@ New Features to be added later.
  4) Save Stations found for future use in Map
  5) pws History: #trys, #succeeds, DateLastTry, DateLastSucceed
 
-1.0.6(28) City,State now combined.
-Home screen can enter Zip or StationID in addition to CityState
-Added trim(), indexOfRev() to String extension
-Fixed String extension mid()
-
+1.0.7(34)
+ Homepage searches Cities, Zips, Station, LatLons, or local.
+ Allow a comment in (after ":") in Homepage seachbox
+ All segues now dismiss keyboard
+ Modify String extension "left()" to allow for length <= 0
+ GeoLookup: fixed bug in Zip Lookup
+ Code cleanup: enums etc.
 
 Get some stuff with every query *Almanac&Astron= 1K,
                                  GeoLookup     = 8k,
@@ -88,6 +90,7 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
     //MARK: ---- iOS built-in functions & overrides ----
     override func viewDidLoad() {
         super.viewDidLoad()
+        // get Device Stats
         let screenWidth  = UIScreen.main.bounds.size.width
         let screenHeight = UIScreen.main.bounds.size.height
         let ver          = Device.TheCurrentDeviceVersion
@@ -95,106 +98,126 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
         let devName      = UIDevice.current.name
         let devSystem    = UIDevice.current.systemName
         //let d          = UIDevice.current.batteryLevel
-        //print(d)
         print("😁 W=\(Int(screenWidth)), H=\(Int(screenHeight)), \(Device.PHONE_OR_PAD) in \(orientation), \(devName), \(devSystem) \(ver) 😁\n")
 
-        rawFontDefault = txtRawData.font
-        CallLogInit()
-        locationManager.delegate = self
+        rawFontDefault = txtRawData.font    // save default txtRawData Font from storyboard setting.
+        CallLogInit()                       // loads CallLog stats from UserDefaults
+
+        locationManager.delegate = self     // let's get our location
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         locationManager.requestWhenInUseAuthorization()
         locationManager.startUpdatingLocation()
+
+        gAPIKey = UserDefaults.standard.object(forKey: UDKey.wuAPIKey.rawValue)       as? String ?? ""
+        print("Homepage viewDidLoad, gAPIKey: \(gAPIKey)")
+
         gAppVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0"
-        gAppBuild = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "0"
+        gAppBuild   = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion")            as? String ?? "0"
+
         self.activityIndicator.transform = CGAffineTransform(scaleX: 2, y: 2) // Make my activityIndicator bigger
     }//end func
    
     override func viewWillAppear(_ animated: Bool) {
         //super.viewWillAppear()
+
+        // ???? This is needed so "Settings" says "Back" vs saying "Weather Central"
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "Back", style: .plain, target: nil, action: nil)
     }
     
     override func viewDidAppear(_ animated: Bool) {
 
-        gUpdateGeoLookup = true
-        var nameObject = UserDefaults.standard.object(forKey: "wuapikey")
-            if let name = nameObject as? String {
-            print(name)
-            gAPIKey = name
-        } else {
+        print("Homepage viewDidAppear, gAPIKey: \(gAPIKey)")
+        if gAPIKey == "" {
             print("UserDefaults.standard.object(forKey: \"wuapikey\") NOT Found.")
-        } //end if let name
-        
-        gStation   = UserDefaults.standard.object(forKey: stdUDKey.station.rawValue)     as? String ?? ""
-        gCityState = UserDefaults.standard.object(forKey: stdUDKey.cityState.rawValue)   as? String ?? ""
-        gZip       = UserDefaults.standard.object(forKey: stdUDKey.zip.rawValue)         as? String ?? ""
-        gLastSearch = UserDefaults.standard.object(forKey: stdUDKey.lastSearch.rawValue) as? String ?? ""
-        txtCity.text = gLastSearch
+        } //endif
 
-        nameObject = UserDefaults.standard.object(forKey: stdUDKey.featuresArr.rawValue)
-        if let temp = nameObject as? [Bool] {
-            wuFeaturesArr = temp
-        } else {
-            print("UserDefaults.standard.object(forKey: \"\(stdUDKey.featuresArr.rawValue)\") NOT Found.")
-        } //end if let name
+        // May be updated in GeoLookup
+        txtCity.text = gLastSearch          // enum is not storable in UserDefaults
+        gStation   = UserDefaults.standard.object(forKey:  UDKey.station.rawValue)    as? String ?? ""
+        gCityState = UserDefaults.standard.object(forKey:  UDKey.cityState.rawValue)  as? String ?? ""
+        gZip       = UserDefaults.standard.object(forKey:  UDKey.zip.rawValue)        as? String ?? ""
+        gLastSearch = UserDefaults.standard.object(forKey: UDKey.lastSearch.rawValue) as? String ?? ""
 
-        featuresStr = UserDefaults.standard.object(forKey: stdUDKey.featuresStr.rawValue) as? String ?? "geolookup/"
-        //print("featuresStr = \(featuresStr)")
+        // May be updated in FeaturePicker
+        wuFeaturesArr = UserDefaults.standard.object(forKey: UDKey.featuresArr.rawValue) as? [Bool] ?? wuFeaturesArrEmpty
+        featuresStr = UserDefaults.standard.object(forKey: UDKey.featuresStr.rawValue) as? String ?? "geolookup/"
 
-        txtRawData.text = ""
-        lblError.textAlignment = NSTextAlignment.center
-        lblError.text = "----"
-        
-        // Set Buttons according to wuFeaturesArr[]
-        setFeatureButtons()
-        UIApplication.shared.isNetworkActivityIndicatorVisible = false
-        self.activityIndicator.stopAnimating()                  // make sure activityIndicator is off
-        //UIApplication.shared.endIgnoringInteractionEvents()   // if you were ignoring events
         numFeatures = 0
         for isSelected in wuFeaturesArr {
             if isSelected {numFeatures += 1}
         }
         if wuFeaturesArr[iAstronomy] { numFeatures -= 1 }
+        // Set Buttons according to wuFeaturesArr[]
+        setFeatureButtons()
+
+        lblError.textAlignment = NSTextAlignment.center
+        lblError.text = "----"
         clearRawData()
+
+        UIApplication.shared.isNetworkActivityIndicatorVisible = false
+        self.activityIndicator.stopAnimating()                  // make sure activityIndicator is off
+        //UIApplication.shared.endIgnoringInteractionEvents()   // if you were ignoring events
+
         if gAPIKey.count < 15 {
-        showAlert(title: "Important!", message: "You must obtain an 'API Key' from wunderground.com to use this app.  Tap ⚙️, type in key, and tap 'update'.")
+            showAlert(title: "Important!", message: "You must obtain an 'API Key' from wunderground.com to use this app.  Tap ⚙️, type in key, and tap 'update'.")
         }
     }//end func viewDidAppear
 
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        //————— Permanent Storage —————-
+
+        self.view.endEditing(true)              // Dismiss keyboard
+
+        gLastSearch = txtCity.text!
+        UserDefaults.standard.set(gLastSearch, forKey: UDKey.lastSearch.rawValue)
 
         segueList: switch segue.identifier {
-        case "segueSettings"?:
+        case segueID.HomeToSettings.rawValue?:                      //"segueSettings"
+            print("segue Home to Settings")
             break segueList
 
-        case "segueGeoLookup"?:
+        case segueID.HomeToGeoLookup.rawValue?:                     //"segueGeoLookup"
+            print("segue Home to GeoLookup")
             gSearchType = getSearchType(searchText: txtCity.text!)
             locType: switch gSearchType {
             case .city:
                 gCityState = txtCity.text!
-                UserDefaults.standard.set(gCityState, forKey: "CityState")
+                UserDefaults.standard.set(gCityState, forKey: UDKey.cityState.rawValue)
                 gLastSearch = txtCity.text!
-                UserDefaults.standard.set(gLastSearch, forKey: "LastSearch")
+                UserDefaults.standard.set(gLastSearch, forKey: UDKey.lastSearch.rawValue)
                 print("Home view saved City/State = \(gCityState)")
             case .station:
                 gStation = txtCity.text!
-                UserDefaults.standard.set(gStation, forKey: "wuStationID")
+                UserDefaults.standard.set(gStation, forKey: UDKey.station.rawValue)
                 gLastSearch = txtCity.text!
-                UserDefaults.standard.set(gLastSearch, forKey: "LastSearch")
+                UserDefaults.standard.set(gLastSearch, forKey: UDKey.lastSearch.rawValue)
                 print("Home view saved Station ID = \(gStation)")
+            case .latlon:
+                let tupleLL = decodeLL(latLonTxt: txtCity.text!)
+                if !tupleLL.errorLL.isEmpty {
+                    showError("Lat/Lon \(tupleLL.errorLL)")
+                    gLat = 0.0
+                    gLon = 0.0
+                    return
+                }
+                gLat = tupleLL.lat
+                gLon = tupleLL.lon
+                UserDefaults.standard.set(tupleLL.lat, forKey: UDKey.lat.rawValue)
+                UserDefaults.standard.set(tupleLL.lon, forKey: UDKey.lon.rawValue)
+                print("Homepage saved LatLon = \(gLat),\(gLon)")
+
             case .zip:
                 gZip = txtCity.text!
-                UserDefaults.standard.set(gZip, forKey: "Zip")
+                UserDefaults.standard.set(gZip, forKey: UDKey.zip.rawValue)
                 gLastSearch = txtCity.text!
-                UserDefaults.standard.set(gLastSearch, forKey: "LastSearch")
+                UserDefaults.standard.set(gLastSearch, forKey: UDKey.lastSearch.rawValue)
                 print("Home view saved Zip = \(gZip)")
             default:
                 break locType
             }
 
-        case "segueFeatures"?:
+        case segueID.HomeToFeatures.rawValue?:                      //"segueFeatures"
+            print("segue Home to Feature Selector")
             break segueList
 
         default:
@@ -336,11 +359,6 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
         txtRawData.text = ""
         lblError.text   = ""
         
-        if txtCity.text!.count < 3 {
-            showError("You must enter a City,State or Station ID.")
-            return
-        }
-        
         if numFeatures == 0 {
             showError("You must select at least 1 feature.")
             return
@@ -350,21 +368,34 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
 
         gSearchType = getSearchType(searchText: txtCity.text!)
         switch gSearchType {
+        case .near:
+            if gUserLat == 0.0 && gUserLon == 0.0 {
+                showError("Your location not available. You must enter a City/State or Zip or WxStation")
+                return
+            }
+            gSearchLat = gUserLat
+            gSearchLon = gUserLon
+            gSearchType = .near
+            txtCity.text = "local: " + formatDbl(number: gUserLat, places: 3) + ", "
+                                     + formatDbl(number: gUserLon, places: 3)
+            gLastSearch = txtCity.text!
+            place = "\(gUserLat),\(gUserLon)"
+
         case .city:
-            gCityState = txtCity.text!.trim()
+            gCityState = getFirstPart(txtCity.text!)
             let splitCityState = gCityState.components(separatedBy: ",")
             let city  = splitCityState[0].trim()
             let state = splitCityState[1].trim()
             place = state + "/" + city
-            UserDefaults.standard.set(gCityState, forKey: "CityState")
+            UserDefaults.standard.set(gCityState, forKey: UDKey.cityState.rawValue)//"CityState")
             gLastSearch = txtCity.text!
-            UserDefaults.standard.set(gLastSearch, forKey: "LastSearch")
+            UserDefaults.standard.set(gLastSearch, forKey: UDKey.lastSearch.rawValue)//"LastSearch")
 
         case .station:
-            gStation = txtCity.text!
-            UserDefaults.standard.set(gStation, forKey: "wuStationID")
+            gStation = getFirstPart(txtCity.text!)
+            UserDefaults.standard.set(gStation, forKey: UDKey.station.rawValue)//"wuStationID")
             gLastSearch = txtCity.text!
-            UserDefaults.standard.set(gLastSearch, forKey: "LastSearch")
+            UserDefaults.standard.set(gLastSearch, forKey: UDKey.lastSearch.rawValue)//"LastSearch")
             if gStation.count <= 4 {
                 place = gStation
             } else {
@@ -372,14 +403,26 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
             }
 
         case .zip:
-            gZip = txtCity.text!
-            UserDefaults.standard.set(gZip, forKey: "Zip")
+            gZip = getFirstPart(txtCity.text!)
+            UserDefaults.standard.set(gZip, forKey: UDKey.zip.rawValue)//"Zip")
             gLastSearch = txtCity.text!
-            UserDefaults.standard.set(gLastSearch, forKey: "LastSearch")
+            UserDefaults.standard.set(gLastSearch, forKey: UDKey.lastSearch.rawValue)//"LastSearch")
             place = "zip: " + gZip
 
+        case .latlon:
+            let tupleLL = decodeLL(latLonTxt: txtCity.text!)
+            if !tupleLL.errorLL.isEmpty {
+                showError("Lat/Lon \(tupleLL.errorLL)")
+                return
+            }
+            gLat = tupleLL.lat
+            gLon = tupleLL.lon
+            UserDefaults.standard.set(tupleLL.lat, forKey: UDKey.lat.rawValue)
+            UserDefaults.standard.set(tupleLL.lon, forKey: UDKey.lon.rawValue)
+            place = "\(tupleLL.lat),\(tupleLL.lon)"
+
         default:
-            showError("Not a legal City,State or Station ID or Zip")
+            showError("You must enter a City/State or Zip or WxStation or Lat/Lon or blank for local.")
             return
         }
 
@@ -574,7 +617,7 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
                     gDataIsCurrent = true
                     self.setFeatureButtons()
                     //————— Permanent Storage —————-
-                    UserDefaults.standard.set(self.featuresStr, forKey: "wuFeatures")
+                    UserDefaults.standard.set(self.featuresStr, forKey: UDKey.featuresStr.rawValue)//"wuFeatures")
                     if self.numFeatures == 1  {
                         var singleItem = 0
                         for i in 1..<wuFeaturesArr.count {
