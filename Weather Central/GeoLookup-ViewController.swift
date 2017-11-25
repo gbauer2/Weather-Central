@@ -6,19 +6,11 @@
 //  Copyright © 2017 GeorgeBauer. All rights reserved.
 //
 
-//TODO:
-/*
-    3. .isEnabled for btnSave
-    4. Autocomplete for txtCity
-    5. Limit Calls to below 10/min 500/day
- 
-*/
-
 import UIKit
 import CoreLocation
 
 public enum LocationSelectionType: String {
-    case none = ""
+    case none = "none"
     case near = "Nearby"
     case city = "City"
     case zip  = "Zip"
@@ -29,17 +21,14 @@ public enum LocationSelectionType: String {
 //MARK:---- Globals for MapVC ----
 // Send to Map
 var gSearchType = LocationSelectionType.none    // set by: Home, Geolookup;  used by: Home, Geolookup, Map
-var gSearchName = ""                            // set by: Geolookup;        used by: Map
 var gSearchLat  = 0.0
 var gSearchLon  = 0.0
-var gStations   = [Station]()
 
 // Get from Map
-var gMapReturnType = LocationSelectionType.none
+//mapReturnType
 var gLatFromMap = 0.0
 var gLonFromMap = 0.0
 var gStationFromMap = ""
-var gMapDidSave = false
 
 class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDelegate {
     
@@ -49,6 +38,10 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
     var infoStations = [StationInfo]()
     var latStr = "?"
     var lonStr = "?"
+    var stations   = [Station]()
+
+    var searchName = ""                            // set by: Geolookup;        used by: Map
+    var mapReturnType = LocationSelectionType.none
 
     var locationManager = CLLocationManager()
     var userLocation = CLLocation(latitude: 0.0, longitude: 0.0)
@@ -82,7 +75,7 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
     //          gLastSearch, gSearchType
     //          txtCity, txtLat, txtLon ,txtStation, txtZip
     // If a download had been done on Home since we were here last, load all textfields except Station
-    // and also set gSearchLat,gSearchLon,gSearchName?
+    // and also set gSearchLat,gSearchLon,searchName?
     // If not, remember the previous state from Geolookup, and restore it.
     // On exit to Home, save the StationID, or if none save last search item.
     override func viewDidLoad() {
@@ -96,7 +89,7 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
         // Default Map Settings - Show local map
         gSearchLat  = gUserLat
         gSearchLon  = gUserLon
-        gSearchName = "You"
+        searchName = "You"
         gSearchType = .near     // deault
 
         // Start process to update user location
@@ -108,24 +101,27 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
         enableButton(btn: btnMap, enable: true)
 
         // Get City, State, Station from permanent storage & set button states
-        gCityState  = UserDefaults.standard.object(forKey: UDKey.cityState.rawValue) as? String ?? ""
-        gZip        = UserDefaults.standard.object(forKey: UDKey.zip.rawValue)       as? String ?? ""
+        let searchTypeStr = UserDefaults.standard.object(forKey: UDKey.searchType) as? String ?? "none"
+        gSearchType = LocationSelectionType(rawValue: searchTypeStr) ?? LocationSelectionType.none
+        print("GeoLookup/viewDidLoad get searchType from Homepage = \(gSearchType)")
+        gCityState  = UserDefaults.standard.object(forKey: UDKey.cityState) as? String ?? ""
+        gZip        = UserDefaults.standard.object(forKey: UDKey.zip)       as? String ?? ""
         txtCity.text = gCityState
         enableButton(btn: self.btnCity, enable: isCityStateValid(txtCity.text!))
         txtZip.text = gZip
         enableButton(btn: self.btnZip,  enable: isZipValid(txtZip.text!))
-        gStation = UserDefaults.standard.object(forKey: UDKey.station.rawValue)      as? String ?? ""
+        gStation = UserDefaults.standard.object(forKey: UDKey.station)      as? String ?? ""
         txtStation.text = gStation
         enableButton(btn: btnStation,   enable: isStationValid(gStation))
 
-        gLat = UserDefaults.standard.object(forKey: UDKey.lat.rawValue)              as? Double ?? 0.0
-        gLon = UserDefaults.standard.object(forKey: UDKey.lon.rawValue)              as? Double ?? 0.0
+        gLat = UserDefaults.standard.object(forKey: UDKey.lat)              as? Double ?? 0.0
+        gLon = UserDefaults.standard.object(forKey: UDKey.lon)              as? Double ?? 0.0
         txtLat.text = "\(gLat)"
         txtLon.text = "\(gLon)"
         enableButton(btn: btnLatLon, enable: (gLat != 0.0 || gLon != 0.0))
 
         // Clean out the Stations arrays & clear the TableView
-        gStations = []
+        stations = []
         infoStations = []
         tableView.reloadData()
 
@@ -139,22 +135,50 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
 
     override func viewDidAppear(_ animated: Bool) {
         // If we are returning from the Map, and the user saved a LatLon or WxStation
-        if gMapDidSave {
-            gMapDidSave = false
-            switch gMapReturnType {
+        let mapReturnTypeStr = UserDefaults.standard.object(forKey: UDKey.mapReturnType) as? String ?? "none"
+        mapReturnType = LocationSelectionType(rawValue: mapReturnTypeStr)!
+
+        if mapReturnType != .none {
+            switch mapReturnType {
             case .latlon:
                 print("😃😃😃😃Update Map to \(gLatFromMap), \(gLonFromMap)😃😃😃😃")
-                txtLat.text = formatDbl(number: gLatFromMap, places: 4)
-                txtLon.text = formatDbl(number: gLonFromMap, places: 4)
+                gSearchType = mapReturnType
+                txtLat.text = formatDbl(number: gLatFromMap, places: 3)
+                txtLon.text = formatDbl(number: gLonFromMap, places: 3)
+                gLastSearch = txtLat.text! + "," + txtLon.text!
                 enableButton(btn: btnLatLon, enable: true)
             case .station:
                 print("😃😃Update Map to \(gStationFromMap)😃😃")
+                gSearchType = mapReturnType
                 txtStation.text = gStationFromMap
+                gLastSearch = gStationFromMap
                 enableButton(btn: btnStation, enable: true)
             default: break
             }
-            gMapReturnType = .none
+            mapReturnType = .none
+            UserDefaults.standard.set(mapReturnType.rawValue, forKey: UDKey.mapReturnType)
+
         }//endif
+    }
+
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        print("segueID = \(segue.identifier ?? "No ID!")")
+        guard let thisSegueID = segue.identifier else { return }
+        switch thisSegueID {
+        case segueID.GeoLookupToMap:
+            print("Goin to the Map!!")
+            let mapVC = segue.destination as! MapVC
+            mapVC.searchLat = gSearchLat
+            mapVC.searchLon = gSearchLon
+            mapVC.searchType = gSearchType
+            mapVC.searchName = searchName
+            mapVC.latDelta = 0.18
+            mapVC.lonDelta = 0.18
+            mapVC.stations = stations
+            
+        default:
+            print("segueID = \(segue.identifier ?? "No ID!")")
+        }
     }
 
     // when you get location from CLLocationManager, record gUserLat & gUserLon, and stop updates
@@ -267,7 +291,7 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
         txtStation.text = gStation
         gSearchLat = Double(txtLat.text!) ?? 0.0
         gSearchLon = Double(txtLon.text!) ?? 0.0
-        gSearchName = "LatLon"
+        searchName = "LatLon"
         gSearchType = .latlon
         let place = txtLat.text! + "," + txtLon.text!
         lookupPlace(place: place)
@@ -284,7 +308,7 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
         gSearchLon = 0.0
         gStation = ""
         txtStation.text = gStation
-        gSearchName = txtCity.text!
+        searchName = txtCity.text!
         gSearchType = .city
         gLastSearch = txtCity.text!
         let splitCityState = gCityState.components(separatedBy: ",")
@@ -301,11 +325,11 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
             showError( "Zip must be a 5 digit number!")
             return
         }
+        self.view.endEditing(true)
         gStation = ""
         txtStation.text = gStation
-        gSearchName = "zip: " + place
+        searchName = "zip: " + place
         gSearchType = .zip
-        self.view.endEditing(true)
         gLastSearch = txtZip.text!
         lookupPlace(place: place)
     }
@@ -320,8 +344,9 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
         txtStation.text = gStation
         gSearchLat = gUserLat
         gSearchLon = gUserLon
-        gSearchName = "You"
+        searchName = "You"
         gSearchType = .near
+        gLastSearch = "local"
         txtLat.text = formatDbl(number: gUserLat, places: 3)
         txtLon.text = formatDbl(number: gUserLon, places: 3)
         enableButton(btn: btnLatLon, enable: isLatValid(latTxt: txtLat.text!) && isLonValid(lonTxt: txtLon.text!) )
@@ -334,20 +359,16 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
         self.view.endEditing(true)
         gSearchLat = 0.0
         gSearchLon = 0.0
-        gSearchName = txtStation.text!
+        searchName = txtStation.text!
         gSearchType = .station
         gLastSearch = txtStation.text!
         lookupStation()
     }
 
     @IBAction func btnMapTap(_ sender: UIButton) {
-
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let vc = storyboard.instantiateViewController(withIdentifier: "idMapVC") as! MapVC
-        gMapDidSave = false
-        gMapReturnType = .none
-
-        navigationController?.pushViewController(vc, animated: true)
+//        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+//        let vc = storyboard.instantiateViewController(withIdentifier: "idMapVC") as! MapVC
+//        navigationController?.pushViewController(vc, animated: true)
     }
 
     @IBAction func btnSaveTap(_ sender: UIBarButtonItem!) {
@@ -356,12 +377,15 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
 //            showError("You have not selected a weather station")
 //            return
 //        }
-        UserDefaults.standard.set(gCityState,      forKey: UDKey.cityState.rawValue)
-        UserDefaults.standard.set(txtStation.text, forKey: UDKey.station.rawValue)
-        UserDefaults.standard.set(gLastSearch,     forKey: UDKey.lastSearch.rawValue)
+        UserDefaults.standard.set(gSearchType.rawValue, forKey: UDKey.searchType)
+        UserDefaults.standard.set(gCityState,      forKey: UDKey.cityState)
+        UserDefaults.standard.set(txtStation.text, forKey: UDKey.station)
+        UserDefaults.standard.set(gLastSearch,     forKey: UDKey.lastSearch)
         gDataIsCurrent = false
-        print("GeoLookup saved \(gCityState)")
-        print("GeoLookup saved \(gStation)")
+        print("GeoLookup saved gSearchType \(gSearchType.rawValue)")
+        print("GeoLookup saved gLastSearch \(gLastSearch)")
+        print("GeoLookup saved gCityState  \(gCityState)")
+        print("GeoLookup saved gStation    \(gStation)")
         guard (navigationController?.popViewController(animated:true)) != nil else {
             print("No navigationController"); return
         }
@@ -383,7 +407,7 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
         let features = "geolookup"
         Detail = ""
         lblDetail.text = ""
-        gStations = []
+        stations = []
         infoStations = []
         tableView.reloadData()
         
@@ -559,7 +583,7 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
                 
                 for dictStation in apStationArr {
                     let station = Station(sta: dictStation)
-                    gStations.append(station)
+                    self.stations.append(station)
                     let stationID = station.id
                     let padID = stationID.padding(toLength: 4, withPad: " ", startingAt: 0)
                     let city = station.city
@@ -592,7 +616,7 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
                 self.Detail += "\n \(pwsStationArr.count) personal wx stations\n"
                 for dictStation in pwsStationArr {
                     let station = Station(sta: dictStation)
-                    gStations.append(station)
+                    self.stations.append(station)
                     let stationID = station.id
                     let padID = stationID.padding(toLength: 11, withPad: " ", startingAt: 0)
                     let neighborhood = station.neighborhood
@@ -685,7 +709,7 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
 extension GeoLookup_ViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int{
-        return gStations.count
+        return stations.count
     }
     
     func numberOfSections(in tableView: UITableView) -> Int { // Default is 1 if not implemented
@@ -703,7 +727,7 @@ extension GeoLookup_ViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let selStation =  gStations[indexPath.row]
+        let selStation =  stations[indexPath.row]
         selectedStationID = selStation.id
         txtStation.text = selectedStationID
         txtZip.text = ""

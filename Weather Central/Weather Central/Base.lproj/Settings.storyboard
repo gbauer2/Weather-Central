@@ -104,7 +104,7 @@
         <!--Test Call Limits-->
         <scene sceneID="bTs-aV-7wJ">
             <objects>
-                <viewController title="Test Call Limits" id="v7O-yV-kAg" customClass="TestDateViewController" customModule="Weather_Central" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="Test Call Limits" id="v7O-yV-kAg" customClass="TestCallLimitsVC" customModule="Weather_Central" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="1F8-kl-txt"/>
                         <viewControllerLayoutGuide type="bottom" id="wTR-hv-1cG"/>
@@ -150,12 +150,12 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="0Tl-J5-LKQ" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-84" y="1276"/>
+            <point key="canvasLocation" x="-84" y="1275.1124437781111"/>
         </scene>
         <!--Change API Key-->
         <scene sceneID="nSz-qG-jEq">
             <objects>
-                <viewController title="Change API Key" id="fqq-Gt-JIB" customClass="SettingsViewController" customModule="Weather_Central" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="Change API Key" id="fqq-Gt-JIB" customClass="APIKeyVC" customModule="Weather_Central" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="nCR-LA-f8V"/>
                         <viewControllerLayoutGuide type="bottom" id="EBm-1I-vEx"/>
@@ -165,22 +165,21 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Current API Key:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Vgf-ZO-oKp">
-                                <rect key="frame" x="16" y="28" width="343" height="21"/>
+                                <rect key="frame" x="21" y="36" width="338" height="30"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="21" id="m8Q-Y2-cFu"/>
+                                    <constraint firstAttribute="height" constant="30" id="m8Q-Y2-cFu"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="28"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="WU API Key" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Qzt-HB-o4Z">
-                                <rect key="frame" x="16" y="57" width="180" height="30"/>
+                                <rect key="frame" x="16" y="82" width="343" height="32"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="30" id="AUY-L3-LRa"/>
-                                    <constraint firstAttribute="width" constant="180" id="moG-14-9zn"/>
+                                    <constraint firstAttribute="height" constant="32" id="AUY-L3-LRa"/>
                                 </constraints>
                                 <nil key="textColor"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="28"/>
                                 <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no"/>
                                 <connections>
                                     <action selector="txtAPIKeyEdit:" destination="fqq-Gt-JIB" eventType="editingChanged" id="Pbf-5B-ysv"/>
@@ -188,42 +187,68 @@
                                 </connections>
                             </textField>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="i3q-nq-CrB">
-                                <rect key="frame" x="16" y="95" width="343" height="572"/>
-                                <mutableString key="text">Weather Central downloads weather info from the  Weather Underground API. You must obtain an API-Key from wunderground.com to enable this service.  You can get a Developer key for free, which allows 10 calls per minute, and 500 per day.  When you have the key, enter it above, and tap 'Update'. </mutableString>
+                                <rect key="frame" x="16" y="176" width="343" height="462"/>
+                                <string key="text">Weather Central downloads weather info from the  Weather Underground API. You must obtain an API-Key from wunderground.com to enable this service.  You can get a Developer key for free, which allows 10 calls per minute, and 500 per day.  When you have the key, enter it above, and tap 'Update'. </string>
                                 <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZPT-fs-KDb">
-                                <rect key="frame" x="204" y="57" width="48" height="30"/>
+                                <rect key="frame" x="16" y="126" width="343" height="30"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="30" id="fP1-3e-oIg"/>
-                                    <constraint firstAttribute="width" constant="48" id="lXK-ea-FIc"/>
+                                    <constraint firstAttribute="height" constant="30" id="BtP-dC-ERi"/>
                                 </constraints>
-                                <state key="normal" title="update"/>
+                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="24"/>
+                                <state key="normal" title="Update"/>
                                 <connections>
                                     <action selector="btnUpdateAPIKeyTap:" destination="fqq-Gt-JIB" eventType="touchUpInside" id="8vl-xe-5NG"/>
                                 </connections>
                             </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="---" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tev-Gr-nsX">
+                                <rect key="frame" x="16" y="646" width="343" height="21"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="21" id="enN-Xl-swg"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="owJ-uZ-zEK">
+                                <rect key="frame" x="169" y="190" width="37" height="37"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="37" id="MgD-yS-Znz"/>
+                                    <constraint firstAttribute="width" constant="37" id="dQv-WY-8Rh"/>
+                                </constraints>
+                                <color key="color" red="0.99932879209518433" green="0.16293820738792419" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstItem="ZPT-fs-KDb" firstAttribute="top" secondItem="Qzt-HB-o4Z" secondAttribute="bottom" constant="12" id="7gF-55-3Fs"/>
                             <constraint firstItem="i3q-nq-CrB" firstAttribute="trailing" secondItem="cZy-63-BE5" secondAttribute="trailingMargin" id="ESe-Dj-Tvx"/>
-                            <constraint firstItem="Qzt-HB-o4Z" firstAttribute="top" secondItem="Vgf-ZO-oKp" secondAttribute="bottom" constant="8" id="JtS-y9-MQj"/>
+                            <constraint firstItem="tev-Gr-nsX" firstAttribute="trailing" secondItem="cZy-63-BE5" secondAttribute="trailingMargin" id="GSQ-Wu-RD1"/>
+                            <constraint firstItem="owJ-uZ-zEK" firstAttribute="centerX" secondItem="cZy-63-BE5" secondAttribute="centerX" id="Im1-zp-452"/>
+                            <constraint firstItem="Qzt-HB-o4Z" firstAttribute="top" secondItem="Vgf-ZO-oKp" secondAttribute="bottom" constant="16" id="JtS-y9-MQj"/>
                             <constraint firstItem="i3q-nq-CrB" firstAttribute="leading" secondItem="cZy-63-BE5" secondAttribute="leadingMargin" id="KiF-7v-zuP"/>
-                            <constraint firstItem="ZPT-fs-KDb" firstAttribute="leading" secondItem="Qzt-HB-o4Z" secondAttribute="trailing" constant="8" id="Krc-q5-DxX"/>
-                            <constraint firstItem="EBm-1I-vEx" firstAttribute="top" secondItem="i3q-nq-CrB" secondAttribute="bottom" id="S5k-7r-LXA"/>
-                            <constraint firstItem="i3q-nq-CrB" firstAttribute="top" secondItem="Qzt-HB-o4Z" secondAttribute="bottom" constant="8" id="SAU-I1-w3H"/>
-                            <constraint firstItem="Vgf-ZO-oKp" firstAttribute="top" secondItem="nCR-LA-f8V" secondAttribute="bottom" constant="8" id="SLg-ge-cVk"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="ZPT-fs-KDb" secondAttribute="trailing" id="SBW-hO-5Pr"/>
+                            <constraint firstItem="Vgf-ZO-oKp" firstAttribute="top" secondItem="nCR-LA-f8V" secondAttribute="bottom" constant="16" id="SLg-ge-cVk"/>
                             <constraint firstItem="Qzt-HB-o4Z" firstAttribute="leading" secondItem="cZy-63-BE5" secondAttribute="leadingMargin" id="VGE-3G-CJD"/>
-                            <constraint firstItem="ZPT-fs-KDb" firstAttribute="top" secondItem="Vgf-ZO-oKp" secondAttribute="bottom" constant="8" id="ad1-zq-emq"/>
+                            <constraint firstItem="Qzt-HB-o4Z" firstAttribute="trailing" secondItem="cZy-63-BE5" secondAttribute="trailingMargin" id="ZO0-73-rBI"/>
+                            <constraint firstItem="tev-Gr-nsX" firstAttribute="leading" secondItem="cZy-63-BE5" secondAttribute="leadingMargin" id="aTj-63-dxD"/>
+                            <constraint firstItem="ZPT-fs-KDb" firstAttribute="leading" secondItem="cZy-63-BE5" secondAttribute="leadingMargin" id="bJF-Jj-2Je"/>
+                            <constraint firstItem="owJ-uZ-zEK" firstAttribute="top" secondItem="ZPT-fs-KDb" secondAttribute="bottom" constant="34" id="dbG-qa-8xM"/>
+                            <constraint firstItem="EBm-1I-vEx" firstAttribute="top" secondItem="tev-Gr-nsX" secondAttribute="bottom" id="e5u-Xd-dq4"/>
+                            <constraint firstItem="i3q-nq-CrB" firstAttribute="top" secondItem="ZPT-fs-KDb" secondAttribute="bottom" constant="20" id="nha-s4-nut"/>
                             <constraint firstItem="Vgf-ZO-oKp" firstAttribute="trailing" secondItem="cZy-63-BE5" secondAttribute="trailingMargin" id="s4j-cf-5GV"/>
-                            <constraint firstItem="Vgf-ZO-oKp" firstAttribute="leading" secondItem="cZy-63-BE5" secondAttribute="leadingMargin" id="vbl-MM-mDx"/>
+                            <constraint firstItem="tev-Gr-nsX" firstAttribute="top" secondItem="i3q-nq-CrB" secondAttribute="bottom" constant="8" id="tli-S3-9AH"/>
+                            <constraint firstItem="Vgf-ZO-oKp" firstAttribute="leading" secondItem="cZy-63-BE5" secondAttribute="leadingMargin" constant="5" id="vbl-MM-mDx"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="owJ-uZ-zEK" id="Es2-xQ-qh9"/>
                         <outlet property="btnUpdateAPIKey" destination="ZPT-fs-KDb" id="Buq-QY-s6V"/>
                         <outlet property="lblAPIKey" destination="Vgf-ZO-oKp" id="R54-c6-t8g"/>
+                        <outlet property="lblError" destination="tev-Gr-nsX" id="gLo-uj-UgH"/>
                         <outlet property="txtAPIKey" destination="Qzt-HB-o4Z" id="TwM-IX-gm7"/>
                     </connections>
                 </viewController>
@@ -263,7 +288,7 @@
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Vtl-ei-VZT">
                                 <rect key="frame" x="16" y="131" width="343" height="516"/>
-                                <mutableString key="text">Weather Central downloads weather info from the  Weather Underground API.  You must obtain an API-Key from the site to enable this service.  See Settings/Change API Key for more info.  From the home page, Select the Features you wish to download, Search for the location you are interested in, and tap 'Download Data'.  When the download is complete, the Features buttons will turn blue. Tap on the Feature to show the data.</mutableString>
+                                <string key="text">Weather Central downloads weather info from the  Weather Underground API.  You must obtain an API-Key from the site to enable this service.  See Settings/Change API Key for more info.  From the home page, Select the Features you wish to download, Search for the location you are interested in, and tap 'Download Data'.  When the download is complete, the Features buttons will turn blue. Tap on the Feature to show the data.</string>
                                 <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>

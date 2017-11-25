@@ -11,9 +11,16 @@ import MapKit
 
 //MARK: ------- class MapVC (MapViewController) ------
 class MapVC: UIViewController, MKMapViewDelegate {
+    //MARK: ---- properties ----
     let longPressSec = 1.5
     var latDelta = 0.18
     var lonDelta = 0.18
+    var mapReturnType = LocationSelectionType.none
+    var searchLat = 0.0
+    var searchLon = 0.0
+    var searchType = LocationSelectionType.none
+    var searchName = ""
+    var stations   = [Station]()
 
     //MARK:---- @IBOutlets ----
     @IBOutlet weak var mapView: MKMapView!
@@ -21,21 +28,21 @@ class MapVC: UIViewController, MKMapViewDelegate {
     @IBOutlet weak var btnSave: UIButton!
 
     //MARK:---- Overrides ----
-    // ---- viewDidLoad uses globals: gSearchType,gSearchName,gSearchLat,gSearchLon,[gStations] ----
+    // ---- viewDidLoad ----
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        gMapDidSave = false
-        gMapReturnType = .none        // we have not yet picked anything
+        mapReturnType = .none        // we have not yet picked anything
+        UserDefaults.standard.set(mapReturnType.rawValue, forKey: UDKey.mapReturnType)
         btnSave.isEnabled = false
-        plotMap(lat: gSearchLat, lon: gSearchLon, latDelt: latDelta, lonDelt: lonDelta)
+        plotMap(lat: searchLat, lon: searchLon, latDelt: latDelta, lonDelt: lonDelta)
         mapView.showsUserLocation = true
 
-        var info = "\(gSearchType.rawValue) search\nThis is the center of the search for weather stations close to \(gSearchName).\n"
-        info += "\(formatLatLon(lat: gSearchLat, lon: gSearchLon, places: 3))"
-        addMyAnnotation(title: gSearchName, subtitle: "searching from here", lat: gSearchLat, lon: gSearchLon, info: info, pinColor: UIColor.black, backgroundColor: nil)
+        var info = "\(searchType.rawValue) search\nThis is the center of the search for weather stations close to \(searchName).\n"
+        info += "\(formatLatLon(lat: searchLat, lon: searchLon, places: 3))"
+        addMyAnnotation(title: searchName, subtitle: "searching from here", lat: searchLat, lon: searchLon, info: info, pinColor: UIColor.black, backgroundColor: nil)
 
-        addAnnotations(stations: gStations)
+        addAnnotations(stations: stations)
 
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(self.longPressAction(gestureRecognizer:)))
         longPress.minimumPressDuration = longPressSec
@@ -45,20 +52,21 @@ class MapVC: UIViewController, MKMapViewDelegate {
 
     //MARK: ---- @IBActions ----
     @IBAction func btnSave(_ sender: UIButton) {
-        gMapDidSave = true
+        //???? this should not be passed by UserDefaults
+        UserDefaults.standard.set(mapReturnType.rawValue, forKey: UDKey.mapReturnType )
         navigationController?.popViewController(animated: true)
     }
 
     @IBAction func btnZoomOut(_ sender: UIButton) {
         latDelta = latDelta * 1.5
         lonDelta = lonDelta * 1.5
-        plotMap(lat: gSearchLat, lon: gSearchLon, latDelt: latDelta, lonDelt: lonDelta)
+        plotMap(lat: searchLat, lon: searchLon, latDelt: latDelta, lonDelt: lonDelta)
     }
     
     @IBAction func btnZoomIn(_ sender: UIButton) {
         latDelta = latDelta / 1.5
         lonDelta = lonDelta / 1.5
-        plotMap(lat: gSearchLat, lon: gSearchLon, latDelt: latDelta, lonDelt: lonDelta)
+        plotMap(lat: searchLat, lon: searchLon, latDelt: latDelta, lonDelt: lonDelta)
     }
 
     //MARK:---- general funcs ----
@@ -87,7 +95,7 @@ class MapVC: UIViewController, MKMapViewDelegate {
             if station.neighborhood != "" {
                 info += station.neighborhood + "\n"
             }
-            info += station.city + ", " + station.state + "\n\(formatLatLon(lat: gSearchLat, lon: gSearchLon, places: 3))"
+            info += station.city + ", " + station.state + "\n\(formatLatLon(lat: station.lat, lon: station.lon, places: 3))"
             let pinColor = station.type == "pws" ? UIColor.blue : UIColor.red
             addMyAnnotation(title: station.id, subtitle: subtitle, lat: station.lat, lon: station.lon, info: info, pinColor: pinColor, backgroundColor: nil)
         }
@@ -115,7 +123,7 @@ class MapVC: UIViewController, MKMapViewDelegate {
 //        mapView.addAnnotation(annotation)
 
         //showAlert(title: "Attention", message: "This Lat/Lon will be entered.")
-        gMapReturnType = .latlon
+        mapReturnType = .latlon
         lblSelected.text = formatLatLon(lat: gLatFromMap, lon: gLonFromMap, places: 3)
         btnSave.isEnabled = true
     }
@@ -129,7 +137,7 @@ class MapVC: UIViewController, MKMapViewDelegate {
         }
         let okAction = UIAlertAction(title: "OK", style: UIAlertActionStyle.default) { (result : UIAlertAction) -> Void in
             print("showAlert: OK")
-            gMapReturnType = .latlon
+            self.mapReturnType = .latlon
             guard (self.navigationController?.popViewController(animated:true)) != nil else {
                 print("\n😡No navigationController"); return
             }
@@ -190,10 +198,10 @@ class MapVC: UIViewController, MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         if let title = view.annotation?.title as? String {
             print("User tapped on annotation with title: \(title)")
-            if title != gSearchName && title != "My Location" {
+            if title != searchName && title != "My Location" {
                 gStationFromMap = title
                 lblSelected.text = gStationFromMap
-                gMapReturnType = .station
+                mapReturnType = .station
                 btnSave.isEnabled = true
             }
         }//endif let title

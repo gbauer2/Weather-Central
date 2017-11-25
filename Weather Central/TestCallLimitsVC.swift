@@ -8,7 +8,7 @@
 
 import UIKit
 
-class TestDateViewController: UIViewController {
+class TestCallLimitsVC: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -51,8 +51,11 @@ class TestDateViewController: UIViewController {
         //: There's a function on date formatters, that return a string with the formatted date.
         //print(dateFormatter.string(from: date))
         var aa = ""
-        aa  += "isOK = \(isOK)\n"
-        if !isOK {
+        //aa  += "isOK = \(isOK)\n"
+        if isOK {
+            aa += "You are OK to call."
+        } else {
+            aa += "You are at your limit."
             aa += "Try again \(msg).\n"
         }
 
@@ -62,7 +65,7 @@ class TestDateViewController: UIViewController {
         aa += "numCallsToday = \(gNumCallsToday)\n"
         aa += "\n"
 
-        aa += "dateStartup = "  + dateFormatter.string(from: gDateStartup) + "\n"
+        aa += "dateStartup   = "  + dateFormatter.string(from: gDateStartup) + "\n"
         aa += "dateLastRun = "  + dateFormatter.string(from: gDateLastRun) + "\n"
         aa += "dateLastCall = " + dateFormatter.string(from: gDateLastCall) + "\n"
         aa += "ymdLastCallET = \(gYmdLastCallET)\n"

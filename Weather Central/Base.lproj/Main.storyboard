@@ -1002,6 +1002,7 @@
                                 </state>
                                 <connections>
                                     <action selector="btnMapTap:" destination="MuV-8I-mJL" eventType="touchUpInside" id="Me5-fg-naM"/>
+                                    <segue destination="dqR-hu-TVd" kind="show" identifier="segueGeoLookupToMap" id="DBq-Cs-hGf"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PGt-yE-IX1">
@@ -1087,7 +1088,6 @@
                         <outlet property="txtLon" destination="gcy-rD-9Ki" id="6P0-WH-1Xu"/>
                         <outlet property="txtStation" destination="nbb-RQ-IZi" id="jCf-yC-9hh"/>
                         <outlet property="txtZip" destination="gpv-1z-ooU" id="PPj-Gm-eeN"/>
-                        <segue destination="dqR-hu-TVd" kind="show" identifier="segueMap" id="5wG-8K-T8B"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="l20-qI-R4s" userLabel="First Responder" sceneMemberID="firstResponder"/>
