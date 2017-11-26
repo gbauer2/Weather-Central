@@ -9,7 +9,7 @@
 //TODO: - ToDo list
 /*
  1) "Download Data" always get "Almanac, Astronomy, Conditions"
- 2) "Download Data" always decode Location to update gCity,gLatLon,gZip
+ 2) "Download Data" always decode Location to update City,LatLon,Zip
  3) Select Hours & Days of interest for "Hourly" (e.g. Wed,Thu,Fri 8AM-2PM)
  4) Settings:(Default NSEW hemi)(LatLon display)(mi,nm,km)(degC,degF)(AMPM,24hr)(call limits)(WU level)
  5) Hurricane forecast & map
@@ -19,28 +19,15 @@
  9) Dropdown list for City
 10) Save DateTime for each feature download.
 11) Make stations[] persistant
-12) Save/Restore gMapReturnType & gSearchType
 13) remove globals
 14) Remember query-not-found and don't repeat the same one
-
- enum LocationSelectionType: String {
-    case none = "none"
-    case zip  = "Zip"
-    case city = "City"
- }
-You can also create an enum instance directly using the rawValue (which could come from NSUserDefaults) like:
- let searchTypeStr = UserDefaults.standard.object(forKey: UDKey.searchType) as? String ?? "none"
- gSearchType = LocationSelectionType(rawValue: searchTypeStr) ?? LocationSelectionType.none
-
-You can extract the rawValue (String) from the enum object like this and then store it in NSUserDefaults if needed:
- UserDefaults.standard.set(gSearchType.rawValue, forKey: UDKey.searchType)
 
  Issues:
     Alerts: if just 1 Alert, put its name in heading
     Current: 6s wraps wind, precip(1-hr)
     Tropics: Shows 2 Storms when there is only 1
     Hourly: wraps for long Wx (Few Showers/Wind)(Partly Cloudy/Wind)(Chance of a Thunderstorm)
-    If txtCity.text not legal in Home, do not save or set globals
+    abc8 should not be legal
 
 New Features to be added later.
  1) Route planning for next 5 days.
@@ -49,13 +36,11 @@ New Features to be added later.
  4) Save Stations found for future use in Map
  5) pws History: #trys, #succeeds, DateLastTry, DateLastSucceed
 
-1.0.8(37) Test new API Key before accepting it.
- Bigger text for "Change API Key"
- Clean up UserDefaults.
- Have Map return LatLon or Station Selection as UserDefault rather than globlal
- Save SearchType in UserDefaults by using rawValue
- Clean up some ViewController names.
- 
+1.0.8(39) Now use "Prepare(For segue" and Delegate to pass data to & from Map
+That eliminated some globals.
+Change UserDefultKeys and SegueIDs from enums to structs
+
+
 Get some stuff with every query *Almanac&Astron= 1K,
                                  GeoLookup     = 8k,
                                 *Conditions    = 3k
@@ -84,6 +69,12 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
     var userLocation    = CLLocation(latitude: 0.0, longitude: 0.0)
     var rawFontDefault  = UIFont(name: "Menlo", size: 12)
     var gotCurrentData = false
+    var searchType = LocationSelectionType.none
+    var lastSearch = ""
+    var station    = ""
+    var cityState  = ""
+    var zip        = ""
+    var homeSearchChanged = false          // Homepage Searchbox has changed since last return from GeoLookup
 
     //MARK: ---- IBOutlets ----
     @IBOutlet weak var btnAlerts:     UIButton!
@@ -147,17 +138,20 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
 
         // May be updated in GeoLookup
         let searchTypeStr = UserDefaults.standard.object(forKey: UDKey.searchType) as? String ?? "none"
-        gSearchType = LocationSelectionType(rawValue: searchTypeStr) ?? LocationSelectionType.none
-        print("Reload gSearchType = \(gSearchType)")
-        txtCity.text = gLastSearch
-        gStation    = UserDefaults.standard.object(forKey:  UDKey.station)   as? String ?? ""
-        gCityState  = UserDefaults.standard.object(forKey:  UDKey.cityState) as? String ?? ""
-        gZip        = UserDefaults.standard.object(forKey:  UDKey.zip)       as? String ?? ""
-        gLastSearch = UserDefaults.standard.object(forKey: UDKey.lastSearch) as? String ?? ""
-
+        searchType = LocationSelectionType(rawValue: searchTypeStr) ?? LocationSelectionType.none
+        lastSearch = UserDefaults.standard.object(forKey: UDKey.lastSearch) as? String ?? ""
+        station    = UserDefaults.standard.object(forKey: UDKey.station)    as? String ?? ""
+        cityState  = UserDefaults.standard.object(forKey: UDKey.cityState)  as? String ?? ""
+        zip        = UserDefaults.standard.object(forKey: UDKey.zip)        as? String ?? ""
+        print("Homepage.viewDidAppear reloaded: searchType = \(searchType),  lastSearch = \(lastSearch)")
+        print("station = \(station),  cityState = \(cityState),  zip = \(zip)")
+        print("")
+        txtCity.text = lastSearch
         // May be updated in FeaturePicker
         wuFeaturesArr = UserDefaults.standard.object(forKey: UDKey.featuresArr) as? [Bool] ?? wuFeaturesArrEmpty
-        featuresStr = UserDefaults.standard.object(forKey: UDKey.featuresStr) as? String ?? "geolookup/"
+        featuresStr   = UserDefaults.standard.object(forKey: UDKey.featuresStr) as? String ?? "geolookup/"
+        print("Homepage.viewDidAppear reloaded: wuFeaturesArr and featuresStr")
+        print("\(featuresStr)")
 
         numFeatures = 0
         for isSelected in wuFeaturesArr {
@@ -185,7 +179,7 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
 
         self.view.endEditing(true)              // Dismiss keyboard
 
-        UserDefaults.standard.set(gLastSearch, forKey: UDKey.lastSearch)
+        UserDefaults.standard.set(lastSearch, forKey: UDKey.lastSearch)
 
         segueList: switch segue.identifier {
 
@@ -197,56 +191,16 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
             print("segue Home to GeoLookup")
 
             if !gotCurrentData {
-                gCityState = ""
-                gZip = ""
-                gLat = 0.0
-                gLon = 0.0
-                gStation = ""
+                cityState = ""
+                zip = ""
+                station = ""
             }
 
-            gSearchType = getSearchType(searchText: txtCity.text!)
-            if gSearchType != .none && gHomeSearchChanged {
-                gLastSearch = txtCity.text!
+            _ = saveHomepageSearch(txtCity.text!)
+            if searchType != .none && homeSearchChanged {
+                lastSearch = txtCity.text!
             }
-            gHomeSearchChanged = false
-
-            locType: switch gSearchType {
-            case .city:
-                gCityState = txtCity.text!
-            case .station:
-                gStation = txtCity.text!
-            case .latlon:
-                let tupleLL = decodeLL(latLonTxt: txtCity.text!)
-                if !tupleLL.errorLL.isEmpty {
-                    showError("Lat/Lon \(tupleLL.errorLL)")
-                    gLat = 0.0
-                    gLon = 0.0
-                    return
-                }
-                gLat = tupleLL.lat
-                gLon = tupleLL.lon
-
-            case .zip:
-                gZip = txtCity.text!
-            default:
-                break locType
-            }//end switch gSearchtype
-
-            gLastSearch = txtCity.text!
-
-            UserDefaults.standard.set(gSearchType.rawValue, forKey: UDKey.searchType)
-            print("Homepage saved SearchType = \(gSearchType ) ")
-            UserDefaults.standard.set(gLastSearch, forKey: UDKey.lastSearch)
-            print("Homepage saved LastSearch = \(gLastSearch) ")
-            UserDefaults.standard.set(gCityState, forKey:  UDKey.cityState )
-            print("Homepage saved City/State = \(gCityState)  ")
-            UserDefaults.standard.set(gStation, forKey:    UDKey.station )
-            print("Homepage saved Station ID = \(gStation)    ")
-            UserDefaults.standard.set(gLat, forKey:        UDKey.lat )
-            UserDefaults.standard.set(gLon, forKey:        UDKey.lon )
-            print("Homepage saved LatLon = \(gLat),\(gLon)")
-            UserDefaults.standard.set(gZip, forKey:        UDKey.zip )
-            print("Homepage saved Zip        = \(gZip)        ")
+            homeSearchChanged = false
 
         case segueID.HomeToFeatures?:                      //"segueFeatures"
             print("segue Home to Feature Selector")
@@ -334,8 +288,8 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
     //-------------------- City - Editing Change ----------
     @IBAction func txtCityEditChange(_ sender: Any) {
         gotCurrentData = false
-        gHomeSearchChanged = true
-        gSearchType = .none
+        homeSearchChanged = true
+        searchType = .none
         if gDataIsCurrent {
             gDataIsCurrent = false      // disable Feature Buttons
             setFeatureButtons()
@@ -365,7 +319,7 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
         var str = txtCity.text!.trim()
         print("Home view: txtCityEditEnd '\(str)'")
         if str.count == 5 && isNumeric(str) {
-            gSearchType = .zip
+            searchType = .zip
         }
 
         str = str.replacingOccurrences(of: "  ", with: " ")
@@ -397,65 +351,10 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
             return
         }
 
-        var place =  txtCity.text!
-
-        gSearchType = getSearchType(searchText: txtCity.text!)
-        switch gSearchType {
-        case .near:
-            if gUserLat == 0.0 && gUserLon == 0.0 {
-                showError("Your location not available. You must enter a City/State or Zip or WxStation")
-                return
-            }
-            gSearchLat = gUserLat
-            gSearchLon = gUserLon
-            gSearchType = .near
-            txtCity.text = "local: " + formatDbl(number: gUserLat, places: 3) + ", "
-                                     + formatDbl(number: gUserLon, places: 3)
-            gLastSearch = txtCity.text!
-            place = "\(gUserLat),\(gUserLon)"
-
-        case .city:
-            gCityState = getFirstPart(txtCity.text!)
-            let splitCityState = gCityState.components(separatedBy: ",")
-            let city  = splitCityState[0].trim()
-            let state = splitCityState[1].trim()
-            place = state + "/" + city
-            UserDefaults.standard.set(gCityState, forKey: UDKey.cityState )//"CityState")
-            gLastSearch = txtCity.text!
-            UserDefaults.standard.set(gLastSearch, forKey: UDKey.lastSearch )//"LastSearch")
-
-        case .station:
-            gStation = getFirstPart(txtCity.text!)
-            UserDefaults.standard.set(gStation, forKey: UDKey.station )//"wuStationID")
-            gLastSearch = txtCity.text!
-            UserDefaults.standard.set(gLastSearch, forKey: UDKey.lastSearch )//"LastSearch")
-            if gStation.count <= 4 {
-                place = gStation
-            } else {
-                place = "pws:" + gStation
-            }
-
-        case .zip:
-            gZip = getFirstPart(txtCity.text!)
-            UserDefaults.standard.set(gZip, forKey: UDKey.zip)//"Zip")
-            gLastSearch = txtCity.text!
-            UserDefaults.standard.set(gLastSearch, forKey: UDKey.lastSearch)//"LastSearch")
-            place = "zip: " + gZip
-
-        case .latlon:
-            let tupleLL = decodeLL(latLonTxt: txtCity.text!)
-            if !tupleLL.errorLL.isEmpty {
-                showError("Lat/Lon \(tupleLL.errorLL)")
-                return
-            }
-            gLat = tupleLL.lat
-            gLon = tupleLL.lon
-            UserDefaults.standard.set(tupleLL.lat, forKey: UDKey.lat)
-            UserDefaults.standard.set(tupleLL.lon, forKey: UDKey.lon)
-            place = "\(tupleLL.lat),\(tupleLL.lon)"
-
-        default:
-            showError("You must enter a City/State or Zip or WxStation or Lat/Lon or blank for local.")
+        let ss = saveHomepageSearch(txtCity.text!)
+        let place = ss.place
+        if ss.error != "" {
+            showError(ss.error)
             return
         }
 
@@ -471,6 +370,69 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
     }//end @IBAction func btnGetData
     
 // MARK: ---- My Functions ----
+
+    func saveHomepageSearch(_ text: String) ->(searchType: LocationSelectionType, place: String, error: String) {
+        var place = text
+        var searchType = getSearchType(searchText: text)
+        var error = ""
+
+        switch searchType {
+        case .near:
+            if (gUserLat == 0.0 && gUserLon == 0.0) || gUserLat < -90 || gUserLon < -990 {
+                error = "Your location not available. You must enter a City/State or Zip or WxStation"
+                return (.none, "", error)
+            }
+            searchType = .near
+            txtCity.text = "local: " + formatDbl(number: gUserLat, places: 3) + ", " + formatDbl(number: gUserLon, places: 3)
+            place = "\(gUserLat),\(gUserLon)"
+
+        case .city:
+            let cityState = getFirstPart(txtCity.text!)
+            let splitCityState = cityState.components(separatedBy: ",")
+            let city  = splitCityState[0].trim()
+            let state = splitCityState[1].trim()
+            place = state + "/" + city
+            UserDefaults.standard.set(cityState,  forKey: UDKey.cityState )//"CityState")
+            print("Homepage saved City/State = \(cityState)")
+
+        case .station:
+            let station = getFirstPart(txtCity.text!)
+            UserDefaults.standard.set(station,    forKey: UDKey.station )
+            print("Homepage saved Station ID = \(station)")
+            if station.count <= 4 {
+                place = station
+            } else {
+                place = "pws:" + station
+            }
+
+        case .zip:
+            let zip = getFirstPart(txtCity.text!)
+            UserDefaults.standard.set(zip, forKey: UDKey.zip)//"Zip")
+            print("Homepage saved Zip        = \(zip)")
+            place = "zip: " + zip
+
+        case .latlon:
+            let tupleLL = decodeLL(latLonTxt: txtCity.text!)
+            if !tupleLL.errorLL.isEmpty {
+                error = "Lat/Lon \(tupleLL.errorLL)"
+                return (.none, "", error)
+            }
+            UserDefaults.standard.set(tupleLL.lat, forKey: UDKey.lat)
+            UserDefaults.standard.set(tupleLL.lon, forKey: UDKey.lon)
+            print("Homepage saved LatLon = \(tupleLL.lat),\(tupleLL.lon)")
+            place = "\(tupleLL.lat),\(tupleLL.lon)"
+
+        default:
+            showError("You must enter a City/State or Zip or WxStation or Lat/Lon or blank for local.")
+            return (.none, "", error)
+        }
+        lastSearch = txtCity.text!
+        UserDefaults.standard.set(searchType.rawValue, forKey: UDKey.searchType)
+        UserDefaults.standard.set(lastSearch,          forKey: UDKey.lastSearch)
+        print("Homepage.saveHomepSearch saved SearchType = \(searchType ), LastSearch = \(lastSearch) ")
+        return (searchType, place, error)
+    }
+
 
     // Clear txtRawData(font to default). Set lblRawDataHeading to 18pt, adjust to width, "# Features Selected"
     func clearRawData() {
@@ -624,7 +586,7 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
                 
                 resultsTry: do {                            //See if there is a "results" entry in jsonResult.response (suggests cities in other states)
                     guard let oResults = dictResponse["results"] else {myError = "";  break resultsTry}
-                        myError = "\(gCityState) not found!)"
+                    myError = "\(self.cityState) not found!)"
                         print("\(myError)\n")
                         print(oResults)
                         break jsonTry
@@ -637,8 +599,8 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
                 wuFeaturesWithDataArr = wuFeaturesArr
                 
             } catch { //jsonTry:do Try/Catch -  (try JSONSerialization.jsonObject) = failed
-                print("Uh oh. You have an error with \(gCityState)!")
-                myError = "Err03: Can't get \(self.featuresStr) in \(gCityState)!"
+                print("Uh oh. You have an error with \(self.cityState)!")
+                myError = "Err03: Can't get \(self.featuresStr) in \(self.cityState)!"
             }//end jsonTry:do Try/Catch
             
             // Success again! We have made it through everything,so save stuff for next time.
@@ -906,17 +868,15 @@ temp_high --> {
         let lon   = Double(observationLocation.lon) ?? 0.0
         let elev  = observationLocation.elevation
         gotCurrentData = true
-        gLat = lat
-        gLon = lon
-        gZip = displayLocation.zip
-        gCityState = displayLocation.city + ","
+        zip = displayLocation.zip
+        cityState = displayLocation.city + ","
         if displayLocation.state.count == 2 {
-            gCityState += displayLocation.state
+            cityState += displayLocation.state
         } else {
-            gCityState += displayLocation.country
+            cityState += displayLocation.country
         }
-        if gSearchType != .station {
-            gStation = ""
+        if searchType != .station {
+            station = ""
         }
         aa = "\(dfull) \(dzip)\n\(full)\n\(formatLatLon(lat: lat, lon: lon, places: 3)) elev: \(elev)"
         aa += "\n--------------------------------\n"

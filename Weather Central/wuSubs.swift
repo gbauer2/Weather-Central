@@ -218,9 +218,12 @@ public func isStationValid(_ stationName: String) -> Bool {
     for uni in stationName.unicodeScalars {
         if !letters.contains(uni) && !digits.contains(uni) { return false }
     }
-    //if n>3 1st char must be a letter, last char must be digit
+    //if n>3 1st char must be a letter
+    //ToDo: if n=4 then no digits allowed
     if n > 3 {
         if !letters.contains(stationName.unicodeScalars.first!) { return false }
+
+        //if n>4 last char must be digit
         if n > 4 {
             if !digits.contains(stationName.unicodeScalars.last!) { return false }
         }

@@ -15,14 +15,7 @@ var wuFeaturesArrEmpty = [false,false,false,false,false,false,false, false,false
 var wuFeaturesArr         = wuFeaturesArrEmpty      // WU Features that have been selected
 var wuFeaturesWithDataArr = wuFeaturesArr           // Those Features with current data (not used)
 
-var gCityState = ""
-var gZip       = ""
-var gStation   = ""
-var gLat = 0.0
-var gLon = 0.0
-
-var gHomeSearchChanged = false          // Homepage Searchbox has changed since last return from GeoLookup
-var gLastSearch = ""                    // The latest Search text from either Homepage or GeoLookup
+//var gLastSearch = ""                    // The latest Search text from either Homepage or GeoLookup
 
 var gAPIKey = ""                        // API Key
 var gPreviousAPIKey = ""
@@ -67,7 +60,6 @@ public struct StructUDKey {
     let lon             = "searchLon"
     let lastSearch      = "LastSearch"
     let searchType      = "searchType"
-    let mapReturnType   = "mapReturnType"
     let featuresArr     = "wuFeaturesArray"
     let featuresStr     = "wuFeatures"
     let wuPlannerDate1  = "wuPlannerDate1"
@@ -78,7 +70,17 @@ public struct StructUDKey {
     let wuNumCallsToday = "wuNumCallsToday"
 }
 public let UDKey = StructUDKey()
- 
+
+//Convert to Struct ????
+public enum LocationSelectionType: String {
+    case none = "none"
+    case near = "Nearby"
+    case city = "City"
+    case zip  = "Zip"
+    case latlon  = "LatLon"
+    case station = "Station"
+}
+
 // segue identifiers
 public struct SegueID {
     let HomeToSettings  = "segueSettings"

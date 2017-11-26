@@ -9,9 +9,15 @@
 import UIKit
 import MapKit
 
+protocol MapDelegate {
+    func mapReturn(returnType: LocationSelectionType, stationID: String, lat: Double, lon: Double)    //delegate
+    // mapReturnType      stationIDFromMap = ""   latFromMap = 0.0     lonFromMap = 0.0
+}
+
 //MARK: ------- class MapVC (MapViewController) ------
 class MapVC: UIViewController, MKMapViewDelegate {
     //MARK: ---- properties ----
+    var delegate: MapDelegate?          //delegate
     let longPressSec = 1.5
     var latDelta = 0.18
     var lonDelta = 0.18
@@ -21,7 +27,10 @@ class MapVC: UIViewController, MKMapViewDelegate {
     var searchType = LocationSelectionType.none
     var searchName = ""
     var stations   = [Station]()
-
+    var latFromMap = 0.0
+    var lonFromMap = 0.0
+    var stationIDFromMap = ""
+    
     //MARK:---- @IBOutlets ----
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var lblSelected: UILabel!
@@ -33,7 +42,6 @@ class MapVC: UIViewController, MKMapViewDelegate {
         super.viewDidLoad()
 
         mapReturnType = .none        // we have not yet picked anything
-        UserDefaults.standard.set(mapReturnType.rawValue, forKey: UDKey.mapReturnType)
         btnSave.isEnabled = false
         plotMap(lat: searchLat, lon: searchLon, latDelt: latDelta, lonDelt: lonDelta)
         mapView.showsUserLocation = true
@@ -52,8 +60,7 @@ class MapVC: UIViewController, MKMapViewDelegate {
 
     //MARK: ---- @IBActions ----
     @IBAction func btnSave(_ sender: UIButton) {
-        //???? this should not be passed by UserDefaults
-        UserDefaults.standard.set(mapReturnType.rawValue, forKey: UDKey.mapReturnType )
+        delegate?.mapReturn(returnType: mapReturnType, stationID: lblSelected.text!, lat: latFromMap, lon: lonFromMap) //delegate
         navigationController?.popViewController(animated: true)
     }
 
@@ -113,8 +120,8 @@ class MapVC: UIViewController, MKMapViewDelegate {
     func longPressAction(gestureRecognizer: UIGestureRecognizer) {
         let touchPoint = gestureRecognizer.location(in: self.mapView)
         let coordinate = mapView.convert(touchPoint, toCoordinateFrom: self.mapView)
-        gLatFromMap = coordinate.latitude
-        gLonFromMap = coordinate.longitude
+        latFromMap = coordinate.latitude
+        lonFromMap = coordinate.longitude
 
 //        let annotation = MKPointAnnotation()  // to add an annotation at touchPoint
 //        annotation.coordinate = coordinate
@@ -124,7 +131,7 @@ class MapVC: UIViewController, MKMapViewDelegate {
 
         //showAlert(title: "Attention", message: "This Lat/Lon will be entered.")
         mapReturnType = .latlon
-        lblSelected.text = formatLatLon(lat: gLatFromMap, lon: gLonFromMap, places: 3)
+        lblSelected.text = formatLatLon(lat: latFromMap, lon: lonFromMap, places: 3)
         btnSave.isEnabled = true
     }
 
@@ -199,8 +206,8 @@ class MapVC: UIViewController, MKMapViewDelegate {
         if let title = view.annotation?.title as? String {
             print("User tapped on annotation with title: \(title)")
             if title != searchName && title != "My Location" {
-                gStationFromMap = title
-                lblSelected.text = gStationFromMap
+                stationIDFromMap = title
+                lblSelected.text = stationIDFromMap
                 mapReturnType = .station
                 btnSave.isEnabled = true
             }
