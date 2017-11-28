@@ -21,6 +21,7 @@
 11) Make stations[] persistant
 13) remove globals
 14) Remember query-not-found and don't repeat the same one
+15) Change Timeout for API calls
 
  Issues:
     Alerts: if just 1 Alert, put its name in heading
@@ -36,9 +37,8 @@
  4) Save Stations found for future use in Map
  5) pws History: #trys, #succeeds, DateLastTry, DateLastSucceed
 
-1.0.8(42) Implemented module WuAPI.swift downloader for wundwerground API
- Transition Settings.ChangeAPIKey to new module.
- Still to do: Homepage & GeoLookup
+1.0.8(43) GeoLookup now uses WuAPI, 1 more to go (Homepage)
+ Put Call-Limit test inside task, so that it returns to the delegate
 
 
 Get some stuff with every query *Almanac&Astron= 1K,

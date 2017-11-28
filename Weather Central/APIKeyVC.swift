@@ -73,9 +73,7 @@ class APIKeyVC: UIViewController, UITextFieldDelegate {
         lblError.text = urlTuple.errorStr
         if urlTuple.errorStr == "" {
             let wuURL = urlTuple.url
-            let errorDownload = startWuDownload(wuURL: wuURL)
-            //let errorDownload = tryAPIKeyJSON(url: wuURL)
-            lblError.text = errorDownload
+            startWuDownload(wuURL: wuURL)
         }
 
     }//end @IBAction func btnAPIKey
@@ -92,21 +90,20 @@ class APIKeyVC: UIViewController, UITextFieldDelegate {
     }
 }
 
+//MARK: =================== WuAPIdelegate Extension =======================
 extension APIKeyVC: WuAPIdelegate {      //delegate <— (4)
 
     //This function is called your download request
-    func startWuDownload(wuURL: URL) -> String {
+    func startWuDownload(wuURL: URL) {
         WuDownloadDone = false
         lblError.text = "...downloading"       // change this label, start activityIndicators
         self.activityIndicator.startAnimating()
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
 
-        //wuURL = URL(string: wuURLstr)!
         wuAPI.delegate = self                   //delegate <— (5)
-        let str = wuAPI.downloadData(url: wuURL)
-        print(str)
-        return ""
-    }
+        wuAPI.downloadData(url: wuURL)
+        return
+    }//end func
 
     func downloadDone(isOK: Bool, numFeaturesRequested: Int,  numFeaturesReceived: Int, errStr: String){    //delegate (6)
         DispatchQueue.main.async {
@@ -115,8 +112,10 @@ extension APIKeyVC: WuAPIdelegate {      //delegate <— (4)
             let es = isOK ? "" : "\(errStr)\n"
             let msg = "isOK = \(isOK)\n\(es)\(numFeaturesRequested) features requested, \(numFeaturesReceived) received."
             print(msg)
-            self.lblError.text = msg           // change this label, stop activityIndicators
+
+            //----------------------------
             //process your data
+            self.lblError.text = msg           // change this label, stop activityIndicators
             UIApplication.shared.isNetworkActivityIndicatorVisible = false  // turn-off built-in activityIndicator
             self.activityIndicator.stopAnimating()                          // turn-off My activityIndicator
 
@@ -127,10 +126,8 @@ extension APIKeyVC: WuAPIdelegate {      //delegate <— (4)
                 self.showAlert(title: "Success", message: "APIKey updated to \(self.APItxt)")
             } else {
                 self.showAlert(title: "Fail", message: "Tryed API Key: \(self.APItxt)\n\(errStr)")
-            }
-
-            //self.lblError.text = errStr
-        }
-    }
-}
+            }//end if else
+        }//end DispatchQueue
+    }//end func
+}//end extension
 

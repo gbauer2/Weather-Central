@@ -54,6 +54,7 @@ public func CallLogInit() {
 
 //MARK: --- Call this function before making a WU API call --
 // ------ Check to see if this call would exceed 10/minute or 500/day
+// returns (isOk,msg) where msg is "tomorrow" or "in ## seconds"
 public func tryToLogCall(makeCall: Bool) -> (isOK:Bool, numCallsLastMinute: Int, msg: String) {
     var numCallsLastMinute = 0
     for date in callLog {

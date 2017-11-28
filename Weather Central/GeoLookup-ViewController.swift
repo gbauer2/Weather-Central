@@ -17,6 +17,7 @@ var gSearchLon  = 0.0
 class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDelegate, MapDelegate {
                                                                                                     //delegate
     //MARK: ---- my vars ----
+    var WuDownloadDone = false
     var Detail = ""
     var selectedStationID = ""
     var infoStations = [StationInfo]()
@@ -384,8 +385,8 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
     func lookupStation() {
         var place = txtStation.text!
         let n = place.count
-        if n < 3 || n > 11 || (n < 8 && n > 4) {
-            showError("3 or 4 characters for an airport or 8-11 characters for a pws")
+        if n < 3 || n > 11 || (n < 5 && n > 4) {
+            showError("3 or 4 characters for an airport or 5-11 characters for a pws")
             return
         }
         if n>4 {place = "pws:" + place}
@@ -407,272 +408,10 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
             return
         }
         let url = urlTuple.url
-        weatherJSON(url: url)
+        startWuDownload(wuURL: url)
+        //weatherJSON(url: url)
         
     }
-    
-    
-    //MARK: ---- weatherJSONGet JSON geolookup from wunderground.com ----
-    //to make StandAlone - must return myError, globalDictJSON, working? (errShort, errLong)
-    //---------------------- weatherJSON func ---------------------
-    func weatherJSON(url: URL) {
-        let checkLog = tryToLogCall(makeCall: true)
-        if !checkLog.isOK { return }
-        //------------------------------- task (thread) ------------------------------
-        let task = URLSession.shared.dataTask(with: url) {(data, response, error) in
-            if let response = response {
-                print ("\n$$$$$$ response $$$$$$\n\(response)\n$$$$$$ end response $$$$$$\n")
-            }
-            guard error == nil, let dataReturned = data else {
-                DispatchQueue.main.async {
-                    print("\nweatherJSON Err202: ",error as AnyObject)
-                    //printDictionary(dict: error as? [String: AnyObject], expandLevels: 0, dashLen: 0, title: "error")
-                    self.lblError.text = "Err202:\(error!)"
-                    UIApplication.shared.isNetworkActivityIndicatorVisible = false  // turn-off built-in activityIndicator
-                    self.activityIndicator.stopAnimating()                          // turn-off My activityIndicator
-                    //UIApplication.shared.endIgnoringInteractionEvents()           // if you were ignoring events
-
-                    self.lblDetail.text = error.debugDescription
-                }// DispatchQueue.main.async
-                return
-            } //end guard else
-            
-            print("----------------- Print data if short ------------------")
-            print(String(describing: dataReturned))
-            if let string = String(data: dataReturned, encoding: String.Encoding.utf8) {
-                if string.count < 500 {
-                    print(string) //JSONSerialization
-                } else {
-                    print("Over 500 chars, so seems OK.")
-                }
-            }
-            print("-------------------- end Print data --------------------\n")
-            print("----------------- 🙂 URLSession OK 🙂 ------------------\n")
-            
-            var myError = ""
-            
-            jsonTry: do {
-                let jsonResult = try JSONSerialization.jsonObject(with: dataReturned, options: JSONSerialization.ReadingOptions.mutableContainers) as AnyObject
-                guard let dictJson = jsonResult as? [String: AnyObject] else {  //Try to convert jsonResult to Dictionary
-                    myError  = "Err203:Could not convert JSON to Dictionary"
-                    print("\n\(myError)")
-                    break jsonTry
-                }
-                //globalDictJSON = dictJson
-                printDictionary(dict: dictJson, expandLevels: 0, dashLen: 0, title: "JSON")
-                //self.printDictionary(dict: dictJson, expandLevels: 1, dashLen: 0, title: "JSON")
-
-                guard let dictResponse =   dictJson["response"] as? [String: AnyObject] else { //Try to convert jsonResult["response"] to Dictionary
-                    myError = "Err204:No 'response' in JSON data"
-                    print("\n\(myError)")
-                    break jsonTry
-                }
-
-                printDictionary(dict: dictResponse, expandLevels: 0, dashLen: 0, title: "Response")
-
-                guard let dictFeatures = dictResponse["features"] as? [String: AnyObject] else { //Try to convert jsonResult.response.features to Dictionary
-                    myError = "Err205:No 'features' in JSON 'response' data"
-                    print("\n\(myError)")
-                    break jsonTry}
-                
-                errorTry: do {      //See if there is an "error" entry in jsonResult.response
-                    guard let dictError = dictResponse["error"] as? [String: AnyObject] else {myError = "";  break errorTry}
-                    printDictionary(dict: dictError, expandLevels: 1, dashLen: 0, title: "response.error")
-                    myError = "Err210:unknown error"
-                    if let err = dictError["type"] as? String { myError = err }
-                    if let er = dictError["description"] as? String { myError = er }
-                    print("\n\("Err210:" + myError)")
-                    break jsonTry
-                }// end errorTry
-                
-                resultsTry: do {    //See if there is a "results" entry in jsonResult.response (suggests other wx stations)
-                    guard let oResults = dictResponse["results"] else {myError = "";  break resultsTry}
-                    myError = "Place not found."
-                    print("\n\(myError)")
-                    print("-------- Results (suggested weather stations) -------")
-                    print(oResults)
-                    print("-----------------------------------------------------")
-                    guard let resultsArr = oResults as? [[String: AnyObject]] else {
-                        //printDictionary(dict: dictResults, expandLevels: 1, dashLen: 0, title: "Results")  //(oResults)
-                        break jsonTry
-                    }
-                    guard let dictResults0 = resultsArr.first else {
-                        print("Results Decode failed!");break jsonTry}
-                    printDictionary(dict: dictResults0, expandLevels: 0, dashLen: 0, title: "Results[0]")
-                    break jsonTry
-                    
-                }//end resultsTry
-                
-                // Success! We made it! We got to Wunderground.com, sent our features, and got back a legitimate reply.
-                
-                printDictionary(dict: dictFeatures, expandLevels: 0, dashLen: 0, title: "response/features")
-                
-                //MARK: - end of overall JSON, beginning of geolookup -
-                //let locOptional = Location(json: dictJson)  // Location struct initialiser
-                
-                guard let dictLocation = dictJson["location"] as? [String: AnyObject] else {
-                    DispatchQueue.main.async {
-                        let e = "Err221:Could not get location"
-                        print("\n\(e)")
-                        self.lblError.text = e
-                        self.activityIndicator.stopAnimating()
-                        UIApplication.shared.isNetworkActivityIndicatorVisible = false
-                    }// DispatchQueue.main.async
-                    return
-                }//end guard else
-                
-                let loc = Location(loc: dictLocation)
-                print("\n\n\(loc)\n")
-                //let dictLocation = dictJson["location"] as! [String: AnyObject]
-                
-                self.zip = loc.zip
-                self.cityState = loc.city
-                var state = ""
-                if loc.type == "CITY" {
-                    state = loc.state
-                } else if loc.country_name.count < 10 {
-                    state = loc.country_name
-                } else {
-                    state = loc.country
-                }
-                if state != "" { self.cityState = self.cityState + "," + state }
-
-                var latVal = 0.0
-                var lonVal = 0.0
-                if self.searchType != .latlon {
-                    latVal = Double(loc.lat) ?? 0.0
-                    lonVal = Double(loc.lon) ?? 0.0
-                    gSearchLat = latVal
-                    gSearchLon = lonVal
-                    //self.latStr = loc.lat
-                    //self.lonStr = loc.lon
-                } else {
-                    latVal = gSearchLat
-                    lonVal = gSearchLon
-                }
-                self.latStr = formatDbl(number: latVal, places: 3)
-                self.lonStr = formatDbl(number: lonVal, places: 3)
-                //printDictionary(dict: dictLocation, expandLevels: 0, dashLen: 0, title: "Location")
-                //printDictionary(dict: dictLocation, expandLevels: 1, dashLen: 0, title: "Location")
-
-                let dictNearby =  dictLocation["nearby_weather_stations"] as![String: AnyObject]
-                printDictionary(dict: dictNearby, expandLevels: 0, dashLen: 0, title: "Nearby")
-                
-                let dictAirport = dictNearby["airport"] as! [String: AnyObject]
-                printDictionary(dict: dictAirport, expandLevels: 0, dashLen: 0, title: "Airport")
-                let apStationArr = dictAirport["station"] as! [[String: AnyObject]]
-                
-                let dictApStationA0 = apStationArr.first
-                printDictionary(dict: dictApStationA0, expandLevels: 0, dashLen: 0, title: "Airport station[0]")
-                //printDictionary(dict: dictApStationA0, expandLevels: 1, dashLen: 0, title: "Airport station[0]")
-
-                print("\n \(apStationArr.count) airport wx stations")
-                self.Detail = "  \(apStationArr.count) airport wx stations\n"
-                //var stationArr = [String]()
-                
-                for dictStation in apStationArr {
-                    let station = Station(sta: dictStation)
-                    self.stations.append(station)
-                    let stationID = station.id
-                    let padID = stationID.padding(toLength: 4, withPad: " ", startingAt: 0)
-                    let city = station.city
-                    let state = station.state
-                    let country = station.country
-                    let lat = station.lat
-                    let lon = station.lon
-
-                    let tupleDistDir = formatDistDir(latFrom: latVal, lonFrom: lonVal, latTo: lat, lonTo: lon, doMi: true, doDeg: false)
-                    let strDistDir = tupleDistDir.strDistDir
-                    let strLatLon3 = formatLatLon(lat: lat, lon: lon, places: 3)
-                    print(stationID, strLatLon3, country, state, city)
-                    let stationItem = "Airport \(stationID) \(strDistDir) \(city)"
-                    let stationDetail = "Airport\n" +
-                                        "-------\n" +
-                                        "\(padID)        \(strLatLon3)  \(strDistDir)\n" +
-                                        "\(city), \(state)\n"
-                    let infoStation = StationInfo(type: "Airport", id: stationID, distMi: tupleDistDir.dist, dir: tupleDistDir.deg, lineItem: stationItem, detail: stationDetail)
-                    self.infoStations.append(infoStation)
-                }
-
-                let dictPws = dictNearby["pws"] as! [String: AnyObject]
-                let pwsStationArr = dictPws["station"] as! [[String: AnyObject]]
-                
-                if let dictStationP0 = pwsStationArr.first {
-                    printDictionary(dict: dictStationP0, expandLevels: 0, dashLen: 0, title: "Personal station")
-                }
-                
-                print("\n\(pwsStationArr.count) personal wx stations")
-                self.Detail += "\n \(pwsStationArr.count) personal wx stations\n"
-                for dictStation in pwsStationArr {
-                    let station = Station(sta: dictStation)
-                    self.stations.append(station)
-                    let stationID = station.id
-                    let padID = stationID.padding(toLength: 11, withPad: " ", startingAt: 0)
-                    let neighborhood = station.neighborhood
-                    let city = station.city
-                    let state = station.state
-                    let lat = station.lat
-                    let lon = station.lon
-                    
-                    let tupleDistDir = formatDistDir(latFrom: latVal, lonFrom: lonVal, latTo: lat, lonTo: lon, doMi: true, doDeg: false)
-                    let strDistDir = tupleDistDir.strDistDir
-//                    var distStr = "     "
-//                    let distNM = greatCircDist(ALat: latVal, ALon: lonVal, BLat: lat, BLon: lon)
-//                    let distMi = distNM * 1.15
-//                    let dirDeg = greatCircAng(ALat: latVal, ALon: lonVal, BLat: lat, BLon: lon, Dist: distNM)
-//                    if distMi < 99 { distStr = formatDbl(number: distMi, fieldLen: 5, places: 1) }
-//                    let distDirStr = "\(distStr)mi \(dirDeg)°"
-                    
-                    let strLatLon3 = formatLatLon(lat: lat, lon: lon, places: 3)
-                    
-                    //let km = dictStation["distance_km"] as? Double ?? -99
-                    print (padID, strLatLon3, state, city, neighborhood)
-                    //let hood = String(neighborhood.characters.prefix(21)) // first21Chars
-                    
-                    let stationItem = "pws \(padID) \(strDistDir) \(city)"
-                    let stationDetail = "personal wx station\n" +
-                        "-------------------\n" +
-                        "\(padID) \(strLatLon3)  \(strDistDir)\n" +
-                        "\(neighborhood)\n" +
-                    "\(city), \(state)\n"
-                    let infoStation = StationInfo(type: "pws", id: stationID, distMi: tupleDistDir.dist, dir: tupleDistDir.deg, lineItem: stationItem, detail: stationDetail)
-                    self.infoStations.append(infoStation)
-                }//next
-                
-                DispatchQueue.main.async {
-                    self.tableView.reloadData()
-                }// DispatchQueue.main.async
-                
-            } catch { //jsonTry:do Try/Catch -  (try JSONSerialization.jsonObject) = failed
-                myError = "Err208: Can't get JSON data!"
-                print("\n\(myError)")
-            }//end jsonTry:do Try/Catch
-            
-            // Success again! We have made it through everything.
-            DispatchQueue.main.async {
-                self.lblError.text = myError
-                UIApplication.shared.isNetworkActivityIndicatorVisible = false
-                self.activityIndicator.stopAnimating()
-                self.txtCity.text = self.cityState
-                self.enableButton(btn: self.btnCity, enable: isCityStateValid(self.cityState))
-
-                self.txtZip.text = self.zip
-                self.enableButton(btn: self.btnZip, enable: isZipValid(self.zip))
-                self.txtLat.text = self.latStr
-                self.txtLon.text = self.lonStr
-                self.enableButton(btn: self.btnLatLon, enable: isLatValid(latTxt: self.latStr) && isLonValid(lonTxt: self.lonStr) )
-                self.lblDetail.text = self.Detail
-            }// DispatchQueue.main.async
-            
-        } //----------------------------- end task (thread) -----------------------------------
-        
-        self.activityIndicator.startAnimating()
-        UIApplication.shared.isNetworkActivityIndicatorVisible = true
-
-        task.resume()
-        return
-    }//end func weatherJSON
-    //MARK: ---- end of weatherJSON -----
     
     func showError(_ message: String) {
         showAlert(title: "Error", message: message)
@@ -693,8 +432,7 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
     
 }//end class
 
-//MARK: ================== TableView Extension =======================
-
+//MARK: =================== TableView Extension =======================
 extension GeoLookup_ViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int{
@@ -732,3 +470,188 @@ extension GeoLookup_ViewController: UITableViewDelegate, UITableViewDataSource {
         return nil
     }
 }//end extension
+
+//MARK: =================== WuAPIdelegate Extension =======================
+extension GeoLookup_ViewController: WuAPIdelegate {      //delegate <— (4)
+
+    //This function is called your download request
+    func startWuDownload(wuURL: URL) {
+        WuDownloadDone = false
+        lblError.text = "...downloading"       // change this label, start activityIndicators
+        self.activityIndicator.startAnimating()
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+
+        wuAPI.delegate = self                   //delegate <— (5)
+        wuAPI.downloadData(url: wuURL)
+        return
+    }//end func
+
+    func downloadDone(isOK: Bool, numFeaturesRequested: Int,  numFeaturesReceived: Int, errStr: String){    //delegate (6)
+        DispatchQueue.main.async {
+            print("GeoLookup downloadDone delegate reached:")
+            print("errStr = \(errStr)")
+            let es = isOK ? "" : "\(errStr)\n"
+            let msg = "isOK = \(isOK)\n\(es)\(numFeaturesRequested) features requested, \(numFeaturesReceived) received."
+            print(msg)
+
+            //----------------------------
+            //process your data
+            self.lblError.text = msg           // change this label, stop activityIndicators
+            UIApplication.shared.isNetworkActivityIndicatorVisible = false  // turn-off built-in activityIndicator
+            self.activityIndicator.stopAnimating()                          // turn-off My activityIndicator
+
+            if !isOK {
+                self.showAlert(title: "Fail", message: "\(errStr)")
+                return
+            }
+
+            //self.showAlert(title: "Success", message: "APIKey updated to \(self.APItxt)")
+            if !gGeoLookup.hasData {
+                self.showAlert(title: "Fail", message: "No Geolookup data in download!")
+                return
+            }
+            let dictLocation =  gGeoLookup.data[0]
+            printDictionary(dict: dictLocation, expandLevels: 0, dashLen: 7, title: "gGeolookup")
+
+            let loc = Location(loc: dictLocation)
+            print("\n\n\(loc)\n")
+            //let dictLocation = dictJson["location"] as! [String: AnyObject]
+
+            self.zip = loc.zip
+            self.cityState = loc.city
+            var state = ""
+            if loc.type == "CITY" {
+                state = loc.state
+            } else if loc.country_name.count < 10 {
+                state = loc.country_name
+            } else {
+                state = loc.country
+            }
+            if state != "" { self.cityState = self.cityState + "," + state }
+
+            var latVal = 0.0
+            var lonVal = 0.0
+            if self.searchType != .latlon {
+                latVal = Double(loc.lat) ?? 0.0
+                lonVal = Double(loc.lon) ?? 0.0
+                gSearchLat = latVal
+                gSearchLon = lonVal
+                //self.latStr = loc.lat
+                //self.lonStr = loc.lon
+            } else {
+                latVal = gSearchLat
+                lonVal = gSearchLon
+            }
+            self.latStr = formatDbl(number: latVal, places: 3)
+            self.lonStr = formatDbl(number: lonVal, places: 3)
+            //printDictionary(dict: dictLocation, expandLevels: 0, dashLen: 0, title: "Location")
+            //printDictionary(dict: dictLocation, expandLevels: 1, dashLen: 0, title: "Location")
+
+            let dictNearby =  dictLocation["nearby_weather_stations"] as![String: AnyObject]
+            printDictionary(dict: dictNearby, expandLevels: 0, dashLen: 0, title: "Nearby")
+
+            let dictAirport = dictNearby["airport"] as! [String: AnyObject]
+            printDictionary(dict: dictAirport, expandLevels: 0, dashLen: 0, title: "Airport")
+            let apStationArr = dictAirport["station"] as! [[String: AnyObject]]
+
+            let dictApStationA0 = apStationArr.first
+            printDictionary(dict: dictApStationA0, expandLevels: 0, dashLen: 0, title: "Airport station[0]")
+            //printDictionary(dict: dictApStationA0, expandLevels: 1, dashLen: 0, title: "Airport station[0]")
+
+            print("\n \(apStationArr.count) airport wx stations")
+            self.Detail = "  \(apStationArr.count) airport wx stations\n"
+            //var stationArr = [String]()
+
+            for dictStation in apStationArr {
+                let station = Station(sta: dictStation)
+                self.stations.append(station)
+                let stationID = station.id
+                let padID = stationID.padding(toLength: 4, withPad: " ", startingAt: 0)
+                let city = station.city
+                let state = station.state
+                let country = station.country
+                let lat = station.lat
+                let lon = station.lon
+
+                let tupleDistDir = formatDistDir(latFrom: latVal, lonFrom: lonVal, latTo: lat, lonTo: lon, doMi: true, doDeg: false)
+                let strDistDir = tupleDistDir.strDistDir
+                let strLatLon3 = formatLatLon(lat: lat, lon: lon, places: 3)
+                print(stationID, strLatLon3, country, state, city)
+                let stationItem = "Airport \(stationID) \(strDistDir) \(city)"
+                let stationDetail = "Airport\n" +
+                    "-------\n" +
+                    "\(padID)        \(strLatLon3)  \(strDistDir)\n" +
+                "\(city), \(state)\n"
+                let infoStation = StationInfo(type: "Airport", id: stationID, distMi: tupleDistDir.dist, dir: tupleDistDir.deg, lineItem: stationItem, detail: stationDetail)
+                self.infoStations.append(infoStation)
+            }
+
+            let dictPws = dictNearby["pws"] as! [String: AnyObject]
+            let pwsStationArr = dictPws["station"] as! [[String: AnyObject]]
+
+            if let dictStationP0 = pwsStationArr.first {
+                printDictionary(dict: dictStationP0, expandLevels: 0, dashLen: 0, title: "Personal station")
+            }
+
+            print("\n\(pwsStationArr.count) personal wx stations")
+            self.Detail += "\n \(pwsStationArr.count) personal wx stations\n"
+            for dictStation in pwsStationArr {
+                let station = Station(sta: dictStation)
+                self.stations.append(station)
+                let stationID = station.id
+                let padID = stationID.padding(toLength: 11, withPad: " ", startingAt: 0)
+                let neighborhood = station.neighborhood
+                let city = station.city
+                let state = station.state
+                let lat = station.lat
+                let lon = station.lon
+
+                let tupleDistDir = formatDistDir(latFrom: latVal, lonFrom: lonVal, latTo: lat, lonTo: lon, doMi: true, doDeg: false)
+                let strDistDir = tupleDistDir.strDistDir
+                //                    var distStr = "     "
+                //                    let distNM = greatCircDist(ALat: latVal, ALon: lonVal, BLat: lat, BLon: lon)
+                //                    let distMi = distNM * 1.15
+                //                    let dirDeg = greatCircAng(ALat: latVal, ALon: lonVal, BLat: lat, BLon: lon, Dist: distNM)
+                //                    if distMi < 99 { distStr = formatDbl(number: distMi, fieldLen: 5, places: 1) }
+                //                    let distDirStr = "\(distStr)mi \(dirDeg)°"
+
+                let strLatLon3 = formatLatLon(lat: lat, lon: lon, places: 3)
+
+                //let km = dictStation["distance_km"] as? Double ?? -99
+                print (padID, strLatLon3, state, city, neighborhood)
+                //let hood = String(neighborhood.characters.prefix(21)) // first21Chars
+
+                let stationItem = "pws \(padID) \(strDistDir) \(city)"
+                let stationDetail = "personal wx station\n" +
+                    "-------------------\n" +
+                    "\(padID) \(strLatLon3)  \(strDistDir)\n" +
+                    "\(neighborhood)\n" +
+                "\(city), \(state)\n"
+                let infoStation = StationInfo(type: "pws", id: stationID, distMi: tupleDistDir.dist, dir: tupleDistDir.deg, lineItem: stationItem, detail: stationDetail)
+                self.infoStations.append(infoStation)
+            }//next
+
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+            }// DispatchQueue.main.async
+
+        // Success again! We have made it through everything.
+            //self.lblError.text = myError
+            UIApplication.shared.isNetworkActivityIndicatorVisible = false
+            self.activityIndicator.stopAnimating()
+
+            self.txtCity.text = self.cityState
+            self.enableButton(btn: self.btnCity, enable: isCityStateValid(self.cityState))
+
+            self.txtZip.text = self.zip
+            self.enableButton(btn: self.btnZip, enable: isZipValid(self.zip))
+            self.txtLat.text = self.latStr
+            self.txtLon.text = self.lonStr
+            self.enableButton(btn: self.btnLatLon, enable: isLatValid(latTxt: self.latStr) && isLonValid(lonTxt: self.lonStr) )
+            self.lblDetail.text = self.Detail
+
+        }//end DispatchQueue
+    }//end func
+}//end extension
+
+
