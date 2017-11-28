@@ -187,7 +187,7 @@
                                 </connections>
                             </textField>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="i3q-nq-CrB">
-                                <rect key="frame" x="16" y="176" width="343" height="462"/>
+                                <rect key="frame" x="16" y="176" width="343" height="420"/>
                                 <string key="text">Weather Central downloads weather info from the  Weather Underground API. You must obtain an API-Key from wunderground.com to enable this service.  You can get a Developer key for free, which allows 10 calls per minute, and 500 per day.  When you have the key, enter it above, and tap 'Update'. </string>
                                 <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                 <nil key="textColor"/>
@@ -204,10 +204,10 @@
                                     <action selector="btnUpdateAPIKeyTap:" destination="fqq-Gt-JIB" eventType="touchUpInside" id="8vl-xe-5NG"/>
                                 </connections>
                             </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="---" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tev-Gr-nsX">
-                                <rect key="frame" x="16" y="646" width="343" height="21"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="---" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tev-Gr-nsX">
+                                <rect key="frame" x="16" y="604" width="343" height="63"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="21" id="enN-Xl-swg"/>
+                                    <constraint firstAttribute="height" constant="63" id="enN-Xl-swg"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>

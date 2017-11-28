@@ -29,16 +29,16 @@
     Hourly: wraps for long Wx (Few Showers/Wind)(Partly Cloudy/Wind)(Chance of a Thunderstorm)
     abc8 should not be legal
 
-New Features to be added later.
+ New Features to be added later.
  1) Route planning for next 5 days.
  2) Airport database
  3) Save downloads for later analysis
  4) Save Stations found for future use in Map
  5) pws History: #trys, #succeeds, DateLastTry, DateLastSucceed
 
-1.0.8(39) Now use "Prepare(For segue" and Delegate to pass data to & from Map
-That eliminated some globals.
-Change UserDefultKeys and SegueIDs from enums to structs
+1.0.8(42) Implemented module WuAPI.swift downloader for wundwerground API
+ Transition Settings.ChangeAPIKey to new module.
+ Still to do: Homepage & GeoLookup
 
 
 Get some stuff with every query *Almanac&Astron= 1K,

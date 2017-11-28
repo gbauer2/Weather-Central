@@ -19,6 +19,7 @@
 		CE5186E21F3B6D8000646C80 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CE5186E11F3B6D8000646C80 /* Assets.xcassets */; };
 		CE73B1B41FB502A900BD0525 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CE73B1B21FB502A900BD0525 /* Main.storyboard */; };
 		CE8CF39F1FB684E3006CC7BC /* Device.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE8CF39E1FB684E3006CC7BC /* Device.swift */; };
+		CEBE65631FCD976C009DF4DF /* WuAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEBE65621FCD976C009DF4DF /* WuAPI.swift */; };
 		CEC0CB0C1F7D76F100152CBA /* GeoLookup-ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEC0CB0B1F7D76F100152CBA /* GeoLookup-ViewController.swift */; };
 		CEC0CB0E1F7DFFDE00152CBA /* subs.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEC0CB0D1F7DFFDE00152CBA /* subs.swift */; };
 		CEC1FD1F1F560478000E1660 /* checkbox_checked.png in Resources */ = {isa = PBXBuildFile; fileRef = CEC1FD1B1F560478000E1660 /* checkbox_checked.png */; };
@@ -50,6 +51,7 @@
 		CE5186E61F3B6D8000646C80 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CE73B1B31FB502A900BD0525 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		CE8CF39E1FB684E3006CC7BC /* Device.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Device.swift; sourceTree = "<group>"; };
+		CEBE65621FCD976C009DF4DF /* WuAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WuAPI.swift; sourceTree = "<group>"; };
 		CEC0CB0B1F7D76F100152CBA /* GeoLookup-ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "GeoLookup-ViewController.swift"; sourceTree = "<group>"; };
 		CEC0CB0D1F7DFFDE00152CBA /* subs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = subs.swift; sourceTree = "<group>"; };
 		CEC1FD1B1F560478000E1660 /* checkbox_checked.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkbox_checked.png; sourceTree = "<group>"; };
@@ -115,6 +117,7 @@
 				CEE297651FBDDC3C00D12D22 /* SettingsStoryboard */,
 				CE31D6DC1F9162A6001E8EC6 /* Images */,
 				CE5186DA1F3B6D8000646C80 /* AppDelegate.swift */,
+				CEBE65621FCD976C009DF4DF /* WuAPI.swift */,
 				CE4BF55B1F9782F400A918D0 /* Globals.swift */,
 				CEC0CB0D1F7DFFDE00152CBA /* subs.swift */,
 				CEE0AF671F8156C60018B01F /* wuSubs.swift */,
@@ -256,6 +259,7 @@
 				CEC0CB0E1F7DFFDE00152CBA /* subs.swift in Sources */,
 				CE31D6E01F916AE0001E8EC6 /* TestCallLimitsVC.swift in Sources */,
 				CEE297671FBE1BAD00D12D22 /* AboutVC.swift in Sources */,
+				CEBE65631FCD976C009DF4DF /* WuAPI.swift in Sources */,
 				CE5186DB1F3B6D8000646C80 /* AppDelegate.swift in Sources */,
 				CE1EEB5F1F8E906500EBA13C /* MaintainCallLog.swift in Sources */,
 				CE31D6DE1F91643B001E8EC6 /* APIKeyVC.swift in Sources */,
