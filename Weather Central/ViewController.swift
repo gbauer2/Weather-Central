@@ -37,9 +37,8 @@
  4) Save Stations found for future use in Map
  5) pws History: #trys, #succeeds, DateLastTry, DateLastSucceed
 
-1.0.8(43) GeoLookup now uses WuAPI, 1 more to go (Homepage)
- Put Call-Limit test inside task, so that it returns to the delegate
-
+1.0.9(45) Transition to WuAPI module complete!
+ Fixed bug in FeatureSelector "Planner" where "12/05" wouldn't work, but "12/5" would.
 
 Get some stuff with every query *Almanac&Astron= 1K,
                                  GeoLookup     = 8k,
@@ -60,21 +59,22 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
     //let allowedFeatures = ["alerts", "almanac", "astronomy", "conditions", "currenthurricane", "forecast", "forecast10day", "geolookup", "history", "hourly", "hourly10day", "planner", "rawtide", "satellite", "tide", "webcams", "yesterday"]
 
     //MARK: ---- ViewController Variables ----
-    let APIKEY = ""    //let APIKEY = "1333bd..."
-    var numFeatures = 0
-    var featuresStr = ""
-    var prevCityLen = 999
-    var cityLockLen = -1
+    let APIKEY       = ""    //let APIKEY = "1333bd..."
+    var numFeatures  = 0
+    var featuresStr  = ""
+    var prevCityLen  = 999
+    var cityLockLen  = -1
     var locationManager = CLLocationManager()
     var userLocation    = CLLocation(latitude: 0.0, longitude: 0.0)
     var rawFontDefault  = UIFont(name: "Menlo", size: 12)
-    var gotCurrentData = false
-    var searchType = LocationSelectionType.none
-    var lastSearch = ""
-    var station    = ""
-    var cityState  = ""
-    var zip        = ""
+    var gotCurrentData  = false
+    var searchType   = LocationSelectionType.none
+    var lastSearch   = ""
+    var station      = ""
+    var cityState    = ""
+    var zip          = ""
     var homeSearchChanged = false          // Homepage Searchbox has changed since last return from GeoLookup
+    var WuDownloadDone    = false
 
     //MARK: ---- IBOutlets ----
     @IBOutlet weak var btnAlerts:     UIButton!
@@ -129,6 +129,7 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "Back", style: .plain, target: nil, action: nil)
     }
     
+    // ------ viewDidAppear ------
     override func viewDidAppear(_ animated: Bool) {
 
         print("Homepage viewDidAppear")
@@ -174,7 +175,7 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
         }
     }//end func viewDidAppear
 
-    
+    // ------ prepare for segue ------
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
 
         self.view.endEditing(true)              // Dismiss keyboard
@@ -213,7 +214,7 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
 
     }//end func Seque
     
-    // when you get location from CLLocationManager, record gUserLat & gUserLon, and stop updates
+    // iOS LocationServices:  when you get location from CLLocationManager, record gUserLat & gUserLon, and stop updates
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         //print(locations[0])
         userLocation = locations[0]
@@ -235,7 +236,7 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
         return true
     }
     
-    //MARK: ---- IBActions ----
+    //MARK: ------ IBActions ------
     @IBAction func btnAlertsPress(_ sender: Any) {
         self.view.endEditing(true)
         lblError.text = DoAlerts(jsonResult: globalDictJSON)
@@ -285,7 +286,7 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
                      "Wind": "Windermere,FL",     "Jac": "Jacksonville,FL",
                     ]
     
-    //-------------------- City - Editing Change ----------
+    //--------- City - Editing Change ----------
     @IBAction func txtCityEditChange(_ sender: Any) {
         gotCurrentData = false
         homeSearchChanged = true
@@ -314,7 +315,7 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
 
     }//end @IBAction func txtCityEditChange
 
-    // txtCity Editing Ended
+    // ------ txtCity Editing Ended ------
     @IBAction func txtCityEditEnd(_ sender: UITextField) {
         var str = txtCity.text!.trim()
         print("Home view: txtCityEditEnd '\(str)'")
@@ -340,7 +341,7 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
     }
 //=========================================================
 
-    //-------------------- GetData Button -------------------
+    //----------- GetData Button -----------
     @IBAction func btnGetData(_ sender: Any) {
         self.view.endEditing(true)
         txtRawData.text = ""
@@ -365,12 +366,14 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
         }
 
         let url = urlTuple.url
-        weatherJSON(url: url)   //
+        //weatherJSON(url: url)   //
+        startWuDownload(wuURL: url, place: place)
         clearRawData()
     }//end @IBAction func btnGetData
     
 // MARK: ---- My Functions ----
 
+    // ------ SaveHomepageSearch: returns (searchType, place, error) Saves LastSearch,SearchType, and SearchItem in UserDefaults ------
     func saveHomepageSearch(_ text: String) ->(searchType: LocationSelectionType, place: String, error: String) {
         var place = text
         var searchType = getSearchType(searchText: text)
@@ -492,6 +495,7 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
         present(alertController, animated: true, completion: nil)
     }
     
+    // ----- not yet used ------
     func getJsonFromFile() {
         guard let path = Bundle.main.path(forResource: "someJson", ofType: "txt") else {return}
         let url = URL(fileURLWithPath: path)
@@ -503,174 +507,16 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
             print(error)
         }
     }
-    
-    //MARK: ------------------ weatherJSON func -----------------
-    func weatherJSON(url: URL) {
-        
-        let checkLog = tryToLogCall(makeCall: true)
-        if !checkLog.isOK { return }
 
-        //------------------------------- task (thread) ------------------------------
-        let task = URLSession.shared.dataTask(with: url) {(data, response, error) in  //(with: request as URLRequest)
-            guard error == nil, let urlContent = data else {
-                DispatchQueue.main.async {
-                    self.lblError.text = "\(error!)"
-                    UIApplication.shared.isNetworkActivityIndicatorVisible = false
-                    self.activityIndicator.stopAnimating()
-                    print("Err03: ",error as Any)
-                    self.txtRawData.text = error.debugDescription           //??
-                }// DispatchQueue.main.async
-                return
-            } //end guard
-            
-            print("🙂 URLSession OK")
-            
-            print("GWB: ------------------ Print dataString -------------------")
-            print(String(describing: urlContent))
-            if  let string = String(data: data!, encoding: String.Encoding.utf8) {
-                if string.count < 1000 {
-                    print(string) //JSONSerialization
-                }
-            }
-            print("GWB: ------------------ URLSession  done -------------------")
-            
-            var myError = ""
-            
-            jsonTry: do {
-                let jsonResult = try JSONSerialization.jsonObject(with: urlContent, options: JSONSerialization.ReadingOptions.mutableContainers) as AnyObject
-
-/*
-                print("========================== JSON Data ===========================")
-                print(jsonResult)
-                print("========================== End  JSON ===========================")
-                print()
-*/
-                guard let dictJson = jsonResult as? NSDictionary else {                 //Try to convert jsonResult to Dictionary
-                    myError  = "Could not convert JSON to Dictionary"; break jsonTry
-                }
-                globalDictJSON = dictJson
-                printDictionaryNS(dictNS: dictJson, expandLevels: 0, dashLen: 0, title: "JSON")
-                //self.printDictionaryNS(dictNS: dictJson, expandLevels: 1, dashLen: 0, title: "JSON")
-/*
-========================== JSON Data ===========================
-{
-    response =     {
-        error =         {
-            description = "No cities match your search query";
-            type = querynotfound;
-        };
-        features =         {
-            astronomy = 1;
-            geolookup = 1;
-        };
-        termsofService = "http://www.wunderground.com/weather/api/d/terms.html";
-        version = "0.1";
-    };
-}
-========================== End  JSON ===========================
-*/
-                guard let dictResponse =   dictJson["response"] as? [String: AnyObject] else { //Try to convert jsonResult["response"] to Dictionary
-                    myError = "No 'response' in JSON data"; break jsonTry
-                }
-                guard let dictFeatures = dictResponse["features"] as? [String: AnyObject] else { //Try to convert jsonResult.response.features to Dictionary
-                    myError = "No 'features' in JSON 'response' data";  break jsonTry}
-                
-                errorTry: do {                              //See if there is an "error" entry in jsonResult.response
-                    guard let dictError = dictResponse["error"] as? [String: AnyObject] else {myError = "";  break errorTry}
-                    myError = "Err210:unknown error"
-                    if let err = dictError["type"] as? String { myError = err }
-                    if let er = dictError["description"] as? String { myError = er }
-                    print("\n\("Err210:" + myError)")
-                    break jsonTry
-                }// end errorTry
-                
-                resultsTry: do {                            //See if there is a "results" entry in jsonResult.response (suggests cities in other states)
-                    guard let oResults = dictResponse["results"] else {myError = "";  break resultsTry}
-                    myError = "\(self.cityState) not found!)"
-                        print("\(myError)\n")
-                        print(oResults)
-                        break jsonTry
-                }//end resultsTry
-                
-                // Success! We made it! We got to Wunderground.com, sent our features, and got back a legitimate reply.
-                
-                printDictionary(dict: dictFeatures, expandLevels: 0, dashLen: 0, title: "response/features")
-                
-                wuFeaturesWithDataArr = wuFeaturesArr
-                
-            } catch { //jsonTry:do Try/Catch -  (try JSONSerialization.jsonObject) = failed
-                print("Uh oh. You have an error with \(self.cityState)!")
-                myError = "Err03: Can't get \(self.featuresStr) in \(self.cityState)!"
-            }//end jsonTry:do Try/Catch
-            
-            // Success again! We have made it through everything,so save stuff for next time.
-            DispatchQueue.main.async {
-                self.lblError.text = myError
-                UIApplication.shared.isNetworkActivityIndicatorVisible = false
-                self.activityIndicator.stopAnimating()
-                if myError == "" {
-                    gDataIsCurrent = true
-                    self.setFeatureButtons()
-                    //————— Permanent Storage —————-
-                    UserDefaults.standard.set(self.featuresStr, forKey: UDKey.featuresStr)//"wuFeatures")
-                    if self.numFeatures == 1  {
-                        var singleItem = 0
-                        for i in 1..<wuFeaturesArr.count {
-                            if wuFeaturesArr[i] {
-                                singleItem = i
-                                break
-                            }//endif
-                        }//next i
-
-                        switch singleItem {
-                        case iAlerts:
-                            self.lblError.text = self.DoAlerts(jsonResult: globalDictJSON)
-                        case iAlmanac:
-                            self.lblError.text = self.DoAlmanac(jsonResult: globalDictJSON)
-                            self.lblError.text = self.DoAstronomy(jsonResult: globalDictJSON)
-                        case iConditions:
-                            self.lblError.text = self.DoCurrentObservation(jsonResult: globalDictJSON)
-                        case iGeolookup:
-                            self.lblError.text = self.DoGeolookup(jsonResult: globalDictJSON)
-                        case iHistory, iYesterday:
-                            self.lblError.text = self.DoHistory(jsonResult: globalDictJSON)
-                        case iHurricane:
-                            self.lblError.text = self.DoHurricane(jsonResult: globalDictJSON)
-                        case iForecast, iForecast10day:
-                            self.lblError.text = self.DoForecast(jsonResult: globalDictJSON)
-                        case iHourly, iHourly10Day:
-                            self.lblError.text = self.DoHourly(jsonResult: globalDictJSON)
-                        case iPlanner:
-                            self.lblError.text = self.DoPlanner(jsonResult: globalDictJSON)
-                        case iTide:
-                            self.lblError.text = self.DoTide(jsonResult: globalDictJSON)
-                        default:
-                            self.lblError.text = "Could not identify Feature#\(singleItem)"
-                        }
- 
-                    }
-                }
-            }// DispatchQueue.main.async
-            
-        } //----------------------------- end task (thread) -----------------------------------
-        
-        UIApplication.shared.isNetworkActivityIndicatorVisible = true
-        self.activityIndicator.startAnimating()
-        task.resume()
-        //print ("====================== AFTER TASK =======================")
-        return
-    }//end func weatherJSON
-
-    
-    //=========================================================================================
-  
     //MARK: ---- Do each of the selected Featuees ----
     //--------------------------- DoAlerts ------------------------
     func DoAlerts(jsonResult: AnyObject) -> String {
         clearRawData()
-        //let myError = ""
-        guard let alertsArr = jsonResult["alerts"] as? [[String: AnyObject]] else {return "\"alerts\" not in downloaded data!!"}
-        
+        if !gAlerts.hasData {
+            return "\"alerts\" not in downloaded data!!"
+        }
+        let alertsArr = gAlerts.data
+
         let countTxt = showCount(count: alertsArr.count, name: "Alert", ifZero: "No")
         print(countTxt)
         lblRawDataHeading.textAlignment = NSTextAlignment.center
@@ -712,9 +558,11 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
     func DoAlmanac(jsonResult: AnyObject) -> String {
         clearRawData()
         txtRawData.font = UIFont(name: rawFontDefault!.fontName, size: 17)
+        if !gAlmanac.hasData {
+            return "\"alerts\" not in downloaded data!!"
+        }
+        let dictAlmanac = gAlmanac.data[0]
 
-        guard let dictAlmanac = jsonResult["almanac"] as? [String: AnyObject] else {return "\"almanac\" not in downloaded data!"}
-        
         var a1 = ""
         
         printDictionary(dict: dictAlmanac, expandLevels: 0, dashLen: 14, title: "Almanac")
@@ -765,8 +613,11 @@ temp_high --> {
     //---------------------------------- DoAstronomy ------------------------------------
     func DoAstronomy(jsonResult: AnyObject) -> String {
         //clearRawData()
-        guard let dictMoonPhase = jsonResult["moon_phase"] as? [String: AnyObject] else {return "\"moon_phase\" not in downloaded data!"}
-        
+        if !gAstronomy.hasData {
+            return "\"astronomy\" not in downloaded data!!"
+        }
+        let dictMoonPhase = gAstronomy.data[0]
+
         printDictionary(dict: dictMoonPhase, expandLevels: 0, dashLen: 21, title: "MoonPhase")
         printDictionary(dict: dictMoonPhase, expandLevels: 1, dashLen: 21, title: "MoonPhase")
         
@@ -835,10 +686,11 @@ temp_high --> {
     func DoCurrentObservation(jsonResult: AnyObject) -> String {
         clearRawData()
         txtRawData.font = UIFont(name: rawFontDefault!.fontName, size: 16)
-        let myError = ""
-        
-        guard let dictCurrentObservation = jsonResult["current_observation"] as? [String: AnyObject] else {return "\"conditions\" not in downloaded data!"}
-        
+        if !gConditions.hasData {
+            return "\"current_observation\" not in downloaded data!!"
+        }
+        let dictCurrentObservation = gConditions.data[0]
+
         printDictionary(dict: dictCurrentObservation, expandLevels: 0, dashLen: 25, title: "current_observation")
         printDictionary(dict: dictCurrentObservation, expandLevels: 1, dashLen: 25, title: "current_observation")
 
@@ -991,73 +843,92 @@ temp_high --> {
 
         print("😀display_location printed!")
 
-        return myError
-    /*
-         ========================== current_observation base ===========================
-         precip_today_metric -----> 0
-    observation_time_rfc822 -> Tue, 26 Sep 2017 19:40:40 -0400
-         feelslike_c -------------> 29
-    wind_mph ----------------> 0.0 N
-    precip_1hr_in -----------> 0.00
-    relative_humidity -------> 66%
-    dewpoint_f --------------> 69.0 N
-         UV ----------------------> 0
-    dewpoint_string ---------> 69 F (21 C)
-    local_tz_short ----------> EDT
-    windchill_string --------> NA
-         temp_c ------------------> 27.6 N
-    heat_index_string -------> 85 F (29 C)
-         pressure_mb -------------> 1009
-    pressure_in -------------> 29.79
-         windchill_c -------------> NA
-    feelslike_string --------> 85 F (29 C)
-         forecast_url ------------> http://www.wunderground.com/US/SC/Myrtle_Beach.ht
-    heat_index_f ------------> 85.0
-    pressure_trend ----------> 0
-         ob_url ------------------> http://www.wunderground.com/cgi-bin/findweather/g
-    temperature_string ------> 81.7 F (27.6 C)
-         estimated ---------------> {Dictionary} with 0 items
-         image -------------------> {Dictionary} with 3 items
-    wind_degrees ------------> 113.0 N
-    precip_today_string -----> 0.00 in (0 mm)
-         wind_gust_kph -----------> 0.0 N
-         observation_epoch -------> 1506469240
-    weather -----------------> Clear
-         heat_index_c ------------> 29.0
-    feelslike_f -------------> 85
-         observation_location ----> {Dictionary} with 8 items
-         local_tz_offset ---------> -0400
-    precip_today_in ---------> 0.00
-    local_time_rfc822 -------> Tue, 26 Sep 2017 19:41:06 -0400
-         solarradiation ----------> --
-    wind_string -------------> Calm
-         history_url -------------> http://www.wunderground.com/weatherstation/WXDail
-    windchill_f -------------> NA
-         local_epoch -------------> 1506469266
-    wind_gust_mph -----------> 0.0 N
-         wind_kph ----------------> 0.0 N
-         display_location --------> {Dictionary} with 12 items
-         icon_url ----------------> http://icons.wxug.com/i/c/k/nt_clear.gif
-    precip_1hr_string -------> 0.00 in ( 0 mm)
-         local_tz_long -----------> America/New_York
-    temp_f ------------------> 81.7 N
-         observation_time --------> Last Updated on September 26, 7:40 PM EDT
-         icon --------------------> clear
-         precip_1hr_metric ------->  0
-         dewpoint_c --------------> 21.0 N
+        return ""
+/*
+========================== current_observation base ===========================
     station_id --------------> KSCMYRTL73
-    wind_dir ----------------> ESE
-         visibility_km -----------> 16.1
+?   display_location --------> {Dictionary} with 12 items    See below
+?   observation_location ----> {Dictionary} with  8 items    See below
+?   observation_epoch -------> 1506469240
+?   local_epoch -------------> 1506469266
+    local_time_rfc822 -------> Tue, 26 Sep 2017 19:41:06 -0400
+?   observation_time --------> Last Updated on September 26, 7:40 PM EDT
+    observation_time_rfc822 -> Tue, 26 Sep 2017 19:40:40 -0400
+?   local_tz_offset ---------> -0400
+    local_tz_short ----------> EDT
+?   local_tz_long -----------> America/New_York
+
+    temp_f ------------------> 81.7 N
+?   temp_c ------------------> 27.6 N
+    temperature_string ------> 81.7 F (27.6 C)
+    dewpoint_f --------------> 69.0 N
+?   dewpoint_c --------------> 21.0 N
+    dewpoint_string ---------> 69 F (21 C)
+
+    feelslike_f -------------> 85
+?   feelslike_c -------------> 29
+    feelslike_string --------> 85 F (29 C)
+
+    relative_humidity -------> 66%
+
+    windchill_f -------------> NA
+?   windchill_c -------------> NA
+    windchill_string --------> NA
+
+    heat_index_f ------------> 85.0
+?   heat_index_c ------------> 29.0
+    heat_index_string -------> 85 F (29 C)
+
+    weather -----------------> Clear
+?   icon --------------------> clear
+
+?   solarradiation ----------> --
+?   UV ----------------------> 0
+
+?   pressure_mb -------------> 1009
+    pressure_in -------------> 29.79
+    pressure_trend ----------> 0
+
+    precip_1hr_in -----------> 0.00
+?   precip_1hr_metric -------> 0
+    precip_1hr_string -------> 0.00 in ( 0 mm)
+    precip_today_in ---------> 0.00
+?   precip_today_metric -----> 0
+    precip_today_string -----> 0.00 in (0 mm)
+
+    visibility_km -----------> 16.1
     visibility_mi -----------> 10.0
-         nowcast -----------------> 
-         ======================== end current_observation base =========================
- */
+
+    wind_dir ----------------> ESE
+    wind_degrees ------------> 113.0 N
+    wind_mph ----------------> 0.0 N
+?   wind_kph ----------------> 0.0 N
+    wind_gust_mph -----------> 0.0 N
+?   wind_gust_kph -----------> 0.0 N
+    wind_string -------------> Calm
+
+?   estimated ---------------> {Dictionary} with 0 items
+?   image -------------------> {Dictionary} with 3 items
+
+?   nowcast ----------------->
+?   forecast_url ------------> http://www.wunderground.com/US/SC/Myrtle_Beach.ht
+?         ob_url ------------> http://www.wunderground.com/cgi-bin/findweather/g
+?    history_url ------------> http://www.wunderground.com/weatherstation/WXDail
+?       icon_url ------------> http://icons.wxug.com/i/c/k/nt_clear.gif
+
+======================== end current_observation base =========================
+*/
+
     }//end func DoCurrentObservation
     
     //----------------------- DoGeolookup ---------------------------
     func DoGeolookup (jsonResult: AnyObject) -> String {
         clearRawData()
-        guard let dictLocation = jsonResult["location"] as? [String: AnyObject] else {return "\"location\" not in JSON data!!"}
+        if !gGeoLookup.hasData {
+            return "\"location\" not in downloaded data!!"
+        }
+        let dictLocation = gGeoLookup.data[0]
+
         printDictionary(dict: dictLocation, expandLevels: 0, dashLen: 15, title: "location")
         guard let dictNearby = dictLocation["nearby_weather_stations"] as? [String: AnyObject] else {return "\"nearby_weather_stations\" not in location data!!"}
         printDictionary(dict: dictNearby, expandLevels: 1, dashLen: 11, title: "location")
@@ -1069,7 +940,11 @@ temp_high --> {
     //----------------------- DoHistory ---------------------------
     func DoHistory (jsonResult: AnyObject) -> String {
         clearRawData()
-        guard let dictHistory = jsonResult["history"] as? [String: AnyObject] else {return "\"history\" not in JSON data!!"}
+        if !gHistory.hasData {
+            return "\"history\" not in downloaded data!!"
+        }
+        let dictHistory = gHistory.data[0]
+
         guard let dailysummaryArr = dictHistory["dailysummary"] as? [[String: AnyObject]] else {return "\"dailysummaryArr\" not in \"history\""}
         guard let observationsArr = dictHistory["observations"] as? [[String: AnyObject]] else {return "\"observationsArr\" not in \"history\""}
         
@@ -1089,15 +964,16 @@ temp_high --> {
             
             var aa = ""
             let dictDate = dict["date"] as! [String: AnyObject]
-            let dat = dictDate["pretty"] as! String
-            let dateArr = dat.components(separatedBy: " on ")
-            let date = dateArr.count < 2 ? dat : dateArr[1]
-            let minTemp = dict["mintempi"] as? String ?? "?"
-            let maxTemp = dict["maxtempi"] as? String ?? "?"
+            let datp    = dictDate["pretty"] as! String
+            let split   = datp.components(separatedBy: " on ")
+            let date    = split.count < 2 ? datp : split[1]
+            let minTemp = dict["mintempi"]  as? String ?? "?"
+            let maxTemp = dict["maxtempi"]  as? String ?? "?"
             let minDewP = dict["mindewpti"] as? String ?? "?"
             let maxDewP = dict["maxdewpti"] as? String ?? "?"
-            let minVis = dict["minvisi"] as? String ?? "?"
-            let maxVis = dict["maxvisi"] as? String ?? "?"
+            let minVis  = dict["minvisi"]   as? String ?? "?"
+            let maxVis  = dict["maxvisi"]   as? String ?? "?"
+
             aa += "Temp    \(minTemp)° to \(maxTemp)°\n"
             aa += "DewPt   \(minDewP)° to \(maxDewP)°\n"
             aa += "Vis    \(minVis) mi to \(maxVis) mi\n"
@@ -1184,8 +1060,11 @@ date
         clearRawData()
         lblRawDataHeading.textAlignment = NSTextAlignment.center
         lblRawDataHeading.text = "No Report from Tropics"       // default label
-        guard let hurricaneArr = jsonResult["currenthurricane"] as? [[String: AnyObject]] else {return "\"CurrentHurricane\" not in downloaded data!!"}
-        
+        if !gHurricane.hasData {
+            return "\"currenthurricane\" not in downloaded data!!"
+        }
+        let hurricaneArr = gHurricane.data
+
         print("\n\(hurricaneArr.count) storms in hurricaneArr (jsonResult[\"currenthurricane\"])")
         lblRawDataHeading.text = showCount(count: hurricaneArr.count, name: "Tropical System", ifZero: "No")  //"\(hurricaneArr.count) storms"
         if hurricaneArr.count == 0 { return "" }
@@ -1337,11 +1216,13 @@ date
     
     //----------------------------- DoForecast --------------------------------
     func DoForecast (jsonResult: AnyObject) -> String {
-        //var myError = ""
         clearRawData()
         lblRawDataHeading.font = txtRawData.font
-        guard let dictForecast = jsonResult["forecast"] as? [String: AnyObject] else {return "\"Forecast\" not in downloaded data!!"}
-        
+        if !gForecast.hasData {
+            return "\"forecast\" not in downloaded data!!"
+        }
+        let dictForecast = gForecast.data[0]
+
         printDictionary(dict: dictForecast, expandLevels: 0, dashLen: 0, title: "Forecast")
         print()
         
@@ -1432,8 +1313,11 @@ date {
         let myError = ""
         clearRawData()
         lblRawDataHeading.font = txtRawData.font
+        if !gHourly.hasData {
+            return "\"hourly_forecast\" not in downloaded data!!"
+        }
+        let dictHourlyArr = gHourly.data
 
-        guard let dictHourlyArr = jsonResult["hourly_forecast"] as? [[String: AnyObject]] else {return "Err4: \"hourly\" not in downloaded data!"}
         print("------------ hourlyArr[0] -----------")
         print("hourlyArr.count = \(dictHourlyArr.count)")
         var aa = ""
@@ -1514,8 +1398,10 @@ date {
     func DoPlanner(jsonResult: AnyObject, isMetric: Bool = false) -> String {
         clearRawData()
         txtRawData.font = UIFont(name: rawFontDefault!.fontName, size: 15)
-
-        guard let dictTrip = jsonResult["trip"] as? [String: AnyObject] else {return "\"planner\" not in downloaded data!"}
+        if !gPlanner.hasData {
+            return "\"trip\" not in downloaded data!!"
+        }
+        let dictTrip = gPlanner.data[0]
 
         printDictionary(dict: dictTrip, expandLevels: 0, dashLen: 0, title: "Trip")
         printDictionary(dict: dictTrip, expandLevels: 1, dashLen: 0, title: "Trip")
@@ -1759,13 +1645,13 @@ date {
     
     //------------------------------ DoTide --------------------------------
     func DoTide(jsonResult: AnyObject) -> String {
-        
         clearRawData()
         txtRawData.font = UIFont(name: rawFontDefault!.fontName, size: 14)
-        var myError = ""
-        
-        guard let dictTide = jsonResult["tide"] as? [String: AnyObject] else {return "\"tide\" not in downloaded data!"}
-        
+        if !gTide.hasData {
+            return "\"tide\" not in downloaded data!!"
+        }
+        let dictTide = gTide.data[0]
+
         printDictionary(dict: dictTide, expandLevels: 0, dashLen: 0, title: "Tide")
         print()
 
@@ -1878,15 +1764,96 @@ date {
             //self.txtRawData.text = a1
         }
         print("😀tideInfo printed!")
-        
-        myError = ""
-        
-        return myError
+
+        return ""
         
     }//end func DoTide
     
   //===========================================================================
 }
+
+
+//MARK: =================== WuAPIdelegate Extension =======================
+extension ViewController: WuAPIdelegate {      //delegate <— (4)
+
+    //This function is called your download request
+    func startWuDownload(wuURL: URL, place: String) {
+        WuDownloadDone = false
+        lblError.text = "...downloading"       // change this label, start activityIndicators
+        self.activityIndicator.startAnimating()
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+
+        wuAPI.delegate = self                   //delegate <— (5)
+        wuAPI.downloadData(url: wuURL, place: place)
+        return
+    }//end func
+
+    // ------ All the download data has been placed in the global Features variables ------
+    func downloadDone(isOK: Bool, numFeaturesRequested: Int,  numFeaturesReceived: Int, errStr: String){    //delegate (6)
+        DispatchQueue.main.async {
+            print("ViewController downloadDone delegate reached:")
+            print("errStr = \(errStr)")
+            let es = isOK ? "" : "\(errStr)\n"
+            let msg = "isOK = \(isOK)\n\(es)\(numFeaturesRequested) features requested, \(numFeaturesReceived) received."
+            print(msg)
+
+            //----------------------------
+            //process your data
+            self.lblError.text = msg           // change this label, stop activityIndicators
+            UIApplication.shared.isNetworkActivityIndicatorVisible = false  // turn-off built-in activityIndicator
+            self.activityIndicator.stopAnimating()                          // turn-off My activityIndicator
+
+            if !isOK {
+                self.showError("\(errStr)")
+                return
+            }//end if
+
+            gDataIsCurrent = true
+            self.setFeatureButtons()
+            //————— Permanent Storage —————-
+            UserDefaults.standard.set(self.featuresStr, forKey: UDKey.featuresStr)//"wuFeatures")
+            if self.numFeatures == 1  {
+                var singleItem = 0
+                for i in 1..<wuFeaturesArr.count {
+                    if wuFeaturesArr[i] {
+                        singleItem = i
+                        break
+                    }//endif
+                }//next i
+
+                switch singleItem {
+                case iAlerts:
+                    self.lblError.text = self.DoAlerts(jsonResult: globalDictJSON)
+                case iAlmanac:
+                    self.lblError.text = self.DoAlmanac(jsonResult: globalDictJSON)
+                    self.lblError.text = self.DoAstronomy(jsonResult: globalDictJSON)
+                case iConditions:
+                    self.lblError.text = self.DoCurrentObservation(jsonResult: globalDictJSON)
+                case iGeolookup:
+                    self.lblError.text = self.DoGeolookup(jsonResult: globalDictJSON)
+                case iHistory, iYesterday:
+                    self.lblError.text = self.DoHistory(jsonResult: globalDictJSON)
+                case iHurricane:
+                    self.lblError.text = self.DoHurricane(jsonResult: globalDictJSON)
+                case iForecast, iForecast10day:
+                    self.lblError.text = self.DoForecast(jsonResult: globalDictJSON)
+                case iHourly, iHourly10Day:
+                    self.lblError.text = self.DoHourly(jsonResult: globalDictJSON)
+                case iPlanner:
+                    self.lblError.text = self.DoPlanner(jsonResult: globalDictJSON)
+                case iTide:
+                    self.lblError.text = self.DoTide(jsonResult: globalDictJSON)
+                default:
+                    self.lblError.text = "Could not identify Feature#\(singleItem)"
+                }//end switch
+            }//end if only 1 feature
+
+        }//end DispatchQueue
+    }//end func
+
+}//end extension
+
+
 /* wunderground keywords
 ["alerts", "almanac", "astronomy", "conditions", "currenthurricane",
 "forecast", "forecast10day", "geolookup", "history", "hourly", "hourly10day",

@@ -408,7 +408,7 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
             return
         }
         let url = urlTuple.url
-        startWuDownload(wuURL: url)
+        startWuDownload(wuURL: url, place: place)
         //weatherJSON(url: url)
         
     }
@@ -475,17 +475,18 @@ extension GeoLookup_ViewController: UITableViewDelegate, UITableViewDataSource {
 extension GeoLookup_ViewController: WuAPIdelegate {      //delegate <— (4)
 
     //This function is called your download request
-    func startWuDownload(wuURL: URL) {
+    func startWuDownload(wuURL: URL, place: String) {
         WuDownloadDone = false
         lblError.text = "...downloading"       // change this label, start activityIndicators
         self.activityIndicator.startAnimating()
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
 
         wuAPI.delegate = self                   //delegate <— (5)
-        wuAPI.downloadData(url: wuURL)
+        wuAPI.downloadData(url: wuURL, place: place)
         return
     }//end func
 
+    // ------ All the download data has been placed in the global Features variables ------
     func downloadDone(isOK: Bool, numFeaturesRequested: Int,  numFeaturesReceived: Int, errStr: String){    //delegate (6)
         DispatchQueue.main.async {
             print("GeoLookup downloadDone delegate reached:")

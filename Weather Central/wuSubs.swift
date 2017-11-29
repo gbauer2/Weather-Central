@@ -70,6 +70,7 @@ struct Station {
     }
 }
 
+// ------ StationInfo Struct ------
 struct StationInfo {
     public let type:     String
     public let id:       String
@@ -77,6 +78,7 @@ struct StationInfo {
     public let dir:      Int
     public let lineItem: String
     public let detail:   String
+
     public init(type: String, id: String, distMi: Double, dir: Int, lineItem: String, detail: String) {
         self.type     = type
         self.id       = id
@@ -87,7 +89,7 @@ struct StationInfo {
     }
 }
 
-// Location Struct
+// ------ Location Struct ------
 struct Location {
     public let type:       String       // "INTLCITY"
     public let city:       String       // "Montreal"

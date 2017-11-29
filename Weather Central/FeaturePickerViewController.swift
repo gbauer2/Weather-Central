@@ -98,7 +98,7 @@ class FeaturePickerViewController: UIViewController, UITextFieldDelegate {
         if wuFeaturesArr[iPlanner] {
             plannerSuffix = makePlannerSuffix()
             if plannerSuffix.count != 9 || !plannerSuffix.hasPrefix("_") {
-                lblError.text = plannerSuffix
+                lblError.text = "plannerSuffix can't be \(plannerSuffix)"
                 return
             }
             UserDefaults.standard.set(txtDate1.text!, forKey: UDKey.wuPlannerDate1)//"wuPlannerDate1")
@@ -230,7 +230,7 @@ class FeaturePickerViewController: UIViewController, UITextFieldDelegate {
         errMsg = "planner day can't be \(daStr)"
         guard let d = Int(daStr) else                        { return errMsg }
         if d < 1 || d > 31                                   { return errMsg }
-        if d <= 9 { daStr = "0" + daStr }
+        if d <= 9 && !daStr.hasPrefix("0") { daStr = "0" + daStr }
         if (m == 4 || m == 6 || m == 9 || m == 11) && d > 30 { return errMsg }
         if (m == 2) && d > 29                                { return errMsg }
         return moStr + daStr

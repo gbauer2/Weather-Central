@@ -8,6 +8,7 @@
 
 import Foundation
 
+// ???? change type to enum, add station,stationLL
 struct Feature {
     let hasData:  Bool
     let date:     Date
@@ -16,25 +17,29 @@ struct Feature {
     var placeLat: Double
     var placeLon: Double
     let data:     [[String:AnyObject]]
+    // Empty init sets hasData to false
     init() {
-        hasData = false
-        date    = Date()
-        type    = 0
-        place   = ""
+        hasData  = false
+        date     = Date()
+        type     = 0
+        place    = ""
         placeLat = -999.0
         placeLon = -999.0
         data     = [[String:AnyObject]()]
     }
+    // init(type, place, data) sets hasData to true, and sets date to Now
     init(type: Int, place:String, data: [[String:AnyObject]] ) {
-        self.hasData = true
-        self.date    = Date()
-        self.type    = type
-        self.place   = place
+        self.hasData  = true
+        self.date     = Date()
+        self.type     = type
+        self.place    = place
         self.placeLat = -999
         self.placeLon = -999
-        self.data    = data
+        self.data     = data
     }
 }
+
+// Change to array or dictionary????
 var gAlerts     = Feature()
 var gAlmanac    = Feature()
 var gAstronomy  = Feature()
@@ -59,7 +64,7 @@ class WuAPI {
 
 
     //---------------------- downloadData func ---------------------
-    public func downloadData(url: URL) {
+    public func downloadData(url: URL, place: String) {
 
         //------------------------------- task (thread) ------------------------------
         let task = URLSession.shared.dataTask(with: url) {(data, response, error) in
@@ -161,8 +166,6 @@ class WuAPI {
 
                 // Success! We made it! We got to Wunderground.com, sent our features, and got back a legitimate reply.
                 printDictionary(dict: dictFeatures, expandLevels: 0, dashLen: 0, title: "response/features")
-                //self.delegate?.downloadDone(isOK: true, numFeaturesRequested: numFeaturesRequested, numFeaturesReceived: numFeaturesReceived, errStr: taskError) //delegate <— (3)
-                let place = ""
 
                 if let alertsArr     = jsonResult["alerts"]     as? [[String: AnyObject]] {
                     numFeaturesReceived += 1
@@ -173,70 +176,67 @@ class WuAPI {
                     numFeaturesReceived += 1
                     let almanacArr = [dictAlmanac]
                     gAlmanac = Feature(type: iAlmanac, place: place, data: almanacArr)
-                }//else {return "\"almanac\" not in downloaded data!"}
+                }// "almanac"}
 
                 if let dictMoonPhase = jsonResult["moon_phase"] as? [String: AnyObject] {
                     numFeaturesReceived += 1
                     let astroArr = [dictMoonPhase]
                     gAstronomy = Feature(type: iAstronomy, place: place, data: astroArr)
-                }//else {return "\"moon_phase\" not in downloaded data!"}
+                }// "moon_phase"
 
                 if let dictCurrentObservation = jsonResult["current_observation"] as? [String: AnyObject] {
                     numFeaturesReceived += 1
                     let conditionsArr = [dictCurrentObservation]
                     gConditions = Feature(type: iConditions, place: place, data: conditionsArr)
-                }//else {return "\"conditions\" not in downloaded data!"}
+                }// "conditions"
 
                 if let dictLocation  = jsonResult["location"]   as? [String: AnyObject] {
                     numFeaturesReceived += 1
                     let geoArr = [dictLocation]
                     gGeoLookup = Feature(type: iGeolookup, place: place, data: geoArr)
                     print(gGeoLookup.hasData)
-                }//else {return "\"location\" not in JSON data!!"} //geoLookup
+                }//geoLookup
 
                 if let dictHistory   = jsonResult["history"]    as? [String: AnyObject] {
                     numFeaturesReceived += 1
                     let histArr = [dictHistory]
                     gHistory = Feature(type: iHistory, place: place, data: histArr)
+                }// "history"
 
-                }//else {return "\"history\" not in JSON data!!"}
                 if let hurricaneArr  = jsonResult["currenthurricane"] as? [[String: AnyObject]] {
                     numFeaturesReceived += 1
                     gHurricane = Feature(type: iHurricane, place: place, data: hurricaneArr)
+                }// "CurrentHurricane"
 
-                }//else {return "\"CurrentHurricane\" not in downloaded data!!"}
                 if let dictForecast  = jsonResult["forecast"]   as? [String: AnyObject] {
                     numFeaturesReceived += 1
                     let forecastArr = [dictForecast]
                     gForecast = Feature(type: iForecast, place: place, data: forecastArr)
+                }// "Forecast!"
 
-                }//else {return "\"Forecast\" not in downloaded data!!"}
                 if let dictHourlyArr = jsonResult["hourly_forecast"] as? [[String: AnyObject]] {
                     numFeaturesReceived += 1
                     gHourly = Feature(type: iHourly, place: place, data: dictHourlyArr)
+                }
 
-                }//else {return "Err4: \"hourly\" not in downloaded data!"}
                 if let dictTrip      = jsonResult["trip"]       as? [String: AnyObject] {
                     numFeaturesReceived += 1
                     let tripArr = [dictTrip]
                     gPlanner = Feature(type: iPlanner, place: place, data: tripArr)
+                }// "planner"
 
-                }//else {return "\"planner\" not in downloaded data!"}
                 if let dictTide      = jsonResult["tide"]       as? [String: AnyObject] {
                     numFeaturesReceived += 1
                     let tideArr = [dictTide]
                     gTide = Feature(type: iTide, place: place, data: tideArr)
-
-                }//else {return "\"tide\" not in downloaded data!"}
+                }// "tide"
 
             } catch { //jsonTry:do Try/Catch -  (try JSONSerialization.jsonObject) = failed
                 taskError = "Err208: Can't get JSON data!"
                 print("\n\(taskError)")
-                //self.delegate?.downloadDone(isOK: false, numFeaturesRequested: numFeaturesRequested, numFeaturesReceived: numFeaturesReceived, errStr: taskError) //delegate <— (3)
             }//end jsonTry:do Try/Catch
 
             // Success again! We have made it through everything.
-
 
             DispatchQueue.main.async {
                 let isOK = taskError.isEmpty

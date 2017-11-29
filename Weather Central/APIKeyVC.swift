@@ -69,11 +69,12 @@ class APIKeyVC: UIViewController, UITextFieldDelegate {
             } //end if APItxt
         } //end if len
 
-        let urlTuple = makeWuUrlJson(APIKey: APItxt, features: "conditions", place: "zip:34786")
+        let place = "zip:34786"
+        let urlTuple = makeWuUrlJson(APIKey: APItxt, features: "conditions", place: place)
         lblError.text = urlTuple.errorStr
         if urlTuple.errorStr == "" {
             let wuURL = urlTuple.url
-            startWuDownload(wuURL: wuURL)
+            startWuDownload(wuURL: wuURL, place: place)
         }
 
     }//end @IBAction func btnAPIKey
@@ -94,14 +95,14 @@ class APIKeyVC: UIViewController, UITextFieldDelegate {
 extension APIKeyVC: WuAPIdelegate {      //delegate <— (4)
 
     //This function is called your download request
-    func startWuDownload(wuURL: URL) {
+    func startWuDownload(wuURL: URL, place: String) {
         WuDownloadDone = false
         lblError.text = "...downloading"       // change this label, start activityIndicators
         self.activityIndicator.startAnimating()
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
 
         wuAPI.delegate = self                   //delegate <— (5)
-        wuAPI.downloadData(url: wuURL)
+        wuAPI.downloadData(url: wuURL, place: place)
         return
     }//end func
 
