@@ -30,6 +30,8 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
     var searchType = LocationSelectionType.none    // set by: Home, Geolookup;  used by: Home, Geolookup, Map
     var lastSearch = ""
     var searchName = ""                            // set by: Geolookup;        used by: Map
+    var latDelta = 0.25
+    var lonDelta = 0.25
 
     var locationManager = CLLocationManager()
     var userLocation = CLLocation(latitude: 0.0, longitude: 0.0)
@@ -141,8 +143,8 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
             mapVC.searchLon = gSearchLon
             mapVC.searchType = searchType
             mapVC.searchName = searchName
-            mapVC.latDelta = 0.18
-            mapVC.lonDelta = 0.18
+            mapVC.latDelta = latDelta
+            mapVC.lonDelta = lonDelta
             mapVC.stations = stations
             mapVC.delegate = self               //delegate
 
@@ -356,6 +358,7 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
     }
 
     @IBAction func btnMapTap(_ sender: UIButton) {
+// Segue to Map.  See prepare(for segue
 //        let storyboard = UIStoryboard(name: "Main", bundle: nil)
 //        let vc = storyboard.instantiateViewController(withIdentifier: "idMapVC") as! MapVC
 //        navigationController?.pushViewController(vc, animated: true)
@@ -497,11 +500,11 @@ extension GeoLookup_ViewController: WuAPIdelegate {      //delegate <— (4)
 
             //----------------------------
             //process your data
-            self.lblError.text = msg           // change this label, stop activityIndicators
             UIApplication.shared.isNetworkActivityIndicatorVisible = false  // turn-off built-in activityIndicator
             self.activityIndicator.stopAnimating()                          // turn-off My activityIndicator
 
             if !isOK {
+                self.lblError.text = msg           // change this label, stop activityIndicators
                 self.showAlert(title: "Fail", message: "\(errStr)")
                 return
             }
@@ -562,6 +565,8 @@ extension GeoLookup_ViewController: WuAPIdelegate {      //delegate <— (4)
             print("\n \(apStationArr.count) airport wx stations")
             self.Detail = "  \(apStationArr.count) airport wx stations\n"
             //var stationArr = [String]()
+            var closestAirportLat = 9.9
+            var closestAirportLon = 9.9
 
             for dictStation in apStationArr {
                 let station = Station(sta: dictStation)
@@ -573,7 +578,10 @@ extension GeoLookup_ViewController: WuAPIdelegate {      //delegate <— (4)
                 let country = station.country
                 let lat = station.lat
                 let lon = station.lon
-
+                let latDif = abs(lat - gSearchLat)
+                let lonDif = abs(lon - gSearchLon)
+                closestAirportLat = min(latDif, closestAirportLat)
+                closestAirportLon = min(lonDif, closestAirportLon)
                 let tupleDistDir = formatDistDir(latFrom: latVal, lonFrom: lonVal, latTo: lat, lonTo: lon, doMi: true, doDeg: false)
                 let strDistDir = tupleDistDir.strDistDir
                 let strLatLon3 = formatLatLon(lat: lat, lon: lon, places: 3)
@@ -586,7 +594,7 @@ extension GeoLookup_ViewController: WuAPIdelegate {      //delegate <— (4)
                 let infoStation = StationInfo(type: "Airport", id: stationID, distMi: tupleDistDir.dist, dir: tupleDistDir.deg, lineItem: stationItem, detail: stationDetail)
                 self.infoStations.append(infoStation)
             }
-
+            print("Closest Airport: \(closestAirportLat),\(closestAirportLon)")
             let dictPws = dictNearby["pws"] as! [String: AnyObject]
             let pwsStationArr = dictPws["station"] as! [[String: AnyObject]]
 
@@ -596,6 +604,9 @@ extension GeoLookup_ViewController: WuAPIdelegate {      //delegate <— (4)
 
             print("\n\(pwsStationArr.count) personal wx stations")
             self.Detail += "\n \(pwsStationArr.count) personal wx stations\n"
+            var furthestPwsLat = 0.0
+            var furthestPwsLon = 0.0
+
             for dictStation in pwsStationArr {
                 let station = Station(sta: dictStation)
                 self.stations.append(station)
@@ -606,6 +617,10 @@ extension GeoLookup_ViewController: WuAPIdelegate {      //delegate <— (4)
                 let state = station.state
                 let lat = station.lat
                 let lon = station.lon
+                let latDif = abs(lat - gSearchLat)
+                let lonDif = abs(lon - gSearchLon)
+                furthestPwsLat = max(latDif, furthestPwsLat)
+                furthestPwsLon = max(lonDif, furthestPwsLon)
 
                 let tupleDistDir = formatDistDir(latFrom: latVal, lonFrom: lonVal, latTo: lat, lonTo: lon, doMi: true, doDeg: false)
                 let strDistDir = tupleDistDir.strDistDir
@@ -631,13 +646,12 @@ extension GeoLookup_ViewController: WuAPIdelegate {      //delegate <— (4)
                 let infoStation = StationInfo(type: "pws", id: stationID, distMi: tupleDistDir.dist, dir: tupleDistDir.deg, lineItem: stationItem, detail: stationDetail)
                 self.infoStations.append(infoStation)
             }//next
+            print("Furthest pws: \(furthestPwsLat),\(furthestPwsLon)")
 
-            DispatchQueue.main.async {
-                self.tableView.reloadData()
-            }// DispatchQueue.main.async
+            self.tableView.reloadData()
 
         // Success again! We have made it through everything.
-            //self.lblError.text = myError
+            self.lblError.text = ""
             UIApplication.shared.isNetworkActivityIndicatorVisible = false
             self.activityIndicator.stopAnimating()
 

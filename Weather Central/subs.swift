@@ -52,10 +52,9 @@ public func formatIntWithLeadingZeros(_ num: Int, width: Int) -> String {
 public func showCount(count: Int, name: String, ifZero: String = "0") -> String {
     if count == 1 { return "1 \(name)" }
     if count == 0 {
-        return "\(ifZero) \(name)s"
+        return "\(ifZero) \(name.pluralize(count))"
     }
-    return "\(count) \(name)s"
-    
+    return "\(count) \(name.pluralize(count))"
 }
 
 // ---- Test if a String is a valid Integer ---
@@ -148,9 +147,11 @@ public func printDictionaryNS(dictNS: NSDictionary,expandLevels: Int, dashLen: I
             } else if let db = value as? Double {
                 str2 = String(db)
             } else if value is NSArray {
-                str2 = "(Array) with \((value as! NSArray).count) items"
+                let n = (value as! NSArray).count
+                str2 = "(Array) with \(n) " + "item".pluralize(n)
             } else if value is NSDictionary {
-                str2 = "{Dictionary} with \((value as! NSDictionary).count as Int) items"
+                let n = (value as! NSDictionary).count
+                str2 = "{Dictionary} with \(n) " + "item".pluralize(n)
             }
             a1 += str1 + getDashes(key: str1, length: length) + "> " + str2
         }// next

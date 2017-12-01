@@ -8,20 +8,23 @@
 
 //TODO: - ToDo list
 /*
- 1) "Download Data" always get "Almanac, Astronomy, Conditions"
+ 1) "Download Data" always get Almanac, Astronomy, Conditions, and maybe Forecast
  2) "Download Data" always decode Location to update City,LatLon,Zip
  3) Select Hours & Days of interest for "Hourly" (e.g. Wed,Thu,Fri 8AM-2PM)
  4) Settings:(Default NSEW hemi)(LatLon display)(mi,nm,km)(degC,degF)(AMPM,24hr)(call limits)(WU level)
- 5) Hurricane forecast & map
  6) Map: DistDir in info, dotted line to selected, icon for airports, Show previously found stations
  7) Customize for landscape, or 6 vs 6+ in portait
  8) Bigger Font for 6sPlus & iPad - Forecast, Hourly
  9) Dropdown list for City
-10) Save DateTime for each feature download.
+10) Use Feature.date and .place to determine if data is current.
 11) Make stations[] persistant
 13) remove globals
 14) Remember query-not-found and don't repeat the same one
 15) Change Timeout for API calls
+16) Change logic of FeatureButtons so each is enabled when its data is fresh
+17) When you get Yesterday, then get History(today) or visa versa, remember and display both
+18) Map: iOS11 new annotations and grouping
+ 19) History: Much more data available
 
  Issues:
     Alerts: if just 1 Alert, put its name in heading
@@ -32,21 +35,24 @@
 
  New Features to be added later.
  1) Route planning for next 5 days.
- 2) Airport database
+ 2) Airport & pws database
  3) Save downloads for later analysis
  4) Save Stations found for future use in Map
  5) pws History: #trys, #succeeds, DateLastTry, DateLastSucceed
+ 6) Hurricane forecast & map
 
-1.0.9(45) Transition to WuAPI module complete!
- Fixed bug in FeatureSelector "Planner" where "12/05" wouldn't work, but "12/5" would.
-
+ 1.0.10(47) Map: fix Zoom buttons(+/-) to work properly
+ Larger font for History (Yesterday,Today)
+ Fix pluralization with String extension
+ Fix some String extensions for Swift4
+ 
 Get some stuff with every query *Almanac&Astron= 1K,
                                  GeoLookup     = 8k,
                                 *Conditions    = 3k
                                  Forecast      = 8k     10day (+)=19k,
-                                 AutoComplete*? no key
+        AutoComplete*? no key
                                                                                     Hurricanes(++)=31k(2),
-                                                        Hourly(+)=47k               10day     (++)=310k,
+                                                        Hourly(+)=47k               10dayH    (++)=310k,
                                                                                     Planner   (++)=4K, Yesterday(++)=10k History(?)=12k,
                                                         Tide  (+)=15k,RawTide(+)=60k
                                      Sat=1k,  webcams = 11k
@@ -103,8 +109,9 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
         let devName      = UIDevice.current.name
         let devSystem    = UIDevice.current.systemName
         //let d          = UIDevice.current.batteryLevel
-        print("😁 W=\(Int(screenWidth)), H=\(Int(screenHeight)), \(Device.PHONE_OR_PAD) in \(orientation), \(devName), \(devSystem) \(ver) 😁\n")
-
+        print("😁 W=\(Int(screenWidth)), H=\(Int(screenHeight)), \(Device.PHONE_OR_PAD) in \(orientation), \(devName), \(devSystem) \(ver) 😁")
+        print("User Prefered Text Size = ", UIApplication.shared.preferredContentSizeCategory)
+        print()
         rawFontDefault = txtRawData.font    // save default txtRawData Font from storyboard setting.
         CallLogInit()                       // loads CallLog stats from UserDefaults
 
@@ -177,41 +184,28 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
 
     // ------ prepare for segue ------
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-
         self.view.endEditing(true)              // Dismiss keyboard
-
         UserDefaults.standard.set(lastSearch, forKey: UDKey.lastSearch)
-
-        segueList: switch segue.identifier {
-
+        switch segue.identifier {
         case segueID.HomeToSettings?:                      //"segueSettings"
-            print("segue Home to Settings")
-            break segueList
-
+            print("\n➡️segue Home to Settings")
         case segueID.HomeToGeoLookup?:                     //"segueGeoLookup"
-            print("segue Home to GeoLookup")
-
+            print("\n➡️segue Home to GeoLookup")
             if !gotCurrentData {
                 cityState = ""
                 zip = ""
                 station = ""
             }
-
             _ = saveHomepageSearch(txtCity.text!)
             if searchType != .none && homeSearchChanged {
                 lastSearch = txtCity.text!
             }
             homeSearchChanged = false
-
         case segueID.HomeToFeatures?:                      //"segueFeatures"
-            print("segue Home to Feature Selector")
-            break segueList
-
+            print("\n➡️segue Home to Feature Selector")
         default:
-            print("Unknown segue identifier: '\(segue.identifier ?? "nil")'")
-            break segueList
+            print("\n➡️🚦Unknown segue identifier: '\(segue.identifier ?? "nil")'")
         }
-
     }//end func Seque
     
     // iOS LocationServices:  when you get location from CLLocationManager, record gUserLat & gUserLon, and stop updates
@@ -940,6 +934,8 @@ temp_high --> {
     //----------------------- DoHistory ---------------------------
     func DoHistory (jsonResult: AnyObject) -> String {
         clearRawData()
+        txtRawData.font = UIFont(name: rawFontDefault!.fontName, size: 18)
+
         if !gHistory.hasData {
             return "\"history\" not in downloaded data!!"
         }
@@ -948,16 +944,16 @@ temp_high --> {
         guard let dailysummaryArr = dictHistory["dailysummary"] as? [[String: AnyObject]] else {return "\"dailysummaryArr\" not in \"history\""}
         guard let observationsArr = dictHistory["observations"] as? [[String: AnyObject]] else {return "\"observationsArr\" not in \"history\""}
         
-        print("\n\(dictHistory.count) items in dictHistory")
+        print("\n\(dictHistory.count) \("item".pluralize(dictHistory.count)) in dictHistory")
         printDictionary(dict: dictHistory, expandLevels: 0, dashLen: 0, title: "History")
         
-        print("\n\(observationsArr.count) items in observationsArr\n")
+        print("\n\(observationsArr.count) \("item".pluralize(observationsArr.count)) in observationsArr\n")
         if observationsArr.count > 0 {
             guard let dict = observationsArr.first else {return "No observations in History"}
             printDictionary(dict: dict, expandLevels: 0, dashLen: 0, title: "observationsArr[0]")
         }
         
-        print("\n\(dailysummaryArr.count) items in dailysummaryArr")
+        print("\n\(dailysummaryArr.count) \("item".pluralize(dailysummaryArr.count)) in dailysummaryArr")
         if dailysummaryArr.count > 0 {
             guard let dict = dailysummaryArr.first else {return "No dailysummary in History"}
             printDictionary(dict: dict, expandLevels: 0, dashLen: 33, title: "dailysummaryArr[0]")
@@ -982,7 +978,15 @@ temp_high --> {
             txtRawData.text = aa
         }
         
-        /*
+/*
+4 items in dictHistory
+========================== History base ===========================
+dailysummary ---------> (Array) with 1 items
+utcdate --------------> {Dictionary} with 7 items
+date -----------------> {Dictionary} with 7 items
+observations ---------> (Array) with 27 items
+======================== end History base =========================
+
          ====== dailysummaryArr[0] ======
          date
          meantempi
@@ -1042,17 +1046,8 @@ temp_high --> {
          since1jancoolingdegreedays
          since1jancoolingdegreedaysnormal
          ==== end dailysummary[0] ====
-
  */
-        
-        return ""
-        
-        /*
-utcDate
-dailysummary()
-observations()
-date
-         */
+        return ""        
     }//end func DoHistory
     
     //------------------------------------ DoHurricane ----------------------------------
@@ -1680,12 +1675,7 @@ date {
         }
         lblRawDataHeading.text = site
         aa = "measured in \(units) at \(lat) \(lon) \n"
-        //print("========================== end tideInfo ===========================")
-        //print()
 
-        //print("========================= tideSummaryStats ===========================")
-        //aa += "\n----- tideSummaryStats -----\n"
-        
         printDictionary(dict: dictTideSummaryStats0, expandLevels: 0, dashLen: 0, title: "tideSummaryStats")
         printDictionary(dict: dictTideSummaryStats0, expandLevels: 1, dashLen: 0, title: "tideSummaryStats")
 
@@ -1693,9 +1683,6 @@ date {
         guard let minHeight  = dictTideSummaryStats0["minheight"] as? Double else { return "No minHeight for tide" }
         aa += "Min Height = \(minHeight) \(units)\n"
         aa += "Max Height = \(maxHeight) \(units)\n"
-        
-        //print("========================= end tideSummaryStats ===========================")
-        //print()
         
         print(TideSummaryArr.count, " entries in Tide Summary Array")
         print()
@@ -1761,17 +1748,13 @@ date {
         
         DispatchQueue.main.async {
             self.txtRawData.text = aa
-            //self.txtRawData.text = a1
         }
         print("😀tideInfo printed!")
-
         return ""
-        
     }//end func DoTide
     
   //===========================================================================
 }
-
 
 //MARK: =================== WuAPIdelegate Extension =======================
 extension ViewController: WuAPIdelegate {      //delegate <— (4)
@@ -1799,16 +1782,17 @@ extension ViewController: WuAPIdelegate {      //delegate <— (4)
 
             //----------------------------
             //process your data
-            self.lblError.text = msg           // change this label, stop activityIndicators
             UIApplication.shared.isNetworkActivityIndicatorVisible = false  // turn-off built-in activityIndicator
             self.activityIndicator.stopAnimating()                          // turn-off My activityIndicator
 
             if !isOK {
+                self.lblError.text = msg           // error msg
                 self.showError("\(errStr)")
                 return
             }//end if
 
             gDataIsCurrent = true
+            self.lblError.text = ""                 // clear error msg
             self.setFeatureButtons()
             //————— Permanent Storage —————-
             UserDefaults.standard.set(self.featuresStr, forKey: UDKey.featuresStr)//"wuFeatures")

@@ -5,29 +5,41 @@
 //  Created by George Bauer on 10/11/17.
 //  Copyright © 2017 GeorgeBauer. All rights reserved.
 //
+// String, UIColor extensions
 
 import UIKit
 
-// String extension:
-// subscript(i), subscript(range), left(i), right(i), mid(i,len), rightJust(len), indexOf(str), trim()
+// String extensions:
+// subscript(i), subscript(range), left(i), right(i), mid(i,len), rightJust(len),
+// indexOf(str), indexOfRev(str), trim(), contains(str), containsIgnoringCase(str), pluralize(n)
 extension String {
+
+    //------ subscript: allows string to be sliced be ints ------
     subscript (_ i: Int) -> Character {
         return self[index(startIndex, offsetBy: i)]
     }
     subscript (_ i: Int) -> String {
         return String(self[i] as Character)
     }
-    subscript (r: Range<Int>) -> String {
-        let start = index(startIndex, offsetBy: r.lowerBound)
-        let end = index(startIndex, offsetBy: r.upperBound)
-        return self[Range(start ..< end)]
+    subscript (bounds: CountableRange<Int>) -> String {
+        let start = index(startIndex, offsetBy: bounds.lowerBound)
+        let end   = index(startIndex, offsetBy: bounds.upperBound)
+        return String(self[start..<end])
     }
+    subscript (bounds: CountableClosedRange<Int>) -> String {
+        let start = index(startIndex, offsetBy: bounds.lowerBound)
+        let end   = index(startIndex, offsetBy: bounds.upperBound)
+        return String(self[start...end])
+    }
+
+    //------ left: get the 1st n characters from self ------
     func left(_ length: Int) -> String {
         if length <= 0          { return "" }
         if length > self.count  { return self }
         let end = index(startIndex, offsetBy: length)
-        return self[Range(startIndex ..< end)]
+        return String(self[Range(startIndex ..< end)])
     }
+    //------ right: get the last n characters from self ------
     func right(_ length: Int) -> String {
         let fullLen = self.count
         if length > fullLen || length < 0 {
@@ -35,20 +47,10 @@ extension String {
         }
         let start = index(startIndex, offsetBy: fullLen - length)
         let end = index(startIndex, offsetBy: fullLen)
-        return self[Range(start ..< end)]
+        return String(self[Range(start ..< end)])
     }
-    func rightJust(_ fieldLen: Int) -> String {
-        if self.count >= fieldLen {
-            return self
-        }
-        var s = self
-        for _ in 1...fieldLen - self.count {
-            s = " " + s
-        }
-        return s
-    }
-    
-    // extract a string starting at 'begin', of length 'length'
+
+    //------ mid: extract a string starting at 'begin', of length ------
     func mid(begin: Int, length: Int = 0) -> String {
         let lenOrig = self.count                // length of subject str
         if begin > lenOrig || begin < 0  { return "" }
@@ -60,8 +62,22 @@ extension String {
 
         let startIndexNew = index(startIndex, offsetBy: begin)
         let endIndex = index(startIndex, offsetBy: begin + lenNew)
-        return self[Range(startIndexNew ..< endIndex)]
+        return String(self[Range(startIndexNew ..< endIndex)])
     }
+
+    //------ rightJust: format right justify an int in self ------
+    func rightJust(_ fieldLen: Int) -> String {
+        if self.count >= fieldLen {
+            return self
+        }
+        var s = self
+        for _ in 1...fieldLen - self.count {
+            s = " " + s
+        }
+        return s
+    }
+
+    //------ indexOf, indexOfRev: find position of 2nd str in self ------
     func indexOf(searchforStr: String) -> Int {
         let lenOrig = self.count
         let lenSearchFor = searchforStr.count
@@ -78,7 +94,6 @@ extension String {
         let lenOrig = self.count
         let lenSearchFor = searchforStr.count
         var p = lenOrig - lenSearchFor
-
         while p >= 0 {
             if self.mid(begin: p, length: lenSearchFor) == searchforStr {
                 return p
@@ -88,48 +103,86 @@ extension String {
         return -1
     }
 
+    //------ trim(): remove whitespace at both ends ------
     func trim() -> String {
         return self.trimmingCharacters(in: .whitespacesAndNewlines)
         //self.trimmingCharacters(in: .whitespaces)
     }
 
-//    func contains(_ find: String) -> Bool{
-//        return self.range(of: find) != nil
-//    }
-//    func containsIgnoringCase(_ find: String) -> Bool{
-//        return self.range(of: find, options: .caseInsensitive) != nil
-//    }
+    //------ contains(str), containsIgnoringCase(str): does self contain str ------
+    func contains(_ find: String) -> Bool{
+        return self.range(of: find) != nil
+    }
+    func containsIgnoringCase(_ find: String) -> Bool{
+        return self.range(of: find, options: .caseInsensitive) != nil
+    }
 
-}
+    //------ Pluralize a word (English) ------
+    func pluralize(_ count: Int) -> String
+    {
+        if count == 1 || self.count < 2 {
+            return self
+        } else {
+            let last2Chars =  self.right(2)
+            let lastChar = last2Chars.right(1)
+            let secondToLastChar = last2Chars.left(1)
+            var prefix = "", suffix = ""
+
+            if lastChar.lowercased() == "y" && vowels.filter({x in x == secondToLastChar}).count == 0 {
+                prefix = self.left(self.count - 1)
+                suffix = "ies"
+            } else if (lastChar.lowercased() == "s" || (lastChar.lowercased() == "o")
+                && consonants.filter({x in x == secondToLastChar}).count > 0) {
+                prefix = self
+                suffix = "es"
+            } else {
+                prefix = self
+                suffix = "s"
+            }
+            return prefix + (lastChar != lastChar.uppercased() ? suffix : suffix.uppercased())
+        }
+    }
+    private var vowels: [String] {
+        get {
+            return ["a", "e", "i", "o", "u"]
+        }
+    }
+    private var consonants: [String] {
+        get {
+            return ["b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "z"]
+        }
+    }
+}//end extension String
 
 extension UIColor {
+    //------ initialize a UIColor with a Hex value ------
     public convenience init?(hexString: String) {
         let r, g, b, a: CGFloat
-        
+
         if hexString.hasPrefix("#") {
             let hexColor = hexString.mid(begin: 1)
-            
+
             if hexColor.count == 8 {
                 let scanner = Scanner(string: hexColor)
                 var hexNumber: UInt64 = 0
-                
+
                 if scanner.scanHexInt64(&hexNumber) {
                     r = CGFloat((hexNumber & 0xff000000) >> 24) / 255
                     g = CGFloat((hexNumber & 0x00ff0000) >> 16) / 255
-                    b = CGFloat((hexNumber & 0x0000ff00) >> 8) / 255
+                    b = CGFloat((hexNumber & 0x0000ff00) >>  8) / 255
                     a = CGFloat(hexNumber & 0x000000ff) / 255
-                    
+
                     self.init(red: r, green: g, blue: b, alpha: a)
                     return
-                }
-            }
-        }
-        
+                }//end if scanner
+            }//end if len == 8
+        }//end if "#"
         return nil
     }
 }
 
 extension UIColor {
+    //------ initialize a UIColor with a Hex value ------
     convenience init(hex: String) {
         let scanner = Scanner(string: hex)
         scanner.scanLocation = 0
@@ -143,9 +196,9 @@ extension UIColor {
         let b = rgbValue & 0xff
         
         self.init(
-            red: CGFloat(r) / 0xff,
+            red:   CGFloat(r) / 0xff,
             green: CGFloat(g) / 0xff,
-            blue: CGFloat(b) / 0xff, alpha: 1
+            blue:  CGFloat(b) / 0xff, alpha: 1
         )
     }
 }

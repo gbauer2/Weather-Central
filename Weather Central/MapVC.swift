@@ -17,20 +17,28 @@ protocol MapDelegate {
 //MARK: ------- class MapVC (MapViewController) ------
 class MapVC: UIViewController, MKMapViewDelegate {
     //MARK: ---- properties ----
-    var delegate: MapDelegate?          //delegate
     let longPressSec = 1.5
-    var latDelta = 0.18
-    var lonDelta = 0.18
+    var delegate: MapDelegate?          //delegate
     var mapReturnType = LocationSelectionType.none
+
+    // Set by Caller
     var searchLat = 0.0
     var searchLon = 0.0
     var searchType = LocationSelectionType.none
     var searchName = ""
+    var latDelta = 0.18
+    var lonDelta = 0.18
     var stations   = [Station]()
+
+    // Return to Caller delegate
     var latFromMap = 0.0
     var lonFromMap = 0.0
     var stationIDFromMap = ""
-    
+
+    @IBAction func btnScaleTap(_ sender: UIButton) {
+        zoomMap(1.001)
+    }
+
     //MARK:---- @IBOutlets ----
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var lblSelected: UILabel!
@@ -43,7 +51,7 @@ class MapVC: UIViewController, MKMapViewDelegate {
 
         mapReturnType = .none        // we have not yet picked anything
         btnSave.isEnabled = false
-        plotMap(lat: searchLat, lon: searchLon, latDelt: latDelta, lonDelt: lonDelta)
+        //plotMap(lat: searchLat, lon: searchLon, latDelt: latDelta, lonDelt: lonDelta)
         mapView.showsUserLocation = true
 
         var info = "\(searchType.rawValue) search\nThis is the center of the search for weather stations close to \(searchName).\n"
@@ -56,6 +64,11 @@ class MapVC: UIViewController, MKMapViewDelegate {
         longPress.minimumPressDuration = longPressSec
         mapView.addGestureRecognizer(longPress)
 
+        let scale = MKScaleView(mapView: mapView)
+        scale.scaleVisibility = .visible            // always visible
+        mapView.addSubview(scale)
+
+        plotMap(lat: searchLat, lon: searchLon, latDelt: latDelta, lonDelt: lonDelta)
     }//end func viewDidLoad
 
     //MARK: ---- @IBActions ----
@@ -65,18 +78,24 @@ class MapVC: UIViewController, MKMapViewDelegate {
     }
 
     @IBAction func btnZoomOut(_ sender: UIButton) {
-        latDelta = latDelta * 1.5
-        lonDelta = lonDelta * 1.5
-        plotMap(lat: searchLat, lon: searchLon, latDelt: latDelta, lonDelt: lonDelta)
+        zoomMap(1.5)
     }
-    
+
+    func zoomMap(_ factor: Double) {
+        let latNow = mapView.region.center.latitude
+        let lonNow = mapView.region.center.longitude
+        latDelta = latDelta * factor
+        lonDelta = lonDelta * factor
+        plotMap(lat: latNow, lon: lonNow, latDelt: latDelta, lonDelt: lonDelta)
+    }
+
     @IBAction func btnZoomIn(_ sender: UIButton) {
-        latDelta = latDelta / 1.5
-        lonDelta = lonDelta / 1.5
-        plotMap(lat: searchLat, lon: searchLon, latDelt: latDelta, lonDelt: lonDelta)
+        zoomMap(1.0/1.5)
     }
 
     //MARK:---- general funcs ----
+
+    // ---- Calculates region;  displays Map ----
     func plotMap(lat: Double, lon: Double, latDelt: Double, lonDelt: Double) {
         let latitude: CLLocationDegrees = lat
         let longitude: CLLocationDegrees = lon
@@ -86,6 +105,8 @@ class MapVC: UIViewController, MKMapViewDelegate {
         let span = MKCoordinateSpan(latitudeDelta: latDelta, longitudeDelta: lonDelta)
         let location = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
         let region = MKCoordinateRegion(center: location, span: span)
+        mapView.showsScale = true
+
         mapView.setRegion(region, animated: true)
     }//end func
 

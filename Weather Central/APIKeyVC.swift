@@ -116,17 +116,16 @@ extension APIKeyVC: WuAPIdelegate {      //delegate <— (4)
 
             //----------------------------
             //process your data
-            self.lblError.text = msg           // change this label, stop activityIndicators
             UIApplication.shared.isNetworkActivityIndicatorVisible = false  // turn-off built-in activityIndicator
             self.activityIndicator.stopAnimating()                          // turn-off My activityIndicator
 
-            //————— Permanent Storage —————-
             if isOK {
                 gAPIKey = self.APItxt
                 UserDefaults.standard.set(gAPIKey, forKey: UDKey.wuAPIKey)//wuapikey")
                 self.showAlert(title: "Success", message: "APIKey updated to \(self.APItxt)")
             } else {
-                self.showAlert(title: "Fail", message: "Tryed API Key: \(self.APItxt)\n\(errStr)")
+                self.lblError.text = msg
+                self.showAlert(title: "Fail", message: "Tried API Key: \(self.APItxt)\n\(errStr)")
             }//end if else
         }//end DispatchQueue
     }//end func

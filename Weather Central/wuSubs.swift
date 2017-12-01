@@ -211,7 +211,7 @@ public func isLocalValid(_ text: String) -> Bool {
 public func isStationValid(_ stationName: String) -> Bool {
     let sta = stationName.trim()
     let n = sta.count
-    if n < 3 || ( n > 4 && n < 8) || n > 11    { return false }
+    if n < 3 || n > 11    { return false }
     if sta.contains(",") || sta.contains(" ")  { return false }
 
     let letters = CharacterSet.letters
