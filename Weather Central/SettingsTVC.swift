@@ -70,4 +70,8 @@ class SettingsTVC: UITableViewController {
         }
     }//end func
 
+}//end class SettingsTVC
+
+class Settings {
+    static var is24hr = false
 }

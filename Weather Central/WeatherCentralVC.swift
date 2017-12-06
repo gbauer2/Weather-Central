@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  WeatherCentralVC.swift
 //  Weather Central
 //
 //  Created by George Bauer on 8/9/17.
@@ -8,7 +8,7 @@
 
 //TODO: - ToDo list
 /*
- 1) "Download Data" always get Almanac, Astronomy, Conditions, and maybe Forecast
+ 1) "Download Data" always get Almanac, Astronomy, Conditions, and maybe Forecast.
  2) "Download Data" always decode Location to update City,LatLon,Zip
  3) Select Hours & Days of interest for "Hourly" (e.g. Wed,Thu,Fri 8AM-2PM)
  4) Settings:(Default NSEW hemi)(LatLon display)(mi,nm,km)(degC,degF)(AMPM,24hr)(call limits)(WU level)
@@ -24,14 +24,17 @@
 16) Change logic of FeatureButtons so each is enabled when its data is fresh
 17) When you get Yesterday, then get History(today) or visa versa, remember and display both
 18) Map: iOS11 new annotations and grouping
- 19) History: Much more data available
+19) History: Much more data available
 
+ 12hr Hurricane: txt;  Tide:txt
+ 24hr Astronomy: txt:sunset,moon;  Current: lbl+ txt; Hourly:txt;
  Issues:
     Alerts: if just 1 Alert, put its name in heading
     Current: 6s wraps wind, precip(1-hr)
     Tropics: Shows 2 Storms when there is only 1
     Hourly: wraps for long Wx (Few Showers/Wind)(Partly Cloudy/Wind)(Chance of a Thunderstorm)
     abc8 should not be legal
+ Skills: AutoLayout & StackViews, FileSystem, MapKit annotation & drawing, Notifications&Observers, Classes
 
  New Features to be added later.
  1) Route planning for next 5 days.
@@ -41,10 +44,8 @@
  5) pws History: #trys, #succeeds, DateLastTry, DateLastSucceed
  6) Hurricane forecast & map
 
- 1.0.10(47) Map: fix Zoom buttons(+/-) to work properly
- Larger font for History (Yesterday,Today)
- Fix pluralization with String extension
- Fix some String extensions for Swift4
+ 1.0.12(49) some refactoring
+
  
 Get some stuff with every query *Almanac&Astron= 1K,
                                  GeoLookup     = 8k,
@@ -61,10 +62,10 @@ Get some stuff with every query *Almanac&Astron= 1K,
 import UIKit
 import CoreLocation
 
-class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDelegate {
+class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManagerDelegate {
     //let allowedFeatures = ["alerts", "almanac", "astronomy", "conditions", "currenthurricane", "forecast", "forecast10day", "geolookup", "history", "hourly", "hourly10day", "planner", "rawtide", "satellite", "tide", "webcams", "yesterday"]
 
-    //MARK: ---- ViewController Variables ----
+    //MARK: ---- WeatherCentralVC Variables ----
     let APIKEY       = ""    //let APIKEY = "1333bd..."
     var numFeatures  = 0
     var featuresStr  = ""
@@ -624,8 +625,12 @@ temp_high --> {
         let dictSunset = dictMoonPhase["sunset"] as! [String: AnyObject]
         let ssHr = dictSunset["hour"] as! String
         let ssMin = dictSunset["minute"] as! String
-        
-        aa += "Sunrise  \(srHr):\(srMin)   Sunset  \(ssHr):\(ssMin)\n"
+        //Settings.is24hr = true
+        var hhmmStr1 = ""
+        var hhmmStr2 = ""
+        hhmmStr1 = makeTimeStr(hrStr: srHr, minStr: srMin, to24: Settings.is24hr)
+        hhmmStr2 = makeTimeStr(hrStr: ssHr, minStr: ssMin, to24: Settings.is24hr)
+        aa += "Sunrise  \(hhmmStr1)   Sunset \(hhmmStr2)\n"
         
         aa += "\n"
         
@@ -637,7 +642,10 @@ temp_high --> {
         let msHr = dictMoonset["hour"] as! String
         let msMin = dictMoonset["minute"] as! String
 
-        aa += "Moonrise \(mrHr):\(mrMin)  Moonset  \(msHr):\(msMin)\n"
+        hhmmStr1 = makeTimeStr(hrStr: mrHr, minStr: mrMin, to24: Settings.is24hr)
+        hhmmStr2 = makeTimeStr(hrStr: msHr, minStr: msMin, to24: Settings.is24hr)
+
+        aa += "Moonrise \(hhmmStr1)  Moonset \(hhmmStr2)\n"
         
         let ageOfMoon  = dictMoonPhase["ageOfMoon"]!
         let percentIlluminated   = dictMoonPhase["percentIlluminated"]!
@@ -1061,7 +1069,6 @@ observations ---------> (Array) with 27 items
         let hurricaneArr = gHurricane.data
 
         print("\n\(hurricaneArr.count) storms in hurricaneArr (jsonResult[\"currenthurricane\"])")
-        lblRawDataHeading.text = showCount(count: hurricaneArr.count, name: "Tropical System", ifZero: "No")  //"\(hurricaneArr.count) storms"
         if hurricaneArr.count == 0 { return "" }
         guard let dictHurricane0 = hurricaneArr.first else {return "Hurricane[0] not found!"}
         printDictionary(dict: dictHurricane0, expandLevels: 0, dashLen: 0, title: "currenthurricane[0]")
@@ -1073,7 +1080,40 @@ observations ---------> (Array) with 27 items
         let dictCurrent0 = dictHurricane0["Current"] as! [String: AnyObject]
         printDictionary(dict: dictCurrent0, expandLevels: 0, dashLen: 0, title: "dictCurrent0")
         printDictionary(dict: dictCurrent0, expandLevels: 1, dashLen: 0, title: "dictCurrent0")
-        
+
+        // All this just to elimiate duplicates. And it only works if they are consecutive!
+        let nHurrsReported = hurricaneArr.count
+        var numUniqueStorms = 0
+        var lastID = ""
+        var isUnique = [Bool]()
+
+        for dictHurricane in hurricaneArr {
+            let dictStormInfo = dictHurricane["stormInfo"]      as! [String: AnyObject]
+            let id = dictStormInfo["stormNumber"] as? String ?? "?????????"
+            guard let dictCurrent = dictHurricane["Current"] as? [String: AnyObject] else {
+                print("No current in dictHurricane!\n")
+                continue
+            }
+            guard let dictTimeGMT = dictCurrent["TimeGMT"] as? [String: AnyObject] else {
+                print("No dictTimeGMT in dictCurrent!\n")
+                continue
+            }
+            let epoch = dictTimeGMT["epoch"] as? String ?? "??????"
+            let thisID = id + epoch
+            if thisID != lastID {
+                print("😃Storm# \(id) \(epoch) is OK")
+                isUnique.append(true)
+                numUniqueStorms += 1
+            } else {
+            print("😡Storm# \(id) \(epoch) is a DUPE!")
+                isUnique.append(false)
+            }
+            lastID = thisID
+        }
+
+        print("nHurrsReported = \(nHurrsReported)  numUniqueStorms = \(numUniqueStorms)\n")
+        lblRawDataHeading.text = showCount(count: numUniqueStorms, name: "Tropical System", ifZero: "No")  //"\(hurricaneArr.count) storms"
+
         //let trackArr0 = dictHurricane0["track"] as! NSArray
         //let trackArr00 = trackArr0[0] as! [String: AnyObject]
         //printDictionaryNS(dictNS: trackArr00, expandLevels: 0, dashLen: 0, title: "trackArr00")
@@ -1090,7 +1130,10 @@ observations ---------> (Array) with 27 items
             printDictionary(dict: extendedForecastArr00, expandLevels: 1, dashLen: 0, title: "extendedForecastArr00")
         }
         var aa = ""
-        for dictHurricane in hurricaneArr {
+
+        for i in 0..<hurricaneArr.count {
+            if !isUnique[i] { continue }
+            let dictHurricane = hurricaneArr[i]
             let dictStormInfo = dictHurricane["stormInfo"]      as! [String: AnyObject]
             let stormNameNice = dictStormInfo["stormName_Nice"]      as? String ?? "stormName missing"
 
@@ -1757,7 +1800,8 @@ date {
 }
 
 //MARK: =================== WuAPIdelegate Extension =======================
-extension ViewController: WuAPIdelegate {      //delegate <— (4)
+extension WeatherCentralVC: WuAPIdelegate {
+    //                          delegate <— (4)
 
     //This function is called your download request
     func startWuDownload(wuURL: URL, place: String) {
@@ -1772,9 +1816,9 @@ extension ViewController: WuAPIdelegate {      //delegate <— (4)
     }//end func
 
     // ------ All the download data has been placed in the global Features variables ------
-    func downloadDone(isOK: Bool, numFeaturesRequested: Int,  numFeaturesReceived: Int, errStr: String){    //delegate (6)
+    func wuAPIdownloadDone(_ controller: WuAPI, isOK: Bool, numFeaturesRequested: Int,  numFeaturesReceived: Int, errStr: String){    //delegate (6)
         DispatchQueue.main.async {
-            print("ViewController downloadDone delegate reached:")
+            print("WeatherCentralVC wuAPIdownloadDone delegate reached:")
             print("errStr = \(errStr)")
             let es = isOK ? "" : "\(errStr)\n"
             let msg = "isOK = \(isOK)\n\(es)\(numFeaturesRequested) features requested, \(numFeaturesReceived) received."

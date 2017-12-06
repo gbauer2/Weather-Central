@@ -1,5 +1,5 @@
 //
-//  GeoLookup-ViewController.swift
+//  GeoLookupVC.swift
 //  Weather Central
 //
 //  Created by George Bauer on 9/28/17.
@@ -14,7 +14,7 @@ import CoreLocation
 var gSearchLat  = 0.0
 var gSearchLon  = 0.0
 
-class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDelegate, MapDelegate {
+class GeoLookupVC: UIViewController, UITextFieldDelegate, CLLocationManagerDelegate, MapVCdelegate {
                                                                                                     //delegate
     //MARK: ---- my vars ----
     var WuDownloadDone = false
@@ -154,7 +154,7 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
     }
 
     //delegate  - MapDelegate required method
-    func mapReturn(returnType: LocationSelectionType, stationID: String, lat: Double, lon: Double) {   //delegate
+    func mapVCreturn(_ controller: MapVC, returnType: LocationSelectionType, stationID: String, lat: Double, lon: Double) {   //delegate
         switch returnType {
         case .latlon:
             print("😃😃😃😃Update Map to \(lat), \(lon)😃😃😃😃")
@@ -436,7 +436,7 @@ class GeoLookup_ViewController: UIViewController, UITextFieldDelegate, CLLocatio
 }//end class
 
 //MARK: =================== TableView Extension =======================
-extension GeoLookup_ViewController: UITableViewDelegate, UITableViewDataSource {
+extension GeoLookupVC: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int{
         return stations.count
@@ -475,7 +475,8 @@ extension GeoLookup_ViewController: UITableViewDelegate, UITableViewDataSource {
 }//end extension
 
 //MARK: =================== WuAPIdelegate Extension =======================
-extension GeoLookup_ViewController: WuAPIdelegate {      //delegate <— (4)
+extension GeoLookupVC: WuAPIdelegate {
+    //delegate <— (4)
 
     //This function is called your download request
     func startWuDownload(wuURL: URL, place: String) {
@@ -490,7 +491,7 @@ extension GeoLookup_ViewController: WuAPIdelegate {      //delegate <— (4)
     }//end func
 
     // ------ All the download data has been placed in the global Features variables ------
-    func downloadDone(isOK: Bool, numFeaturesRequested: Int,  numFeaturesReceived: Int, errStr: String){    //delegate (6)
+    func wuAPIdownloadDone(_ controller: WuAPI, isOK: Bool, numFeaturesRequested: Int,  numFeaturesReceived: Int, errStr: String){    //delegate (6)
         DispatchQueue.main.async {
             print("GeoLookup downloadDone delegate reached:")
             print("errStr = \(errStr)")

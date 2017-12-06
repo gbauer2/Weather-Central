@@ -55,7 +55,7 @@ var gTide       = Feature()
 var wuAPI = WuAPI()
 
 protocol WuAPIdelegate {
-    func downloadDone(isOK: Bool, numFeaturesRequested: Int ,numFeaturesReceived: Int, errStr: String)    //delegate (1)
+    func wuAPIdownloadDone(_ controller: WuAPI, isOK: Bool, numFeaturesRequested: Int ,numFeaturesReceived: Int, errStr: String)    //delegate (1)
     // more optional or required methods if needed
 }
 
@@ -75,7 +75,7 @@ class WuAPI {
             let checkLog = tryToLogCall(makeCall: true)
             taskError = "Call limit! Try again " + checkLog.msg
             if !checkLog.isOK {
-                self.delegate!.downloadDone(isOK: false, numFeaturesRequested: numFeaturesRequested, numFeaturesReceived: numFeaturesReceived, errStr: taskError) //delegate <— (3)
+                self.delegate?.wuAPIdownloadDone(self, isOK: false, numFeaturesRequested: numFeaturesRequested, numFeaturesReceived: numFeaturesReceived, errStr: taskError) //delegate <— (3)
                 return
             } 
 
@@ -91,7 +91,7 @@ class WuAPI {
                     //self.lblDetail.text = error.debugDescription
                     taskError = error?.localizedDescription ?? "Unknown error 202"
                     print("😡202:taskError = \(taskError)")
-                    self.delegate!.downloadDone(isOK: false, numFeaturesRequested: numFeaturesRequested, numFeaturesReceived: numFeaturesReceived, errStr: taskError) //delegate <— (3)
+                    self.delegate?.wuAPIdownloadDone(self, isOK: false, numFeaturesRequested: numFeaturesRequested, numFeaturesReceived: numFeaturesReceived, errStr: taskError) //delegate <— (3)
                 }// DispatchQueue.main.async
                 return
             } //end guard else
@@ -107,7 +107,6 @@ class WuAPI {
             }
             print("-------------------- end Print data --------------------\n")
             print("----------------- 🙂 URLSession OK 🙂 ------------------\n")
-
             taskError = ""
 
             jsonTry: do {
@@ -242,7 +241,7 @@ class WuAPI {
                 let isOK = taskError.isEmpty
                 let es = isOK ? "" : "dwnld Error = \(taskError)"
                 print("End of task:  isOK = \(isOK)   \(es)")
-                self.delegate!.downloadDone(isOK: isOK, numFeaturesRequested: numFeaturesRequested, numFeaturesReceived: numFeaturesReceived, errStr: taskError) //delegate <— (3)
+                self.delegate?.wuAPIdownloadDone(self, isOK: isOK, numFeaturesRequested: numFeaturesRequested, numFeaturesReceived: numFeaturesReceived, errStr: taskError) //delegate <— (3)
 
                 //————— Permanent Storage —————-
                 if taskError == "" {
@@ -265,7 +264,7 @@ class WuAPI {
 
 
 /*
-// Stuff needed in Calling ViewController
+// Stuff needed in Calling WeatherCentralVC
 
  // Stored properties
  var WuDownloadDone = false

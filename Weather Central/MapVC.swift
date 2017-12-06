@@ -9,16 +9,16 @@
 import UIKit
 import MapKit
 
-protocol MapDelegate {
-    func mapReturn(returnType: LocationSelectionType, stationID: String, lat: Double, lon: Double)    //delegate
+protocol MapVCdelegate: class {
+    func mapVCreturn(_ controller: MapVC, returnType: LocationSelectionType, stationID: String, lat: Double, lon: Double)    //delegate
     // mapReturnType      stationIDFromMap = ""   latFromMap = 0.0     lonFromMap = 0.0
 }
 
 //MARK: ------- class MapVC (MapViewController) ------
 class MapVC: UIViewController, MKMapViewDelegate {
+    weak var delegate: MapVCdelegate?          //delegate
     //MARK: ---- properties ----
     let longPressSec = 1.5
-    var delegate: MapDelegate?          //delegate
     var mapReturnType = LocationSelectionType.none
 
     // Set by Caller
@@ -73,7 +73,7 @@ class MapVC: UIViewController, MKMapViewDelegate {
 
     //MARK: ---- @IBActions ----
     @IBAction func btnSave(_ sender: UIButton) {
-        delegate?.mapReturn(returnType: mapReturnType, stationID: lblSelected.text!, lat: latFromMap, lon: lonFromMap) //delegate
+        delegate?.mapVCreturn(self, returnType: mapReturnType, stationID: lblSelected.text!, lat: latFromMap, lon: lonFromMap) //delegate
         navigationController?.popViewController(animated: true)
     }
 

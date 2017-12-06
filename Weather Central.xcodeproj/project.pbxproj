@@ -15,18 +15,18 @@
 		CE46A3E41F995F2900C14766 /* MapVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE46A3E31F995F2900C14766 /* MapVC.swift */; };
 		CE4BF55C1F9782F400A918D0 /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE4BF55B1F9782F400A918D0 /* Globals.swift */; };
 		CE5186DB1F3B6D8000646C80 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE5186DA1F3B6D8000646C80 /* AppDelegate.swift */; };
-		CE5186DD1F3B6D8000646C80 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE5186DC1F3B6D8000646C80 /* ViewController.swift */; };
+		CE5186DD1F3B6D8000646C80 /* WeatherCentralVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE5186DC1F3B6D8000646C80 /* WeatherCentralVC.swift */; };
 		CE5186E21F3B6D8000646C80 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CE5186E11F3B6D8000646C80 /* Assets.xcassets */; };
 		CE73B1B41FB502A900BD0525 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CE73B1B21FB502A900BD0525 /* Main.storyboard */; };
 		CE8CF39F1FB684E3006CC7BC /* Device.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE8CF39E1FB684E3006CC7BC /* Device.swift */; };
 		CEBE65631FCD976C009DF4DF /* WuAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEBE65621FCD976C009DF4DF /* WuAPI.swift */; };
-		CEC0CB0C1F7D76F100152CBA /* GeoLookup-ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEC0CB0B1F7D76F100152CBA /* GeoLookup-ViewController.swift */; };
+		CEC0CB0C1F7D76F100152CBA /* GeoLookupVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEC0CB0B1F7D76F100152CBA /* GeoLookupVC.swift */; };
 		CEC0CB0E1F7DFFDE00152CBA /* subs.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEC0CB0D1F7DFFDE00152CBA /* subs.swift */; };
 		CEC1FD1F1F560478000E1660 /* checkbox_checked.png in Resources */ = {isa = PBXBuildFile; fileRef = CEC1FD1B1F560478000E1660 /* checkbox_checked.png */; };
 		CEC1FD201F560478000E1660 /* checkbox_no.png in Resources */ = {isa = PBXBuildFile; fileRef = CEC1FD1C1F560478000E1660 /* checkbox_no.png */; };
 		CEC1FD211F560478000E1660 /* checkbox_unchecked.png in Resources */ = {isa = PBXBuildFile; fileRef = CEC1FD1D1F560478000E1660 /* checkbox_unchecked.png */; };
 		CEC1FD221F560478000E1660 /* checkbox_yes.png in Resources */ = {isa = PBXBuildFile; fileRef = CEC1FD1E1F560478000E1660 /* checkbox_yes.png */; };
-		CEC1FD241F5672B7000E1660 /* FeaturePickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEC1FD231F5672B7000E1660 /* FeaturePickerViewController.swift */; };
+		CEC1FD241F5672B7000E1660 /* FeatureSelectorVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEC1FD231F5672B7000E1660 /* FeatureSelectorVC.swift */; };
 		CECF668A1FB5049400911DFC /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CECF66881FB5049400911DFC /* LaunchScreen.storyboard */; };
 		CEE0AF681F8156C60018B01F /* wuSubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE0AF671F8156C60018B01F /* wuSubs.swift */; };
 		CEE297601FBDD6BD00D12D22 /* SettingsTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE2975F1FBDD6BD00D12D22 /* SettingsTVC.swift */; };
@@ -46,19 +46,19 @@
 		CE4BF55B1F9782F400A918D0 /* Globals.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
 		CE5186D71F3B6D8000646C80 /* Weather Central.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Weather Central.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE5186DA1F3B6D8000646C80 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		CE5186DC1F3B6D8000646C80 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		CE5186DC1F3B6D8000646C80 /* WeatherCentralVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherCentralVC.swift; sourceTree = "<group>"; };
 		CE5186E11F3B6D8000646C80 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		CE5186E61F3B6D8000646C80 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CE73B1B31FB502A900BD0525 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		CE8CF39E1FB684E3006CC7BC /* Device.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Device.swift; sourceTree = "<group>"; };
 		CEBE65621FCD976C009DF4DF /* WuAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WuAPI.swift; sourceTree = "<group>"; };
-		CEC0CB0B1F7D76F100152CBA /* GeoLookup-ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "GeoLookup-ViewController.swift"; sourceTree = "<group>"; };
+		CEC0CB0B1F7D76F100152CBA /* GeoLookupVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeoLookupVC.swift; sourceTree = "<group>"; };
 		CEC0CB0D1F7DFFDE00152CBA /* subs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = subs.swift; sourceTree = "<group>"; };
 		CEC1FD1B1F560478000E1660 /* checkbox_checked.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkbox_checked.png; sourceTree = "<group>"; };
 		CEC1FD1C1F560478000E1660 /* checkbox_no.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkbox_no.png; sourceTree = "<group>"; };
 		CEC1FD1D1F560478000E1660 /* checkbox_unchecked.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkbox_unchecked.png; sourceTree = "<group>"; };
 		CEC1FD1E1F560478000E1660 /* checkbox_yes.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkbox_yes.png; sourceTree = "<group>"; };
-		CEC1FD231F5672B7000E1660 /* FeaturePickerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeaturePickerViewController.swift; sourceTree = "<group>"; };
+		CEC1FD231F5672B7000E1660 /* FeatureSelectorVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeatureSelectorVC.swift; sourceTree = "<group>"; };
 		CECF66891FB5049400911DFC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		CEE0AF671F8156C60018B01F /* wuSubs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = wuSubs.swift; sourceTree = "<group>"; };
 		CEE2975F1FBDD6BD00D12D22 /* SettingsTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTVC.swift; sourceTree = "<group>"; };
@@ -134,9 +134,9 @@
 		CEE297641FBDDC1400D12D22 /* MainStroyboard */ = {
 			isa = PBXGroup;
 			children = (
-				CE5186DC1F3B6D8000646C80 /* ViewController.swift */,
-				CEC1FD231F5672B7000E1660 /* FeaturePickerViewController.swift */,
-				CEC0CB0B1F7D76F100152CBA /* GeoLookup-ViewController.swift */,
+				CE5186DC1F3B6D8000646C80 /* WeatherCentralVC.swift */,
+				CEC1FD231F5672B7000E1660 /* FeatureSelectorVC.swift */,
+				CEC0CB0B1F7D76F100152CBA /* GeoLookupVC.swift */,
 				CE46A3E31F995F2900C14766 /* MapVC.swift */,
 				CE73B1B21FB502A900BD0525 /* Main.storyboard */,
 			);
@@ -248,12 +248,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				CE8CF39F1FB684E3006CC7BC /* Device.swift in Sources */,
-				CE5186DD1F3B6D8000646C80 /* ViewController.swift in Sources */,
+				CE5186DD1F3B6D8000646C80 /* WeatherCentralVC.swift in Sources */,
 				CEE297601FBDD6BD00D12D22 /* SettingsTVC.swift in Sources */,
 				CE46A3E41F995F2900C14766 /* MapVC.swift in Sources */,
-				CEC1FD241F5672B7000E1660 /* FeaturePickerViewController.swift in Sources */,
+				CEC1FD241F5672B7000E1660 /* FeatureSelectorVC.swift in Sources */,
 				CEE0AF681F8156C60018B01F /* wuSubs.swift in Sources */,
-				CEC0CB0C1F7D76F100152CBA /* GeoLookup-ViewController.swift in Sources */,
+				CEC0CB0C1F7D76F100152CBA /* GeoLookupVC.swift in Sources */,
 				CE1EEB5D1F8E617300EBA13C /* myExtensions.swift in Sources */,
 				CE4BF55C1F9782F400A918D0 /* Globals.swift in Sources */,
 				CEC0CB0E1F7DFFDE00152CBA /* subs.swift in Sources */,

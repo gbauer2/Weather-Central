@@ -33,6 +33,34 @@ public func formatDbl(text: String, fieldLen: Int = 0, places: Int) -> String {
     return t
 }
 
+// ------ Make Time String "17:02" or " 5:02pm" from "17","2" ------
+public func makeTimeStr(hrStr: String, minStr: String, to24: Bool) -> String {
+    guard let h24 = Int(hrStr) else { return "?" + hrStr + ":" + minStr + "?" }
+    var hh = hrStr
+    var mm = minStr
+    if mm.count < 0 { mm = "0" + mm }       //mm done
+    if to24 {
+        hh = formatIntWithLeadingZeros(h24, width: 2)
+        return hh + ":" + mm
+    }
+    var h12 = h24
+    var ampm = "am"
+    switch h24 {
+    case  0 :
+        h12 = 12
+    case 1...11 :
+        break
+    case 12 :
+        ampm = "pm"
+    default:
+        h12 = h24 - 12
+        ampm = "pm"
+    }
+    var hh12 = "\(h12)"
+    if h12 < 10 { hh12 = " " + hh12 }
+    return hh12 + ":" + mm + ampm
+}
+
 //---- Rounds "number" to a number of decimal "places" e.g. (3.1426, 2) -> 3.14 ----
 public func roundToPlaces(number: Double, places: Int) -> Double {
     let divisor = pow(10.0, Double(places))

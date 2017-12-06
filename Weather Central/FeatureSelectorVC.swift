@@ -1,5 +1,5 @@
 //
-//  FeaturePickerViewController.swift (Features Picker)
+//  FeatureSelectorVC.swift
 //  Weather Central
 //
 //  Created by George Bauer on 8/30/17.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class FeaturePickerViewController: UIViewController, UITextFieldDelegate {
+class FeatureSelectorVC: UIViewController, UITextFieldDelegate {
     
     //MARK: ---- Variables ----
     let allowedFeatures = ["xxx", "alerts", "almanac", "astronomy", "conditions", "currenthurricane", "forecast", "forecast10day", "geolookup", "history", "hourly", "hourly10day", "planner--------", "rawtide", "satellite", "tide", "webcams", "yesterday"]

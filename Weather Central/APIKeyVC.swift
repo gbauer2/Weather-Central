@@ -92,7 +92,8 @@ class APIKeyVC: UIViewController, UITextFieldDelegate {
 }
 
 //MARK: =================== WuAPIdelegate Extension =======================
-extension APIKeyVC: WuAPIdelegate {      //delegate <— (4)
+extension APIKeyVC: WuAPIdelegate {
+    //delegate <— (4)
 
     //This function is called your download request
     func startWuDownload(wuURL: URL, place: String) {
@@ -106,7 +107,7 @@ extension APIKeyVC: WuAPIdelegate {      //delegate <— (4)
         return
     }//end func
 
-    func downloadDone(isOK: Bool, numFeaturesRequested: Int,  numFeaturesReceived: Int, errStr: String){    //delegate (6)
+    func wuAPIdownloadDone(_ controller: WuAPI, isOK: Bool, numFeaturesRequested: Int,  numFeaturesReceived: Int, errStr: String){    //delegate (6)
         DispatchQueue.main.async {
             print("APIKeyVC downloadDone delegate reached:")
             print("errStr = \(errStr)")
