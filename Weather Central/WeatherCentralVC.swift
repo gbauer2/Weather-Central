@@ -11,7 +11,7 @@
  1) "Download Data" always get Almanac, Astronomy, Conditions, and maybe Forecast.
  2) "Download Data" always decode Location to update City,LatLon,Zip
  3) Select Hours & Days of interest for "Hourly" (e.g. Wed,Thu,Fri 8AM-2PM)
- 4) Settings:(Default NSEW hemi)(LatLon display)(mi,nm,km)(degC,degF)(AMPM,24hr)(call limits)(WU level)
+ 4) Settings:(latlon "E" warning)(LatLon display)(mi,nm,km)(degC,degF)(AMPM,24hr)(call limits)(WU level)
  6) Map: DistDir in info, dotted line to selected, icon for airports, Show previously found stations
  7) Customize for landscape, or 6 vs 6+ in portait
  8) Bigger Font for 6sPlus & iPad - Forecast, Hourly
@@ -25,16 +25,19 @@
 17) When you get Yesterday, then get History(today) or visa versa, remember and display both
 18) Map: iOS11 new annotations and grouping
 19) History: Much more data available
+20) pretty print latlon in textFields
+21) Add ScrollView to homePage
+22) Refactor FeatureArr as an eNum, which requres a new mapping of Feature to Button.Tag
 
  12hr Hurricane: txt;  Tide:txt
  24hr Astronomy: txt:sunset,moon;  Current: lbl+ txt; Hourly:txt;
+
  Issues:
     Alerts: if just 1 Alert, put its name in heading
     Current: 6s wraps wind, precip(1-hr)
-    Tropics: Shows 2 Storms when there is only 1
-    Hourly: wraps for long Wx (Few Showers/Wind)(Partly Cloudy/Wind)(Chance of a Thunderstorm)
+    Hourly: wraps for long Wx (Few Showers/Wind)(Partly Cloudy/Wind)(Chance of a Thunderstorm - fixed)
     abc8 should not be legal
- Skills: AutoLayout & StackViews, FileSystem, MapKit annotation & drawing, Notifications&Observers, Classes
+ Skills: ScrollView & StackViews, FileSystem, MapKit annotation & drawing, Notifications&Observers, Classes
 
  New Features to be added later.
  1) Route planning for next 5 days.
@@ -52,9 +55,9 @@ Get some stuff with every query *Almanac&Astron= 1K,
                                 *Conditions    = 3k
                                  Forecast      = 8k     10day (+)=19k,
         AutoComplete*? no key
-                                                                                    Hurricanes(++)=31k(2),
-                                                        Hourly(+)=47k               10dayH    (++)=310k,
-                                                                                    Planner   (++)=4K, Yesterday(++)=10k History(?)=12k,
+                                                                                    Hurricanes (++)= 31k(2),
+                                                        Hourly(+)=47k               10dayHourly(++)=310k,
+                                                                                    Planner    (++)=  4K, Yesterday(++)=10k History(?)=12k,
                                                         Tide  (+)=15k,RawTide(+)=60k
                                      Sat=1k,  webcams = 11k
  */
@@ -102,6 +105,10 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
     //MARK: ---- iOS built-in functions & overrides ----
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        // NotificationCenter Observer (Listener)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.wuDownloadDoneNotification), name: NSNotification.Name(rawValue: NotificationCenterKey.wuDownloadDone), object: nil)
+
         // get Device Stats
         let screenWidth  = UIScreen.main.bounds.size.width
         let screenHeight = UIScreen.main.bounds.size.height
@@ -133,7 +140,7 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
     override func viewWillAppear(_ animated: Bool) {
         //super.viewWillAppear()
 
-        // ???? This is needed so "Settings" says "Back" vs saying "Weather Central"
+        // ????? This is needed so "Settings" says "Back" vs saying "Weather Central"
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "Back", style: .plain, target: nil, action: nil)
     }
     
@@ -188,9 +195,9 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
         self.view.endEditing(true)              // Dismiss keyboard
         UserDefaults.standard.set(lastSearch, forKey: UDKey.lastSearch)
         switch segue.identifier {
-        case segueID.HomeToSettings?:                      //"segueSettings"
+        case SegueID.HomeToSettings?:                      //"segueSettings"
             print("\n➡️segue Home to Settings")
-        case segueID.HomeToGeoLookup?:                     //"segueGeoLookup"
+        case SegueID.HomeToGeoLookup?:                     //"segueGeoLookup"
             print("\n➡️segue Home to GeoLookup")
             if !gotCurrentData {
                 cityState = ""
@@ -202,7 +209,7 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
                 lastSearch = txtCity.text!
             }
             homeSearchChanged = false
-        case segueID.HomeToFeatures?:                      //"segueFeatures"
+        case SegueID.HomeToFeatures?:                      //"segueFeatures"
             print("\n➡️segue Home to Feature Selector")
         default:
             print("\n➡️🚦Unknown segue identifier: '\(segue.identifier ?? "nil")'")
@@ -381,7 +388,8 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
                 return (.none, "", error)
             }
             searchType = .near
-            txtCity.text = "local: " + formatDbl(number: gUserLat, places: 3) + ", " + formatDbl(number: gUserLon, places: 3)
+            //txtCity.text = "local: " + formatDbl(number: gUserLat, places: 3) + ", " + formatDbl(number: gUserLon, places: 3)
+            txtCity.text = "local: \(gUserLat.format(fmt: ".3")), \(gUserLon.format(fmt: ".3"))"
             place = "\(gUserLat),\(gUserLon)"
 
         case .city:
@@ -450,7 +458,7 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
     // ------ Set Buttons according to wuFeaturesArr[] ------
     func setFeatureButtons() {
         for iButton in 1..<18 {
-            var isOn = wuFeaturesArr[iButton]
+            var isOn = wuFeaturesArr[iButton]       // default
 
             switch iButton {
             case iForecast:
@@ -465,7 +473,7 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
             case iYesterday:
                 if wuFeaturesArr[iButton] {btnPlanner.setTitle("Yesterday", for: UIControlState.normal)}
             default:
-                isOn = wuFeaturesArr[iButton]
+                isOn = wuFeaturesArr[iButton]           // default: Button.tag == FeaturesArr[] = true
             }//end switch
 
             if let button = view.viewWithTag(iButton) as? UIButton {
@@ -630,7 +638,7 @@ temp_high --> {
         var hhmmStr2 = ""
         hhmmStr1 = makeTimeStr(hrStr: srHr, minStr: srMin, to24: Settings.is24hr)
         hhmmStr2 = makeTimeStr(hrStr: ssHr, minStr: ssMin, to24: Settings.is24hr)
-        aa += "Sunrise  \(hhmmStr1)   Sunset \(hhmmStr2)\n"
+        aa += "Sunrise \(hhmmStr1)   Sunset \(hhmmStr2)\n"
         
         aa += "\n"
         
@@ -645,7 +653,7 @@ temp_high --> {
         hhmmStr1 = makeTimeStr(hrStr: mrHr, minStr: mrMin, to24: Settings.is24hr)
         hhmmStr2 = makeTimeStr(hrStr: msHr, minStr: msMin, to24: Settings.is24hr)
 
-        aa += "Moonrise \(hhmmStr1)  Moonset \(hhmmStr2)\n"
+        aa += "Moonrise \(hhmmStr1) Moonset \(hhmmStr2)\n"
         
         let ageOfMoon  = dictMoonPhase["ageOfMoon"]!
         let percentIlluminated   = dictMoonPhase["percentIlluminated"]!
@@ -1089,7 +1097,7 @@ observations ---------> (Array) with 27 items
 
         for dictHurricane in hurricaneArr {
             let dictStormInfo = dictHurricane["stormInfo"]      as! [String: AnyObject]
-            let id = dictStormInfo["stormNumber"] as? String ?? "?????????"
+            let id = dictStormInfo["stormNumber"] as? String ?? "???"
             guard let dictCurrent = dictHurricane["Current"] as? [String: AnyObject] else {
                 print("No current in dictHurricane!\n")
                 continue
@@ -1098,7 +1106,7 @@ observations ---------> (Array) with 27 items
                 print("No dictTimeGMT in dictCurrent!\n")
                 continue
             }
-            let epoch = dictTimeGMT["epoch"] as? String ?? "??????"
+            let epoch = dictTimeGMT["epoch"] as? String ?? "???"
             let thisID = id + epoch
             if thisID != lastID {
                 print("😃Storm# \(id) \(epoch) is OK")
@@ -1162,7 +1170,7 @@ observations ---------> (Array) with 27 items
 
             let dictTime      = dictCurrent["Time"]             as! [String: AnyObject]
             let wkDay         = dictTime["weekday_name"]             as? String ?? "???"
-            let time          = dictTime["pretty"]                   as? String ?? "????"
+            let time          = dictTime["pretty"]                   as? String ?? "???"
             
             aa += stormNameNice + "\n"
             aa += "Catagory \(cat) Wind \(windSpeedMph), gusting to \(windGustMph) \n"
@@ -1295,6 +1303,7 @@ observations ---------> (Array) with 27 items
             let date  = "\(weekD) \(mo) \(da) "
             var cond  = dictSimpForecastDay["conditions"] as! String
             cond = cond.replacingOccurrences(of: "Thunder", with: "T-")
+            cond = cond.replacingOccurrences(of: " of a ", with: " of ")    // shorten line for 6s
 
             //var a = ""
             let dictLow = dictSimpForecastDay["low"] as! [String: AnyObject]
@@ -1760,7 +1769,7 @@ date {
                 let htSplit = strHt.components(separatedBy: " ")
                 let ht = Double(htSplit[0]) ?? 0
                 let unit = htSplit.count>1 && ht >= 0 && ht < 9.94 ? htSplit[1] : ""
-                strHt = formatDbl(number: ht, places: 1) + unit
+                strHt = ht.format(fmt: ".1") + unit
             }
             let mon  = Int(monStr)
             let day  = Int(dayStr)
@@ -1803,6 +1812,13 @@ date {
 extension WeatherCentralVC: WuAPIdelegate {
     //                          delegate <— (4)
 
+    //---- NotificationCenter -  wuDownloadDone Notification ----
+    func wuDownloadDoneNotification() {
+        print("\n😃😡😡😃Homepage got the wuDownloadDone Notification😃😡😡😃\n")
+        lblError.text = "got the wuDownloadDone Notification"
+    }
+
+
     //This function is called your download request
     func startWuDownload(wuURL: URL, place: String) {
         WuDownloadDone = false
@@ -1838,6 +1854,7 @@ extension WeatherCentralVC: WuAPIdelegate {
             gDataIsCurrent = true
             self.lblError.text = ""                 // clear error msg
             self.setFeatureButtons()
+
             //————— Permanent Storage —————-
             UserDefaults.standard.set(self.featuresStr, forKey: UDKey.featuresStr)//"wuFeatures")
             if self.numFeatures == 1  {

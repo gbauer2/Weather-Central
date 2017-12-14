@@ -7,11 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		CE1EEB5D1F8E617300EBA13C /* myExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE1EEB5C1F8E617300EBA13C /* myExtensions.swift */; };
+		CE1EEB5D1F8E617300EBA13C /* StringExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE1EEB5C1F8E617300EBA13C /* StringExtension.swift */; };
 		CE1EEB5F1F8E906500EBA13C /* MaintainCallLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE1EEB5E1F8E906500EBA13C /* MaintainCallLog.swift */; };
+		CE2E2BF21FD7C153009B7DE1 /* UIColorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE2E2BF11FD7C153009B7DE1 /* UIColorExtension.swift */; };
 		CE31D6DA1F912CB9001E8EC6 /* icons8-Settings-50.png in Resources */ = {isa = PBXBuildFile; fileRef = CE31D6D91F912CB9001E8EC6 /* icons8-Settings-50.png */; };
 		CE31D6DE1F91643B001E8EC6 /* APIKeyVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE31D6DD1F91643B001E8EC6 /* APIKeyVC.swift */; };
 		CE31D6E01F916AE0001E8EC6 /* TestCallLimitsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE31D6DF1F916AE0001E8EC6 /* TestCallLimitsVC.swift */; };
+		CE3EF73D1FE1FD6A0019A324 /* OtherExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE3EF73C1FE1FD6A0019A324 /* OtherExtensions.swift */; };
 		CE46A3E41F995F2900C14766 /* MapVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE46A3E31F995F2900C14766 /* MapVC.swift */; };
 		CE4BF55C1F9782F400A918D0 /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE4BF55B1F9782F400A918D0 /* Globals.swift */; };
 		CE5186DB1F3B6D8000646C80 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE5186DA1F3B6D8000646C80 /* AppDelegate.swift */; };
@@ -37,11 +39,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		CE1EEB5C1F8E617300EBA13C /* myExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = myExtensions.swift; sourceTree = "<group>"; };
+		CE1EEB5C1F8E617300EBA13C /* StringExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringExtension.swift; sourceTree = "<group>"; };
 		CE1EEB5E1F8E906500EBA13C /* MaintainCallLog.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MaintainCallLog.swift; sourceTree = "<group>"; };
+		CE2E2BF11FD7C153009B7DE1 /* UIColorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColorExtension.swift; sourceTree = "<group>"; };
 		CE31D6D91F912CB9001E8EC6 /* icons8-Settings-50.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icons8-Settings-50.png"; sourceTree = "<group>"; };
 		CE31D6DD1F91643B001E8EC6 /* APIKeyVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIKeyVC.swift; sourceTree = "<group>"; };
 		CE31D6DF1F916AE0001E8EC6 /* TestCallLimitsVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestCallLimitsVC.swift; sourceTree = "<group>"; };
+		CE3EF73C1FE1FD6A0019A324 /* OtherExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OtherExtensions.swift; sourceTree = "<group>"; };
 		CE46A3E31F995F2900C14766 /* MapVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapVC.swift; sourceTree = "<group>"; };
 		CE4BF55B1F9782F400A918D0 /* Globals.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
 		CE5186D71F3B6D8000646C80 /* Weather Central.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Weather Central.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -121,7 +125,9 @@
 				CE4BF55B1F9782F400A918D0 /* Globals.swift */,
 				CEC0CB0D1F7DFFDE00152CBA /* subs.swift */,
 				CEE0AF671F8156C60018B01F /* wuSubs.swift */,
-				CE1EEB5C1F8E617300EBA13C /* myExtensions.swift */,
+				CE1EEB5C1F8E617300EBA13C /* StringExtension.swift */,
+				CE2E2BF11FD7C153009B7DE1 /* UIColorExtension.swift */,
+				CE3EF73C1FE1FD6A0019A324 /* OtherExtensions.swift */,
 				CE8CF39E1FB684E3006CC7BC /* Device.swift */,
 				CE1EEB5E1F8E906500EBA13C /* MaintainCallLog.swift */,
 				CECF66881FB5049400911DFC /* LaunchScreen.storyboard */,
@@ -247,6 +253,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CE2E2BF21FD7C153009B7DE1 /* UIColorExtension.swift in Sources */,
 				CE8CF39F1FB684E3006CC7BC /* Device.swift in Sources */,
 				CE5186DD1F3B6D8000646C80 /* WeatherCentralVC.swift in Sources */,
 				CEE297601FBDD6BD00D12D22 /* SettingsTVC.swift in Sources */,
@@ -254,10 +261,11 @@
 				CEC1FD241F5672B7000E1660 /* FeatureSelectorVC.swift in Sources */,
 				CEE0AF681F8156C60018B01F /* wuSubs.swift in Sources */,
 				CEC0CB0C1F7D76F100152CBA /* GeoLookupVC.swift in Sources */,
-				CE1EEB5D1F8E617300EBA13C /* myExtensions.swift in Sources */,
+				CE1EEB5D1F8E617300EBA13C /* StringExtension.swift in Sources */,
 				CE4BF55C1F9782F400A918D0 /* Globals.swift in Sources */,
 				CEC0CB0E1F7DFFDE00152CBA /* subs.swift in Sources */,
 				CE31D6E01F916AE0001E8EC6 /* TestCallLimitsVC.swift in Sources */,
+				CE3EF73D1FE1FD6A0019A324 /* OtherExtensions.swift in Sources */,
 				CEE297671FBE1BAD00D12D22 /* AboutVC.swift in Sources */,
 				CEBE65631FCD976C009DF4DF /* WuAPI.swift in Sources */,
 				CE5186DB1F3B6D8000646C80 /* AppDelegate.swift in Sources */,

@@ -107,7 +107,7 @@ public func checkDailyLimit() -> Bool {
 public func getTimeEastern(localDate: Date) -> Date {
     let timeZoneET = TimeZone(abbreviation: "EST")!
     
-    let timeZoneCurrent = TimeZone.current // ??????????????????
+    let timeZoneCurrent = TimeZone.current // ?????
     //let timeZoneCurrent = TimeZone(abbreviation: "PST")! // ??? This is a test for Dustin
     
     let offsetSecsET = (timeZoneET.secondsFromGMT())

@@ -8,7 +8,7 @@
 
 import Foundation
 
-// ???? change type to enum, add station,stationLL
+// ????? change type to enum, add station,stationLL
 struct Feature {
     let hasData:  Bool
     let date:     Date
@@ -39,7 +39,7 @@ struct Feature {
     }
 }
 
-// Change to array or dictionary????
+// Change to array or dictionary?????
 var gAlerts     = Feature()
 var gAlmanac    = Feature()
 var gAstronomy  = Feature()
@@ -54,13 +54,13 @@ var gTide       = Feature()
 
 var wuAPI = WuAPI()
 
-protocol WuAPIdelegate {
+protocol WuAPIdelegate: class {
     func wuAPIdownloadDone(_ controller: WuAPI, isOK: Bool, numFeaturesRequested: Int ,numFeaturesReceived: Int, errStr: String)    //delegate (1)
     // more optional or required methods if needed
 }
 
 class WuAPI {
-    var delegate: WuAPIdelegate!          //delegate <— (2)
+    weak var delegate: WuAPIdelegate!          //delegate <— (2)
 
 
     //---------------------- downloadData func ---------------------
@@ -238,9 +238,11 @@ class WuAPI {
             // Success again! We have made it through everything.
 
             DispatchQueue.main.async {
+
                 let isOK = taskError.isEmpty
                 let es = isOK ? "" : "dwnld Error = \(taskError)"
                 print("End of task:  isOK = \(isOK)   \(es)")
+                NotificationCenter.default.post(name: Notification.Name(rawValue: NotificationCenterKey.wuDownloadDone), object: self)
                 self.delegate?.wuAPIdownloadDone(self, isOK: isOK, numFeaturesRequested: numFeaturesRequested, numFeaturesReceived: numFeaturesReceived, errStr: taskError) //delegate <— (3)
 
                 //————— Permanent Storage —————-

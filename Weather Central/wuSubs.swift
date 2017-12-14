@@ -195,9 +195,9 @@ public func makeWuUrlJson(APIKey: String, features: String, place: String) -> (u
 public func getSearchType(searchText: String) -> LocationSelectionType {
     if isLocalValid(searchText)     { return .near }
     if isZipValid(searchText)       { return .zip }
+    if isLatLonValid(searchText)    { return .latlon }
     if isStationValid(searchText)   { return .station }
     if isCityStateValid(searchText) { return .city }
-    if isLatLonValid(searchText)    { return .latlon }
     return .none
 }
 
@@ -237,13 +237,13 @@ public func isCityStateValid(_ cityState: String) -> Bool {
     if cityState.count < 4      { return false }
     if !cityState.contains(",") { return false }
     if cityState.indexOf(searchforStr: ",") > cityState.count - 3 { return false }
-    //????check for legal chars letters, " ", ","
+    //?????check for legal chars letters, " ", ","
 
     let letters = CharacterSet.letters
-    let digits = CharacterSet.decimalDigits
+    //let digits = CharacterSet.decimalDigits
 
     for uni in cityState.unicodeScalars {
-        if !letters.contains(uni) && !digits.contains(uni) && uni != " " && uni != "," && uni != "." && uni != " "
+        if !letters.contains(uni) && uni != " " && uni != "," && uni != "."
             { return false }
     }
     return true
@@ -256,20 +256,58 @@ public func isZipValid(_ zip: String) -> Bool {
     return false
 }
 
-public func isLatValid(latTxt: String) -> Bool {
-    if latTxt.count < 2                 {return false}
-    //???? Allow "N","S"
-    guard let lat = Double(latTxt) else {return false}
-    if lat < -90.0 || lat > 90.0        {return false}
-    return true
+public func isLatValid(_ latTxt: String) -> Bool {
+    return getLat(latTxt) != nil
 }
 
-public func isLonValid(lonTxt: String ) -> Bool {
-    if lonTxt.count < 2                 {return false}
-    //???? Allow "E","W"
-    guard let lon = Double(lonTxt) else {return false}
-    if lon < -180.0 || lon > 180.0      {return false}
-    return true
+public func isLonValid(_ lonTxt: String) -> Bool {
+    return getLon(lonTxt) != nil
+}
+
+public func getLat(_ latTxt: String) -> Double? {
+    if latTxt.count < 2                 {return nil}  // < 2 chars in Lat
+    var latStr = latTxt.uppercased()
+    latStr = latStr.replacingOccurrences(of: "°", with: "")     // remove degree sign
+    var isSouth = false
+
+    if latStr.contains("S") {
+        if latStr.contains("-") { return nil }
+        isSouth = true
+        latStr = latStr.replacingOccurrences(of: "S", with: "")
+    }
+    if latStr.contains("N") {
+        if isSouth { return nil }
+        if latStr.contains("-") { return nil }
+        latStr = latStr.replacingOccurrences(of: "N", with: "")
+    }
+    guard let latt = Double(latStr.trim()) else {return nil}  // Lat is not a number
+    var lat = latt
+    if isSouth { lat = -latt }
+    if lat < -90.0 || lat > 90.0        {return nil}  // Lat out-of bounds
+    return lat
+}
+
+public func getLon(_ lonTxt: String ) -> Double? {
+    if lonTxt.count < 2                 {return nil}  // < 2 chars in Lon
+    var lonStr = lonTxt.uppercased()
+    lonStr = lonStr.replacingOccurrences(of: "°", with: "")     // remove degree sign
+    var isWest = false
+
+    if lonStr.contains("W") {
+        if lonStr.contains("-") { return nil }
+        isWest = true
+        lonStr = lonStr.replacingOccurrences(of: "W", with: "")
+    }
+    if lonStr.contains("E") {
+        if isWest { return nil }
+        if lonStr.contains("-") { return nil }
+        lonStr = lonStr.replacingOccurrences(of: "E", with: "")
+    }
+    guard let lont = Double(lonStr.trim()) else {return nil}  // lon is not a number
+    var lon = lont
+    if isWest { lon = -lont }
+    if lon < -180.0 || lon > 180.0      {return nil}  // Lon out-of bounds
+    return lon
 }
 
 public func isLatLonValid(_ latLonTxt: String) -> Bool {
@@ -281,20 +319,20 @@ public func isLatLonValid(_ latLonTxt: String) -> Bool {
 public func decodeLL(latLonTxt: String) -> (lat: Double, lon: Double, errorLL: String ) {
     let LL = getFirstPart(latLonTxt)
     var sep = " "
-    if LL.contains(",") { sep = "," }
+    if LL.contains(",") {
+        sep = ","
+    } else if LL.contains(";") {
+        sep = ";"
+    } else {
+        sep = " "
+    }
     let splitLL = LL.components(separatedBy: sep)
-    if splitLL.count != 2               { return (0.0, 0.0, "error") }
+    if splitLL.count != 2               { return (0.0, 0.0, "error: Lat/Lon must be separated.") }  // No comma or space separator
     let latTxt = splitLL[0].trim()
     let lonTxt = splitLL[1].trim()
-    if latTxt.count < 2                 { return (0.0, 0.0, "error") }
-    //???? Allow "N","S"
-    guard let lat = Double(latTxt) else { return (0.0, 0.0, "error") }
-    if lat < -90.0 || lat > 90.0        { return (lat, 0.0, "error") }
 
-    if lonTxt.count < 2                 { return (lat, 0.0, "error") }
-    //???? Allow "E","W"
-    guard let lon = Double(lonTxt) else { return (lat, 0.0, "error") }
-    if lon < -180.0 || lon > 180.0      { return (lat, lon, "error") }
+    guard let lat = getLat(latTxt) else { return (0.0, 0.0, "error: Lat not valid") }  // Lat is not a number
+    guard let lon = getLon(lonTxt) else { return (lat, 0.0, "error: Lon not valid") }  // Lon is not a number
     return (lat, lon, "")
 }
 

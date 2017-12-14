@@ -50,7 +50,7 @@ class APIKeyVC: UIViewController, UITextFieldDelegate {
     //----------- API Key - Editing Change ---------
     @IBAction func txtAPIKeyEdit(_ sender: Any) {
         btnUpdateAPIKey.isEnabled = (txtAPIKey.text != lblAPIKey.text) && (txtAPIKey.text!.count >= 15)
-        btnUpdateAPIKey.isEnabled = true    //????temp
+        //btnUpdateAPIKey.isEnabled = true    //???-temp
     }//end @IBAction func txtMyAPIKeyEdit
     
     //------------------- Update APIKey Button ----------------

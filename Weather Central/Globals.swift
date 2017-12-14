@@ -31,7 +31,7 @@ var gAppBuild   = "0"                   // App Build Number
 let colorButtonGray = UIColor(red: 0.82, green: 0.82,  blue: 0.84, alpha: 1)    //.lightGray (0x)
 let colorButtonNorm = UIColor(red: 0.00, green: 0.478, blue: 1.00, alpha: 1)    //Blue       (0x007AFF)
 
-// Features-Array Names - ???? should be struct
+// Features-Array Names - ????? should be struct
 let iAlerts      = 1
 let iAlmanac     = 2
 let iAstronomy   = 3
@@ -71,7 +71,7 @@ public struct StructUDKey {
 }
 public let UDKey = StructUDKey()
 
-//Convert to Struct ????
+//Convert to Struct ?????
 public enum LocationSelectionType: String {
     case none = "none"
     case near = "Nearby"
@@ -83,9 +83,17 @@ public enum LocationSelectionType: String {
 
 // segue identifiers
 public struct SegueID {
-    let HomeToSettings  = "segueSettings"
-    let HomeToGeoLookup = "segueGeoLookup"
-    let HomeToFeatures  = "segueFeatures"
-    let GeoLookupToMap  = "segueGeoLookupToMap"
+    // Main.storyboard
+    static let HomeToSettings  = "segueSettings"
+    static let HomeToGeoLookup = "segueGeoLookup"
+    static let HomeToFeatures  = "segueFeatures"
+    static let GeoLookupToMap  = "segueGeoLookupToMap"
+    // Settings.storyboard
+    static let SettingsToAPIKey       = "segueAPIKey"
+    static let SettingsToAbout        = "segueAbout"
+    static let SettingsToCallLimits   = "segueTestCallLimits"
 }
-public let segueID = SegueID()
+
+public struct NotificationCenterKey {
+    static let wuDownloadDone = "com.georgebauer.wuDownloadDoneNotification"
+}
