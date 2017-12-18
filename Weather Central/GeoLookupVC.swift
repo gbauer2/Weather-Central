@@ -690,7 +690,7 @@ extension GeoLookupVC: WuAPIdelegate {
                 //                    let distNM = greatCircDist(ALat: latVal, ALon: lonVal, BLat: lat, BLon: lon)
                 //                    let distMi = distNM * 1.15
                 //                    let dirDeg = greatCircAng(ALat: latVal, ALon: lonVal, BLat: lat, BLon: lon, Dist: distNM)
-                //                    if distMi < 99 { distStr = formatDbl(number: distMi, fieldLen: 5, places: 1) }
+                //                    if distMi < 99 { distStr = distMi.format("5.1") }
                 //                    let distDirStr = "\(distStr)mi \(dirDeg)°"
 
                 let strLatLon3 = formatLatLon(lat: lat, lon: lon, places: 3)

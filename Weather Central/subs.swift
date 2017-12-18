@@ -9,72 +9,68 @@
 import UIKit
 
 //MARK: General Purpose
-//---- Format a String number "%#.#f" using fieldLen & places. fieldLen=0 to remove leading spaces ----
+//---- Format Double "%#.#f" using fieldLen, places. fieldLen!=0 to right justify - Truncates ----
 public func formatDbl(number: Double, fieldLen: Int = 0, places: Int) -> String {
-    let dbl = roundToPlaces(number: number, places: places)
-    var w = fieldLen
-    let text = String(number)
-    if fieldLen == 0 { w = text.count + places + 2 }
-    let format = "%\(w).\(places)f"
-    var t = String(format:format, dbl)              //String(format:"Alt %5.0f ft",gpsAlt)
-    if fieldLen == 0   { t = t.trimmingCharacters(in: .whitespaces) }
-    return t
+    if fieldLen == 0 {
+        return String(format:"%.\(places)f", number)                            //String(format:%.2f",number)
+    } else {
+        return String(format:"%\(fieldLen).\(places)f", number).left(fieldLen)  //String(format:%6.2f",number)
+    }
 }
 
 //---- Format a String number "%#.#f" using fieldLen & places. fieldLen=0 to remove leading spaces ----
-public func formatDbl(text: String, fieldLen: Int = 0, places: Int) -> String {
-    guard var dbl = Double(text) else {return text}
-    dbl = roundToPlaces(number: dbl, places: places)
-    var w = fieldLen
-    if fieldLen == 0 { w = text.count + places + 2 }
-    let format = "%\(w).\(places)f"
-    var t = String(format:format, dbl)              //String(format:"Alt %5.0f ft",gpsAlt)
-    if fieldLen == 0 { t = t.trimmingCharacters(in: .whitespaces) }
-    return t
-}
+//public func formatDbl(text: String, fieldLen: Int = 0, places: Int) -> String {
+//    guard var dbl = Double(text) else {return text}
+//    dbl = roundToPlaces(number: dbl, places: places)
+//    var w = fieldLen
+//    if fieldLen == 0 { w = text.count + places + 2 }
+//    let format = "%\(w).\(places)f"
+//    var t = String(format:format, dbl)              //String(format:"Alt %5.0f ft",gpsAlt)
+//    if fieldLen == 0 { t = t.trimmingCharacters(in: .whitespaces) }
+//    return t
+//}
 
 // ------ Make Time String "17:02" or " 5:02pm" from "17","2" ------
 public func makeTimeStr(hrStr: String, minStr: String, to24: Bool) -> String {
     guard let h24 = Int(hrStr) else { return "?" + hrStr + ":" + minStr + "?" }
-    var hh = hrStr
-    var mm = minStr
-    if mm.count < 0 { mm = "0" + mm }       //mm done
+    let mm = minStr.count < 2 ? "0" + minStr : minStr
     if to24 {
-        hh = formatIntWithLeadingZeros(h24, width: 2)
+        let hh = hrStr.count  < 2 ? "0" +  hrStr : hrStr
         return hh + ":" + mm
     }
-    var h12 = h24
+
+    var h12: Int
     var ampm = "am"
     switch h24 {
     case  0 :
         h12 = 12
     case 1...11 :
-        break
+        h12 = h24
     case 12 :
+        h12 = h24
         ampm = "pm"
     default:
         h12 = h24 - 12
         ampm = "pm"
     }
-    var hh12 = "\(h12)"
-    if h12 < 10 { hh12 = " " + hh12 }
+    let hh12 = h12 < 10 ? " \(h12)" : "\(h12)"
     return hh12 + ":" + mm + ampm
 }
 
 //---- Rounds "number" to a number of decimal "places" e.g. (3.1426, 2) -> 3.14 ----
-public func roundToPlaces(number: Double, places: Int) -> Double {
-    let divisor = pow(10.0, Double(places))
-    return (number * divisor).rounded() / divisor
-}
+//public func roundToPlaces(number: Double, places: Int) -> Double {
+//    let divisor = pow(10.0, Double(places))
+//    return (number * divisor).rounded() / divisor
+//}
 
 //---- Format an integer with leading zeros e.g. (5, 3) -> "005" ----
-public func formatIntWithLeadingZeros(_ num: Int, width: Int) -> String {
-    var a = String(num)
-    while a.count < width {
-        a = "0" + a
-    }
-    return a
-}
+//public func formatIntWithLeadingZeros(_ num: Int, width: Int) -> String {
+//    var a = String(num)
+//    while a.count < width {
+//        a = "0" + a
+//    }
+//    return a
+//}
 
 // ------------- returns e.g. "1 name", "2 names", "No names" -----------
 public func showCount(count: Int, name: String, ifZero: String = "0") -> String {
@@ -281,7 +277,7 @@ public func formatLatLon(lat: Double, lon: Double, places: Int) -> String {
 // From a pair of Lat/Lon's, return distance(mi or nm), direction, cardinal direction , and string e.g."14.2mi NNW"
 public func formatDistDir(latFrom: Double, lonFrom: Double, latTo: Double, lonTo: Double,
                           doMi: Bool = true, doDeg: Bool = false)
-    -> (dist: Double, deg: Int, cardinal: String, strDistDir: String) {
+                            -> (dist: Double, deg: Int, cardinal: String, strDistDir: String) {
         var distStr = "     "
         var abrev = "nm"
         let distNM = greatCircDist(ALat: latFrom, ALon: lonFrom, BLat: latTo, BLon: lonTo)

@@ -67,14 +67,9 @@ extension String {
 
     //------ rightJust: format right justify an int in self ------
     func rightJust(_ fieldLen: Int) -> String {
-        if self.count >= fieldLen {
-            return self
-        }
-        var s = self
-        for _ in 1...fieldLen - self.count {
-            s = " " + s
-        }
-        return s
+        guard self.count < fieldLen else { return self }
+        let maxStr = String(repeating: " ", count: fieldLen)
+        return (maxStr + self).right(fieldLen)
     }
 
     //------ indexOf, indexOfRev: find position of 2nd str in self ------

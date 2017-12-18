@@ -46,10 +46,16 @@
  4) Save Stations found for future use in Map
  5) pws History: #trys, #succeeds, DateLastTry, DateLastSucceed
  6) Hurricane forecast & map
+ 7) Use additional weather sites
 
- 1.0.12(49) some refactoring
+ 1.0.14(51) - Add Tests.swift
+ StringExtension:   rightJust(n) - Clean up
+ Subs:              formatDbl    - Clean up & allow it to truncate result
+ Subs:              makeTimeStr  - Clean up & fix
+ Subs:              roundToPlaces       - Remove
+ Subs:              formatDbl(text...)     - Remove
+ Subs:              formatIntWithLeadingZeros - Remove
 
- 
 Get some stuff with every query *Almanac&Astron= 1K,
                                  GeoLookup     = 8k,
                                 *Conditions    = 3k
@@ -135,6 +141,9 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
         gAppBuild   = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion")            as? String ?? "0"
 
         self.activityIndicator.transform = CGAffineTransform(scaleX: 2, y: 2) // Make my activityIndicator bigger
+
+        doTests()
+
     }//end func
    
     override func viewWillAppear(_ animated: Bool) {
@@ -388,7 +397,6 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
                 return (.none, "", error)
             }
             searchType = .near
-            //txtCity.text = "local: " + formatDbl(number: gUserLat, places: 3) + ", " + formatDbl(number: gUserLon, places: 3)
             txtCity.text = "local: \(gUserLat.format(fmt: ".3")), \(gUserLon.format(fmt: ".3"))"
             place = "\(gUserLat),\(gUserLon)"
 
