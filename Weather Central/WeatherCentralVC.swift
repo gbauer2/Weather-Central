@@ -48,14 +48,8 @@
  6) Hurricane forecast & map
  7) Use additional weather sites
 
- 1.0.14(51) - Add Tests.swift
- StringExtension:   rightJust(n) - Clean up
- Subs:              formatDbl    - Clean up & allow it to truncate result
- Subs:              makeTimeStr  - Clean up & fix
- Subs:              roundToPlaces       - Remove
- Subs:              formatDbl(text...)     - Remove
- Subs:              formatIntWithLeadingZeros - Remove
-
+ 1.0.15(52)
+ 
 Get some stuff with every query *Almanac&Astron= 1K,
                                  GeoLookup     = 8k,
                                 *Conditions    = 3k

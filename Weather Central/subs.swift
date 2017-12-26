@@ -35,7 +35,7 @@ public func makeTimeStr(hrStr: String, minStr: String, to24: Bool) -> String {
     guard let h24 = Int(hrStr) else { return "?" + hrStr + ":" + minStr + "?" }
     let mm = minStr.count < 2 ? "0" + minStr : minStr
     if to24 {
-        let hh = hrStr.count  < 2 ? "0" +  hrStr : hrStr
+        let hh = hrStr.count < 2 ? "0" + hrStr : hrStr
         return hh + ":" + mm
     }
 
