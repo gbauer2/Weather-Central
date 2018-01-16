@@ -165,7 +165,7 @@ class GeoLookupVC: UIViewController, UITextFieldDelegate, CLLocationManagerDeleg
     }
 
     //---- NotificationCenter -  wuDownloadDone Notification ----
-    func wuDownloadDoneNotification() {
+    @objc func wuDownloadDoneNotification() {
         print("\n😃😡😃😡GeoLookup got the wuDownloadDone Notification😃😡😃😡\n")
         lblError.text = "got the wuDownloadDone Notification"
     }

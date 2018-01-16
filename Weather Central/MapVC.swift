@@ -138,7 +138,7 @@ class MapVC: UIViewController, MKMapViewDelegate {
         mapView.addAnnotation(ann)
     }//end func
     
-    func longPressAction(gestureRecognizer: UIGestureRecognizer) {
+    @objc func longPressAction(gestureRecognizer: UIGestureRecognizer) {
         let touchPoint = gestureRecognizer.location(in: self.mapView)
         let coordinate = mapView.convert(touchPoint, toCoordinateFrom: self.mapView)
         latFromMap = coordinate.latitude

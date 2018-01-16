@@ -1818,7 +1818,7 @@ extension WeatherCentralVC: WuAPIdelegate {
     //                          delegate <— (4)
 
     //---- NotificationCenter -  wuDownloadDone Notification ----
-    func wuDownloadDoneNotification() {
+    @objc func wuDownloadDoneNotification() {
         print("\n😃😡😡😃Homepage got the wuDownloadDone Notification😃😡😡😃\n")
         lblError.text = "got the wuDownloadDone Notification"
     }
