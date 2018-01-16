@@ -24,14 +24,14 @@
 		CEB2617B1FE6DDA60065C7C0 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEB2617A1FE6DDA60065C7C0 /* Tests.swift */; };
 		CEBE65631FCD976C009DF4DF /* WuAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEBE65621FCD976C009DF4DF /* WuAPI.swift */; };
 		CEC0CB0C1F7D76F100152CBA /* GeoLookupVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEC0CB0B1F7D76F100152CBA /* GeoLookupVC.swift */; };
-		CEC0CB0E1F7DFFDE00152CBA /* subs.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEC0CB0D1F7DFFDE00152CBA /* subs.swift */; };
+		CEC0CB0E1F7DFFDE00152CBA /* MyFuncs.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEC0CB0D1F7DFFDE00152CBA /* MyFuncs.swift */; };
 		CEC1FD1F1F560478000E1660 /* checkbox_checked.png in Resources */ = {isa = PBXBuildFile; fileRef = CEC1FD1B1F560478000E1660 /* checkbox_checked.png */; };
 		CEC1FD201F560478000E1660 /* checkbox_no.png in Resources */ = {isa = PBXBuildFile; fileRef = CEC1FD1C1F560478000E1660 /* checkbox_no.png */; };
 		CEC1FD211F560478000E1660 /* checkbox_unchecked.png in Resources */ = {isa = PBXBuildFile; fileRef = CEC1FD1D1F560478000E1660 /* checkbox_unchecked.png */; };
 		CEC1FD221F560478000E1660 /* checkbox_yes.png in Resources */ = {isa = PBXBuildFile; fileRef = CEC1FD1E1F560478000E1660 /* checkbox_yes.png */; };
 		CEC1FD241F5672B7000E1660 /* FeatureSelectorVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEC1FD231F5672B7000E1660 /* FeatureSelectorVC.swift */; };
 		CECF668A1FB5049400911DFC /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CECF66881FB5049400911DFC /* LaunchScreen.storyboard */; };
-		CEE0AF681F8156C60018B01F /* wuSubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE0AF671F8156C60018B01F /* wuSubs.swift */; };
+		CEE0AF681F8156C60018B01F /* WuFuncs.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE0AF671F8156C60018B01F /* WuFuncs.swift */; };
 		CEE297601FBDD6BD00D12D22 /* SettingsTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE2975F1FBDD6BD00D12D22 /* SettingsTVC.swift */; };
 		CEE297631FBDDA3200D12D22 /* Settings.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CEE297611FBDDA3200D12D22 /* Settings.storyboard */; };
 		CEE297671FBE1BAD00D12D22 /* AboutVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE297661FBE1BAD00D12D22 /* AboutVC.swift */; };
@@ -59,14 +59,14 @@
 		CEB2617A1FE6DDA60065C7C0 /* Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
 		CEBE65621FCD976C009DF4DF /* WuAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WuAPI.swift; sourceTree = "<group>"; };
 		CEC0CB0B1F7D76F100152CBA /* GeoLookupVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeoLookupVC.swift; sourceTree = "<group>"; };
-		CEC0CB0D1F7DFFDE00152CBA /* subs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = subs.swift; sourceTree = "<group>"; };
+		CEC0CB0D1F7DFFDE00152CBA /* MyFuncs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MyFuncs.swift; sourceTree = "<group>"; };
 		CEC1FD1B1F560478000E1660 /* checkbox_checked.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkbox_checked.png; sourceTree = "<group>"; };
 		CEC1FD1C1F560478000E1660 /* checkbox_no.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkbox_no.png; sourceTree = "<group>"; };
 		CEC1FD1D1F560478000E1660 /* checkbox_unchecked.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkbox_unchecked.png; sourceTree = "<group>"; };
 		CEC1FD1E1F560478000E1660 /* checkbox_yes.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkbox_yes.png; sourceTree = "<group>"; };
 		CEC1FD231F5672B7000E1660 /* FeatureSelectorVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeatureSelectorVC.swift; sourceTree = "<group>"; };
 		CECF66891FB5049400911DFC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		CEE0AF671F8156C60018B01F /* wuSubs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = wuSubs.swift; sourceTree = "<group>"; };
+		CEE0AF671F8156C60018B01F /* WuFuncs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WuFuncs.swift; sourceTree = "<group>"; };
 		CEE2975F1FBDD6BD00D12D22 /* SettingsTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTVC.swift; sourceTree = "<group>"; };
 		CEE297621FBDDA3200D12D22 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = "Weather Central/Base.lproj/Settings.storyboard"; sourceTree = "<group>"; };
 		CEE297661FBE1BAD00D12D22 /* AboutVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutVC.swift; sourceTree = "<group>"; };
@@ -136,8 +136,8 @@
 				CE5186DA1F3B6D8000646C80 /* AppDelegate.swift */,
 				CEBE65621FCD976C009DF4DF /* WuAPI.swift */,
 				CE4BF55B1F9782F400A918D0 /* Globals.swift */,
-				CEC0CB0D1F7DFFDE00152CBA /* subs.swift */,
-				CEE0AF671F8156C60018B01F /* wuSubs.swift */,
+				CEC0CB0D1F7DFFDE00152CBA /* MyFuncs.swift */,
+				CEE0AF671F8156C60018B01F /* WuFuncs.swift */,
 				CE8CF39E1FB684E3006CC7BC /* Device.swift */,
 				CE1EEB5E1F8E906500EBA13C /* MaintainCallLog.swift */,
 				CEB2617A1FE6DDA60065C7C0 /* Tests.swift */,
@@ -271,11 +271,11 @@
 				CEE297601FBDD6BD00D12D22 /* SettingsTVC.swift in Sources */,
 				CE46A3E41F995F2900C14766 /* MapVC.swift in Sources */,
 				CEC1FD241F5672B7000E1660 /* FeatureSelectorVC.swift in Sources */,
-				CEE0AF681F8156C60018B01F /* wuSubs.swift in Sources */,
+				CEE0AF681F8156C60018B01F /* WuFuncs.swift in Sources */,
 				CEC0CB0C1F7D76F100152CBA /* GeoLookupVC.swift in Sources */,
 				CE1EEB5D1F8E617300EBA13C /* StringExtension.swift in Sources */,
 				CE4BF55C1F9782F400A918D0 /* Globals.swift in Sources */,
-				CEC0CB0E1F7DFFDE00152CBA /* subs.swift in Sources */,
+				CEC0CB0E1F7DFFDE00152CBA /* MyFuncs.swift in Sources */,
 				CE31D6E01F916AE0001E8EC6 /* TestCallLimitsVC.swift in Sources */,
 				CE3EF73D1FE1FD6A0019A324 /* OtherExtensions.swift in Sources */,
 				CEE297671FBE1BAD00D12D22 /* AboutVC.swift in Sources */,

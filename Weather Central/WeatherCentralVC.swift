@@ -1657,6 +1657,7 @@ date {
     
     
     // ------ Extract (min, avg, max)degrees from JSON{avg = {C = ""; F = "";}; max = {C = ""; F = "";}; min = {C =  ""; F = ""}} ---
+    // used by DoPlanner
     func plannerDegMinAvgMax(key: String, dictSource: [String: AnyObject], isMetric: Bool = false) -> (min:String, avg:String, max:String) {
         guard let dictMain = dictSource[key] as? [String: AnyObject] else {return ("?", "?", "?")}
         let dict = plannerMinAvgMax(dict: dictMain)
@@ -1672,6 +1673,7 @@ date {
     }
     
     // ------ Extract (min, avg, max)degrees from JSON{avg = {avg={cm=""; in=""}; max={cm=""; in=""}; min={cm=""; in=""}} ---
+    // used by DoPlanner
     func plannerInchMinAvgMax(key: String, dictSource: [String: AnyObject], metric: Bool = false) -> (min:String, avg:String, max:String) {
         guard let dictMain = dictSource[key] as? [String: AnyObject] else {return ("?", "?", "?")}
         let dict = plannerMinAvgMax(dict: dictMain)
@@ -1684,7 +1686,8 @@ date {
         let max6 = max.rightJust(6)
         return (min6, avg6, max6)
     }
-    
+
+    // used by above funcs
     func plannerMinAvgMax(dict: [String: AnyObject]) -> (min: [String: AnyObject]?, avg: [String: AnyObject]?, max: [String: AnyObject]?) {
         let min = dict["min"] as? [String: AnyObject]
         let avg = dict["avg"] as? [String: AnyObject]

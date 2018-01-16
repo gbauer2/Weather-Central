@@ -113,8 +113,7 @@ extension String {
 //    }
 
     //------ Pluralize a word (English) ------
-    func pluralize(_ count: Int) -> String
-    {
+    func pluralize(_ count: Int) -> String {
         if count == 1 || self.count < 2 {
             return self
         } else {
