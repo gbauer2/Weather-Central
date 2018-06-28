@@ -1,14 +1,15 @@
 //
-//  subs.swift
+//  MyFuncs.swift
 //  Weather Central
 //
 //  Created by George Bauer on 9/29/17.
 //  Copyright © 2017 GeorgeBauer. All rights reserved.
-//
+//  Ver 1.1.1   2/16/2018
 //  ------ General Purpose Subroutines ------
-import UIKit
+import Foundation
 
-//MARK: General Purpose
+//MARK: General Purpose 
+
 //---- Format Double "%#.#f" using fieldLen, places. fieldLen!=0 to right justify - Truncates ----
 public func formatDbl(number: Double, fieldLen: Int = 0, places: Int) -> String {
     if fieldLen == 0 {
@@ -16,6 +17,12 @@ public func formatDbl(number: Double, fieldLen: Int = 0, places: Int) -> String 
     } else {
         return String(format:"%\(fieldLen).\(places)f", number).left(fieldLen)  //String(format:%6.2f",number)
     }
+}
+
+//---- Format Int using fieldLen ----
+public func formatInt(number: Int, fieldLen: Int) -> String {
+    let str =  String(number)
+    return str.rightJust(fieldLen)
 }
 
 //---- Format a String number "%#.#f" using fieldLen & places. fieldLen=0 to remove leading spaces ----

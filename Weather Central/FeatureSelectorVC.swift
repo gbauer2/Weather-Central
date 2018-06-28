@@ -86,8 +86,6 @@ class FeatureSelectorVC: UIViewController, UITextFieldDelegate {
         }//next i
     }//end func
     
-//    @IBAction func btnSaveTap(_ sender: Any) {
-//    }
     //---- Save Button Tapped ----
     @IBAction func btnSaveTap(_ sender: UIButton) {
         // Save wuFeaturesArr[] in permanent storage "wuFeaturesArray"
@@ -98,7 +96,7 @@ class FeatureSelectorVC: UIViewController, UITextFieldDelegate {
         if wuFeaturesArr[iPlanner] {
             plannerSuffix = makePlannerSuffix()
             if plannerSuffix.count != 9 || !plannerSuffix.hasPrefix("_") {
-                lblError.text = "plannerSuffix can't be \(plannerSuffix)"
+                lblError.text = "\(plannerSuffix)"
                 return
             }
             UserDefaults.standard.set(txtDate1.text!, forKey: UDKey.wuPlannerDate1)//"wuPlannerDate1")
@@ -208,11 +206,17 @@ class FeatureSelectorVC: UIViewController, UITextFieldDelegate {
 
         let mmdd2 = makeMMDD(mm_dd: txtDate2.text!)
         if mmdd2.count != 4 {return "2nd " + mmdd2}
-        
+
+        var int1 = Int(mmdd1)!
+        let int2 = Int(mmdd2)!
+        if int1 > 1200 { int1 = int1 - 1200}
+        if int1 > int2 {
+            return "2nd planner date must be >= 1st"
+        }
         return "_" + mmdd1 + mmdd2
     }
 
-    // Make "MMDD" from "MM/DD" or "MM/D" & check for errors
+    // return "MMDD" from "MM/DD" or "MM/D" or return error message
     func makeMMDD(mm_dd: String) -> String {
         var mmdd = mm_dd
         var errMsg = "planner date must be of form \"mm/dd\""

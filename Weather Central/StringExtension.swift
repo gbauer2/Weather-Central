@@ -4,12 +4,12 @@
 //
 //  Created by George Bauer on 10/11/17.
 //  Copyright © 2017 GeorgeBauer. All rights reserved.
-//
-// String, UIColor extensions
+//  Ver 1.1.1   2/16/2018
+// String extensions
 
 import Foundation
 
-// String extensions:
+// String extensions: 
 // subscript(i), subscript(range), left(i), right(i), mid(i,len), rightJust(len),
 // indexOf(str), indexOfRev(str), trim(), contains(str), containsIgnoringCase(str), pluralize(n)
 extension String {
@@ -73,10 +73,10 @@ extension String {
     }
 
     //------ indexOf, indexOfRev: find position of 2nd str in self ------
-    func indexOf(searchforStr: String) -> Int {
+    func indexOf(searchforStr: String, startPoint: Int = 0) -> Int {
         let lenOrig = self.count
         let lenSearchFor = searchforStr.count
-        var p = 0
+        var p = startPoint
         while p + lenSearchFor <= lenOrig {
             if self.mid(begin: p, length: lenSearchFor) == searchforStr {
                 return p

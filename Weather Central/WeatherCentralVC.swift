@@ -8,7 +8,7 @@
 
 //TODO: - ToDo list
 /*
- 1) "Download Data" always get Almanac, Astronomy, Conditions, and maybe Forecast.
+ 1) "Download Data" always get Almanac, Astronomy, Conditions, and maybe Forecast. (& maybe "Today")prot
  2) "Download Data" always decode Location to update City,LatLon,Zip
  3) Select Hours & Days of interest for "Hourly" (e.g. Wed,Thu,Fri 8AM-2PM)
  4) Settings:(latlon "E" warning)(LatLon display)(mi,nm,km)(degC,degF)(AMPM,24hr)(call limits)(WU level)
@@ -48,7 +48,8 @@
  6) Hurricane forecast & map
  7) Use additional weather sites
 
- 1.0.15(52)
+ 1.0.16(53) now in Swift4
+ FeatureSelector: Fixed planner date error check
  
 Get some stuff with every query *Almanac&Astron= 1K,
                                  GeoLookup     = 8k,
