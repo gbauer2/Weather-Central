@@ -323,7 +323,7 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
 
     // ------ txtCity Editing Ended ------
     @IBAction func txtCityEditEnd(_ sender: UITextField) {
-        var str = txtCity.text!.trim()
+        var str = txtCity.text!.trim
         print("Home view: txtCityEditEnd '\(str)'")
         if str.count == 5 && isNumeric(str) {
             searchType = .zip
@@ -332,7 +332,7 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
         str = str.replacingOccurrences(of: "  ", with: " ")
         if !str.contains(",") {
             //let sp1 = str.indexOf(searchforStr: " ")
-            let sp2 = str.indexOfRev(searchforStr: " ")
+            let sp2 = str.IndexOfRev(" ")
             if sp2 > 0 {
                 var state =  str.mid(begin: sp2 + 1)
                 if state.count == 2 { state = state.uppercased() }
@@ -398,8 +398,8 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
         case .city:
             let cityState = getFirstPart(txtCity.text!)
             let splitCityState = cityState.components(separatedBy: ",")
-            let city  = splitCityState[0].trim()
-            let state = splitCityState[1].trim()
+            let city  = splitCityState[0].trim
+            let state = splitCityState[1].trim
             place = state + "/" + city
             UserDefaults.standard.set(cityState,  forKey: UDKey.cityState )//"CityState")
             print("Homepage saved City/State = \(cityState)")
@@ -470,11 +470,11 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
                 isOn = wuFeaturesArr[iButton] || wuFeaturesArr[iHourly10Day]
             case iPlanner:  //, iYesterday: //12
                 isOn = wuFeaturesArr[iButton] || wuFeaturesArr[iHistory] || wuFeaturesArr[iYesterday]//9 or 17
-                if wuFeaturesArr[iButton] {btnPlanner.setTitle("Planner", for: UIControlState.normal)}
+                if wuFeaturesArr[iButton] {btnPlanner.setTitle("Planner", for: UIControl.State.normal)}
             case iHistory:
-                if wuFeaturesArr[iButton] {btnPlanner.setTitle("Today", for: UIControlState.normal)}
+                if wuFeaturesArr[iButton] {btnPlanner.setTitle("Today", for: UIControl.State.normal)}
             case iYesterday:
-                if wuFeaturesArr[iButton] {btnPlanner.setTitle("Yesterday", for: UIControlState.normal)}
+                if wuFeaturesArr[iButton] {btnPlanner.setTitle("Yesterday", for: UIControl.State.normal)}
             default:
                 isOn = wuFeaturesArr[iButton]           // default: Button.tag == FeaturesArr[] = true
             }//end switch

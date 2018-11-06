@@ -22,12 +22,12 @@ class MapVC: UIViewController, MKMapViewDelegate {
     var mapReturnType = LocationSelectionType.none
 
     // Set by Caller
-    var searchLat = 0.0
-    var searchLon = 0.0
+    var searchLat  = 0.0
+    var searchLon  = 0.0
+    var latDelta   = 0.18
+    var lonDelta   = 0.18
     var searchType = LocationSelectionType.none
     var searchName = ""
-    var latDelta = 0.18
-    var lonDelta = 0.18
     var stations   = [Station]()
 
     // Return to Caller delegate
@@ -160,10 +160,10 @@ class MapVC: UIViewController, MKMapViewDelegate {
     func showAlert(title: String = "Error", message: String) {
         let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
 
-        let cancelAction = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.cancel) { (result : UIAlertAction) -> Void in
+        let cancelAction = UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel) { (result : UIAlertAction) -> Void in
             print("showAlert: Cancel")
         }
-        let okAction = UIAlertAction(title: "OK", style: UIAlertActionStyle.default) { (result : UIAlertAction) -> Void in
+        let okAction = UIAlertAction(title: "OK", style: UIAlertAction.Style.default) { (result : UIAlertAction) -> Void in
             print("showAlert: OK")
             self.mapReturnType = .latlon
             guard (self.navigationController?.popViewController(animated:true)) != nil else {

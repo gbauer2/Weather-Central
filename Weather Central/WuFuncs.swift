@@ -209,7 +209,7 @@ public func isLocalValid(_ text: String) -> Bool {
 
 // Station has 3-4 chars for AP, mixed letters & digits for pws
 public func isStationValid(_ stationName: String) -> Bool {
-    let sta = stationName.trim()
+    let sta = stationName.trim
     let n = sta.count
     if n < 3 || n > 11    { return false }
     if sta.contains(",") || sta.contains(" ")  { return false }
@@ -236,7 +236,7 @@ public func isStationValid(_ stationName: String) -> Bool {
 public func isCityStateValid(_ cityState: String) -> Bool {
     if cityState.count < 4      { return false }
     if !cityState.contains(",") { return false }
-    if cityState.indexOf(searchforStr: ",") > cityState.count - 3 { return false }
+    if cityState.IndexOf(searchforStr: ",") > cityState.count - 3 { return false }
     //?????check for legal chars letters, " ", ","
 
     let letters = CharacterSet.letters
@@ -280,7 +280,7 @@ public func getLat(_ latTxt: String) -> Double? {
         if latStr.contains("-") { return nil }
         latStr = latStr.replacingOccurrences(of: "N", with: "")
     }
-    guard let latt = Double(latStr.trim()) else {return nil}  // Lat is not a number
+    guard let latt = Double(latStr.trim) else {return nil}  // Lat is not a number
     var lat = latt
     if isSouth { lat = -latt }
     if lat < -90.0 || lat > 90.0        {return nil}  // Lat out-of bounds
@@ -303,7 +303,7 @@ public func getLon(_ lonTxt: String ) -> Double? {
         if lonStr.contains("-") { return nil }
         lonStr = lonStr.replacingOccurrences(of: "E", with: "")
     }
-    guard let lont = Double(lonStr.trim()) else {return nil}  // lon is not a number
+    guard let lont = Double(lonStr.trim) else {return nil}  // lon is not a number
     var lon = lont
     if isWest { lon = -lont }
     if lon < -180.0 || lon > 180.0      {return nil}  // Lon out-of bounds
@@ -328,8 +328,8 @@ public func decodeLL(latLonTxt: String) -> (lat: Double, lon: Double, errorLL: S
     }
     let splitLL = LL.components(separatedBy: sep)
     if splitLL.count != 2               { return (0.0, 0.0, "error: Lat/Lon must be separated.") }  // No comma or space separator
-    let latTxt = splitLL[0].trim()
-    let lonTxt = splitLL[1].trim()
+    let latTxt = splitLL[0].trim
+    let lonTxt = splitLL[1].trim
 
     guard let lat = getLat(latTxt) else { return (0.0, 0.0, "error: Lat not valid") }  // Lat is not a number
     guard let lon = getLon(lonTxt) else { return (lat, 0.0, "error: Lon not valid") }  // Lon is not a number
@@ -339,7 +339,7 @@ public func decodeLL(latLonTxt: String) -> (lat: Double, lon: Double, errorLL: S
 // get the 1st part of a String, separated by 'separator' (default ":") trimmed
 public func getFirstPart(_ text: String, separator: String = ":") -> String {
     if !text.contains(separator) { return text }
-    let p = text.indexOf(searchforStr: separator)
-    return text.left(p).trim()
+    let p = text.IndexOf(searchforStr: separator)
+    return text.left(p).trim
 }
 

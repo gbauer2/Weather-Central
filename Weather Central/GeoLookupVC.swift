@@ -225,19 +225,19 @@ class GeoLookupVC: UIViewController, UITextFieldDelegate, CLLocationManagerDeleg
     // txtCity Editing Ended
     @IBAction func txtCityEditEnd(_ sender: UITextField) {
         print("txtCityEditEnd")
-        var str = txtCity.text!.trim()
+        var str = txtCity.text!.trim
         var state = ""
         if !isCityStateValid(txtCity.text!) {
             str = str.replacingOccurrences(of: "  ", with: " ")
             //let sp1 = str.indexOf(searchforStr: " ")
-            let sp2 = str.indexOfRev(searchforStr: " ")
+            let sp2 = str.IndexOfRev(" ")
             if sp2 <= 0 { return }
             state =  str.mid(begin: sp2 + 1)
             if state.count == 2 { state = state.uppercased() }
             str = str.left(sp2) + "," + state
             enableButton(btn: btnCity, enable: isCityStateValid(str))
         }//endif
-        let pComma = str.indexOf(searchforStr: ",")
+        let pComma = str.IndexOf(searchforStr: ",")
         state =  str.mid(begin: pComma + 1)
         if state.count == 2 { state = state.uppercased() }
         str = str.left(pComma + 1) + state
@@ -365,8 +365,8 @@ class GeoLookupVC: UIViewController, UITextFieldDelegate, CLLocationManagerDeleg
         searchType = .city
         lastSearch = txtCity.text!
         let splitCityState = cityState.components(separatedBy: ",")
-        let city =  splitCityState[0].trim()
-        let state = splitCityState[1].trim()
+        let city =  splitCityState[0].trim
+        let state = splitCityState[1].trim
         let stateCity = state + "/" + city
         let place = stateCity.replacingOccurrences(of: " ", with: "_")
         lookupPlace(place: place)
@@ -509,7 +509,7 @@ extension GeoLookupVC: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell{
         
-        let cell = UITableViewCell(style: UITableViewCellStyle.default, reuseIdentifier: "Cell")
+        let cell = UITableViewCell(style: UITableViewCell.CellStyle.default, reuseIdentifier: "Cell")
         
         cell.textLabel?.font = UIFont.init(name: "menlo", size: 14)
         cell.textLabel?.text = infoStations[indexPath.row].lineItem
