@@ -3,15 +3,15 @@
 //  Weather Central
 //
 //  Created by George Bauer on 10/13/17.
-//  Copyright © 2017 GeorgeBauer. All rights reserved.
+//  Copyright © 2017-2020 GeorgeBauer. All rights reserved.
 //
 
 import UIKit
 
 class APIKeyVC: UIViewController, UITextFieldDelegate {
 
-    var APItxt = ""
-    var WuDownloadDone = false
+    var textAPI = ""
+    var wuDownloadDone = false
 
     @IBOutlet weak var txtAPIKey: UITextField!
     @IBOutlet weak var btnUpdateAPIKey: UIButton!
@@ -49,7 +49,8 @@ class APIKeyVC: UIViewController, UITextFieldDelegate {
     
     //----------- API Key - Editing Change ---------
     @IBAction func txtAPIKeyEdit(_ sender: Any) {
-        btnUpdateAPIKey.isEnabled = (txtAPIKey.text != lblAPIKey.text) && (txtAPIKey.text!.count >= 15)
+        let textAPI = txtAPIKey.text ?? ""
+        btnUpdateAPIKey.isEnabled = (textAPI != lblAPIKey.text) && (textAPI.count >= 15)
         //btnUpdateAPIKey.isEnabled = true    //???-temp
     }//end @IBAction func txtMyAPIKeyEdit
     
@@ -57,20 +58,20 @@ class APIKeyVC: UIViewController, UITextFieldDelegate {
     @IBAction func btnUpdateAPIKeyTap(_ sender: UIButton) {
         self.view.endEditing(true)
         btnUpdateAPIKey.isEnabled = false
-        APItxt = txtAPIKey.text!
+        textAPI = txtAPIKey.text ?? ""
         //lblError.text = ""
-        let len = APItxt.count
+        let len = textAPI.count
         if len < 15 {
-            showError("\(APItxt) is not a valid API key!!")
+            showError("\(textAPI) is not a valid API key!!")
         } else {
-            if APItxt.lowercased() != APItxt {
+            if textAPI.lowercased() != textAPI {
                 showError("No upper-case characters allowed")
             } else {
-            } //end if APItxt
+            } //end if textAPI
         } //end if len
 
         let place = "zip:34786"
-        let urlTuple = makeWuUrlJson(APIKey: APItxt, features: "conditions", place: place)
+        let urlTuple = makeWuUrlJson(APIKey: textAPI, features: "conditions", place: place)
         lblError.text = urlTuple.errorStr
         if urlTuple.errorStr == "" {
             let wuURL = urlTuple.url
@@ -97,7 +98,7 @@ extension APIKeyVC: WuAPIdelegate {
 
     //This function is called your download request
     func startWuDownload(wuURL: URL, place: String) {
-        WuDownloadDone = false
+        wuDownloadDone = false
         lblError.text = "...downloading"       // change this label, start activityIndicators
         self.activityIndicator.startAnimating()
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
@@ -121,12 +122,12 @@ extension APIKeyVC: WuAPIdelegate {
             self.activityIndicator.stopAnimating()                          // turn-off My activityIndicator
 
             if isOK {
-                gAPIKey = self.APItxt
+                gAPIKey = self.textAPI
                 UserDefaults.standard.set(gAPIKey, forKey: UDKey.wuAPIKey)//wuapikey")
-                self.showAlert(title: "Success", message: "APIKey updated to \(self.APItxt)")
+                self.showAlert(title: "Success", message: "APIKey updated to \(self.textAPI)")
             } else {
                 self.lblError.text = msg
-                self.showAlert(title: "Fail", message: "Tried API Key: \(self.APItxt)\n\(errStr)")
+                self.showAlert(title: "Fail", message: "Tried API Key: \(self.textAPI)\n\(errStr)")
             }//end if else
         }//end DispatchQueue
     }//end func

@@ -3,7 +3,7 @@
 //  Weather Central
 //
 //  Created by George Bauer on 10/11/17.
-//  Copyright © 2017 GeorgeBauer. All rights reserved.
+//  Copyright © 2017-2020 George Bauer. All rights reserved.
 //
 //  funcs and globals for maintaining CallLog (to enforce per minute & per day limits)
 //  This only works for a 10-call-per-minute limit.  Need a new paradigm.
@@ -35,17 +35,18 @@ public func CallLogInit() {
     _ = checkDailyLimit()
     
     UserDefaults.standard.set(Date(), forKey: UDKey.dateLastRun)
-    
+
+    let codeFile = "MaintainCallLog.CallLogInit"
     let secHowLong = Date().timeIntervalSince(gDateLastRun)
     if secHowLong <= 99 {
-        print ("\nIt's been \(Int(secHowLong)) seconds since last run.\n")
+        print("\n😁 \(codeFile)#\(#line) It's been \(Int(secHowLong)) seconds since last run.\n")
     } else {
         let minHowLong = secHowLong / 60.0
         if minHowLong <= 99 {
-            print ("\nIt's been\(String(format: "%5.1f", minHowLong)) minutes since last run.\n")
+            print("\n😁 \(codeFile)#\(#line) It's been\(String(format: "%5.1f", minHowLong)) minutes since last run.\n")
         } else {
             let hrHowLong = minHowLong / 60.0
-            print ("\nIt's been\(String(format: "%5.1f", hrHowLong)) hours since last run.\n")
+            print("\n😁 \(codeFile)#\(#line) It's been\(String(format: "%5.1f", hrHowLong)) hours since last run.\n")
             
         }
     }//end else secHowLong <= 99
@@ -90,7 +91,8 @@ public func tryToLogCall(makeCall: Bool) -> (isOK:Bool, numCallsLastMinute: Int,
 public func checkDailyLimit() -> Bool {
     let dateET = getTimeEastern(localDate: Date())
     let ymdNowET = CalcYmd(date: dateET)
-    print("ymdNowET = \(ymdNowET)")
+    let codeFile = "MaintainCallLog.checkDailyLimit"
+    print("😁 \(codeFile)#\(#line) ymdNowET = \(ymdNowET)")
     
     if ymdNowET != gYmdLastCallET {              // It's a brand new day!
         print("was \(gYmdLastCallET) ET, now is \(ymdNowET) ET.  Reset numCallsToday to 0")

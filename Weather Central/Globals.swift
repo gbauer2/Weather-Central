@@ -3,7 +3,7 @@
 //  Weather Central
 //
 //  Created by George Bauer on 10/18/17.
-//  Copyright © 2017 GeorgeBauer. All rights reserved.
+//  Copyright © 2017-2020 GeorgeBauer. All rights reserved.
 //
 
 import UIKit
@@ -84,14 +84,14 @@ public enum LocationSelectionType: String {
 // segue identifiers
 public struct SegueID {
     // Main.storyboard
-    static let HomeToSettings  = "segueSettings"
-    static let HomeToGeoLookup = "segueGeoLookup"
-    static let HomeToFeatures  = "segueFeatures"
-    static let GeoLookupToMap  = "segueGeoLookupToMap"
+    static let homeToSettings  = "segueSettings"
+    static let homeToGeoLookup = "segueGeoLookup"
+    static let homeToFeatures  = "segueFeatures"
+    static let geoLookupToMap  = "segueGeoLookupToMap"
     // Settings.storyboard
-    static let SettingsToAPIKey       = "segueAPIKey"
-    static let SettingsToAbout        = "segueAbout"
-    static let SettingsToCallLimits   = "segueTestCallLimits"
+    static let settingsToAPIKey       = "segueAPIKey"
+    static let settingsToAbout        = "segueAbout"
+    static let settingsToCallLimits   = "segueTestCallLimits"
 }
 
 public struct NotificationCenterKey {

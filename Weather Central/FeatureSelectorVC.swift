@@ -3,7 +3,7 @@
 //  Weather Central
 //
 //  Created by George Bauer on 8/30/17.
-//  Copyright © 2017 GeorgeBauer. All rights reserved.
+//  Copyright © 2017-2020 GeorgeBauer. All rights reserved.
 //
 
 import UIKit
@@ -119,7 +119,8 @@ class FeatureSelectorVC: UIViewController, UITextFieldDelegate {
         print("featuresStr = \n\(featuresStr)")
         //navigationController?.popViewController(animated: true)
         guard (navigationController?.popToRootViewController(animated:true)) != nil else {
-            print("No navigationController"); return
+            print("No navigationController")
+            return
         }
     }//end func
     
@@ -221,22 +222,22 @@ class FeatureSelectorVC: UIViewController, UITextFieldDelegate {
         var mmdd = mm_dd
         var errMsg = "planner date must be of form \"mm/dd\""
         mmdd = mmdd.trimmingCharacters(in: .whitespacesAndNewlines)
-        if (mmdd.count != 5 && mmdd.count != 4) || mmdd.mid(begin: 2, length: 1) != "/"  { return errMsg }
+        if (mmdd.count != 5 && mmdd.count != 4) || mmdd.substring(begin: 2, length: 1) != "/"  { return errMsg }
         let splitTxt = mmdd.components(separatedBy: "/")
         if splitTxt.count != 2        { return errMsg }
         
         let moStr = splitTxt[0]
         var daStr = splitTxt[1]
         errMsg = "planner month can't be \(moStr)"
-        guard let m = Int(moStr) else { return errMsg }
-        if m < 1 || m > 12            { return errMsg }
+        guard let mon = Int(moStr) else { return errMsg }
+        if mon < 1 || mon > 12            { return errMsg }
 
         errMsg = "planner day can't be \(daStr)"
-        guard let d = Int(daStr) else                        { return errMsg }
-        if d < 1 || d > 31                                   { return errMsg }
-        if d <= 9 && !daStr.hasPrefix("0") { daStr = "0" + daStr }
-        if (m == 4 || m == 6 || m == 9 || m == 11) && d > 30 { return errMsg }
-        if (m == 2) && d > 29                                { return errMsg }
+        guard let day = Int(daStr) else                         { return errMsg }
+        if day < 1 || day > 31                                  { return errMsg }
+        if day <= 9 && !daStr.hasPrefix("0") { daStr = "0" + daStr }
+        if (mon == 4 || mon == 6 || mon == 9 || mon == 11) && day > 30 { return errMsg }
+        if (mon == 2) && day > 29                               { return errMsg }
         return moStr + daStr
     }
     

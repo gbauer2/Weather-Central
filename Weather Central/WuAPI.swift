@@ -269,7 +269,7 @@ class WuAPI {
 // Stuff needed in Calling WeatherCentralVC
 
  // Stored properties
- var WuDownloadDone = false
+ var wuDownloadDone = false
  let wuURLstr = "https://api.wunderground.com/api/1333bd5d27bb2c1b/hourly10day/q/zip:_34786.json"
  var wuURL : URL?
  
@@ -277,7 +277,7 @@ class WuAPI {
 
     //This function is called your download request
         func startWuDownload(wuURL: URL) {
-        WuDownloadDone = false
+        wuDownloadDone = false
         lblWuDownload.text = "...downloading"       // change this label, start activityIndicators
         //wuURL = URL(string: wuURLstr)!
         wuAPI.delegate = self                   //delegate <— (5)

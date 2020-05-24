@@ -44,10 +44,10 @@ struct Station {
         self.state        = state
         self.country      = country
         
-        if olat is Double {
-            self.lat = olat as! Double
-        } else if olat is String {
-            if let lat = Double(olat as! String) {
+        if let lat = olat as? Double {
+            self.lat = lat
+        } else if let latStr = olat as? String {
+            if let lat = Double(latStr) {
                 self.lat = lat
             } else {
                 self.lat = 0.0
@@ -56,10 +56,10 @@ struct Station {
             self.lat = 0.0
         }
         
-        if olon is Double {
-            self.lon = olon as! Double
-        } else if olon is String {
-            if let lon = Double(olon as! String) {
+        if let lon = olon as? Double {
+            self.lon = lon
+        } else if let lonStr = olon as? String {
+            if let lon = Double(lonStr) {
                 self.lon = lon
             } else {
                 self.lon = 0.0
@@ -185,7 +185,7 @@ public func makeWuUrlJson(APIKey: String, features: String, place: String) -> (u
     guard let url = URL(string: urlStr) else {
         let errorStr = "Err201 in URL: \(urlStr)"
         print("\n\(errorStr)")
-        return (URL(string: "www.dummy.com")!, errorStr)
+        return (URL(fileURLWithPath: "www.dummy.com"), errorStr)
     }//end guard
     print("🙂 URL (\(urlStr)) created")
     return (url, "")
@@ -210,8 +210,8 @@ public func isLocalValid(_ text: String) -> Bool {
 // Station has 3-4 chars for AP, mixed letters & digits for pws
 public func isStationValid(_ stationName: String) -> Bool {
     let sta = stationName.trim
-    let n = sta.count
-    if n < 3 || n > 11    { return false }
+    let count = sta.count
+    if count < 3 || count > 11    { return false }
     if sta.contains(",") || sta.contains(" ")  { return false }
 
     let letters = CharacterSet.letters
@@ -221,12 +221,12 @@ public func isStationValid(_ stationName: String) -> Bool {
         if !letters.contains(uni) && !digits.contains(uni) { return false }
     }
     //if n>3 1st char must be a letter
-    //ToDo: if n=4 then no digits allowed
-    if n > 3 {
+    //TODO: if n=4 then no digits allowed
+    if count > 3 {
         if !letters.contains(stationName.unicodeScalars.first!) { return false }
 
         //if n>4 last char must be digit
-        if n > 4 {
+        if count > 4 {
             if !digits.contains(stationName.unicodeScalars.last!) { return false }
         }
     }
@@ -236,7 +236,7 @@ public func isStationValid(_ stationName: String) -> Bool {
 public func isCityStateValid(_ cityState: String) -> Bool {
     if cityState.count < 4      { return false }
     if !cityState.contains(",") { return false }
-    if cityState.IndexOf(searchforStr: ",") > cityState.count - 3 { return false }
+    if cityState.firstIntIndexOf(",") > cityState.count - 3 { return false }
     //?????check for legal chars letters, " ", ","
 
     let letters = CharacterSet.letters
@@ -339,7 +339,7 @@ public func decodeLL(latLonTxt: String) -> (lat: Double, lon: Double, errorLL: S
 // get the 1st part of a String, separated by 'separator' (default ":") trimmed
 public func getFirstPart(_ text: String, separator: String = ":") -> String {
     if !text.contains(separator) { return text }
-    let p = text.IndexOf(searchforStr: separator)
-    return text.left(p).trim
+    let idx = text.firstIntIndexOf(separator)
+    return text.left(idx).trim
 }
 

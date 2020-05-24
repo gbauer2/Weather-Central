@@ -70,6 +70,7 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
     //let allowedFeatures = ["alerts", "almanac", "astronomy", "conditions", "currenthurricane", "forecast", "forecast10day", "geolookup", "history", "hourly", "hourly10day", "planner", "rawtide", "satellite", "tide", "webcams", "yesterday"]
 
     //MARK: ---- WeatherCentralVC Variables ----
+    let codeFile     = "WeatherCentralVC"
     let APIKEY       = ""    //let APIKEY = "1333bd..."
     var numFeatures  = 0
     var featuresStr  = ""
@@ -85,7 +86,7 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
     var cityState    = ""
     var zip          = ""
     var homeSearchChanged = false          // Homepage Searchbox has changed since last return from GeoLookup
-    var WuDownloadDone    = false
+    var wuDownloadDone    = false
 
     //MARK: ---- IBOutlets ----
     @IBOutlet weak var btnAlerts:     UIButton!
@@ -118,8 +119,8 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
         let devName      = UIDevice.current.name
         let devSystem    = UIDevice.current.systemName
         //let d          = UIDevice.current.batteryLevel
-        print("😁 W=\(Int(screenWidth)), H=\(Int(screenHeight)), \(Device.PHONE_OR_PAD) in \(orientation), \(devName), \(devSystem) \(ver) 😁")
-        print("User Prefered Text Size = ", UIApplication.shared.preferredContentSizeCategory)
+        print("😁 \(codeFile)#\(#line) W=\(Int(screenWidth)), H=\(Int(screenHeight)), \(Device.PHONE_OR_PAD) in \(orientation), \(devName), \(devSystem) \(ver) 😁")
+        print("😁 \(codeFile)#\(#line) User Prefered Text Size = ", UIApplication.shared.preferredContentSizeCategory)
         print()
         rawFontDefault = txtRawData.font    // save default txtRawData Font from storyboard setting.
         CallLogInit()                       // loads CallLog stats from UserDefaults
@@ -130,7 +131,7 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
         locationManager.startUpdatingLocation()
 
         gAPIKey = UserDefaults.standard.object(forKey: UDKey.wuAPIKey)       as? String ?? ""
-        print("Homepage viewDidLoad, gAPIKey: \(gAPIKey)")
+        print("😁 \(codeFile)#\(#line) Homepage viewDidLoad, gAPIKey: \(gAPIKey)")
 
         gAppVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0"
         gAppBuild   = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion")            as? String ?? "0"
@@ -151,9 +152,9 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
     // ------ viewDidAppear ------
     override func viewDidAppear(_ animated: Bool) {
 
-        print("Homepage viewDidAppear")
+        print("😁 \(codeFile)#\(#line) Homepage viewDidAppear")
         if gAPIKey == "" {
-            print("UserDefaults.standard.object(forKey: \"wuapikey\") NOT Found.")
+            print("😡 \(codeFile)#\(#line) UserDefaults.standard.object(forKey: \"wuapikey\") NOT Found.")
         } //endif
 
         // May be updated in GeoLookup
@@ -163,15 +164,15 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
         station    = UserDefaults.standard.object(forKey: UDKey.station)    as? String ?? ""
         cityState  = UserDefaults.standard.object(forKey: UDKey.cityState)  as? String ?? ""
         zip        = UserDefaults.standard.object(forKey: UDKey.zip)        as? String ?? ""
-        print("Homepage.viewDidAppear reloaded: searchType = \(searchType),  lastSearch = \(lastSearch)")
-        print("station = \(station),  cityState = \(cityState),  zip = \(zip)")
+        print("😁 \(codeFile)#\(#line) Homepage.viewDidAppear reloaded: searchType = \(searchType),  lastSearch = \(lastSearch)")
+        print("😁 \(codeFile)#\(#line) station = \(station),  cityState = \(cityState),  zip = \(zip)")
         print("")
         txtCity.text = lastSearch
         // May be updated in FeaturePicker
         wuFeaturesArr = UserDefaults.standard.object(forKey: UDKey.featuresArr) as? [Bool] ?? wuFeaturesArrEmpty
         featuresStr   = UserDefaults.standard.object(forKey: UDKey.featuresStr) as? String ?? "geolookup/"
-        print("Homepage.viewDidAppear reloaded: wuFeaturesArr and featuresStr")
-        print("\(featuresStr)")
+        print("😁 \(codeFile)#\(#line) Homepage.viewDidAppear reloaded: wuFeaturesArr and featuresStr")
+        print("😁 \(codeFile)#\(#line) \(featuresStr)")
 
         numFeatures = 0
         for isSelected in wuFeaturesArr {
@@ -199,10 +200,10 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
         self.view.endEditing(true)              // Dismiss keyboard
         UserDefaults.standard.set(lastSearch, forKey: UDKey.lastSearch)
         switch segue.identifier {
-        case SegueID.HomeToSettings?:                      //"segueSettings"
-            print("\n➡️segue Home to Settings")
-        case SegueID.HomeToGeoLookup?:                     //"segueGeoLookup"
-            print("\n➡️segue Home to GeoLookup")
+        case SegueID.homeToSettings?:                      //"segueSettings"
+            print("\n➡️ \(codeFile)#\(#line) segue Home to Settings")
+        case SegueID.homeToGeoLookup?:                     //"segueGeoLookup"
+            print("\n➡️ \(codeFile)#\(#line) segue Home to GeoLookup")
             if !gotCurrentData {
                 cityState = ""
                 zip = ""
@@ -213,20 +214,20 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
                 lastSearch = txtCity.text!
             }
             homeSearchChanged = false
-        case SegueID.HomeToFeatures?:                      //"segueFeatures"
-            print("\n➡️segue Home to Feature Selector")
+        case SegueID.homeToFeatures?:                      //"segueFeatures"
+            print("\n➡️ \(codeFile)#\(#line) segue Home to Feature Selector")
         default:
-            print("\n➡️🚦Unknown segue identifier: '\(segue.identifier ?? "nil")'")
+            print("\n➡️⛔️ \(codeFile)#\(#line) Unknown segue identifier: '\(segue.identifier ?? "nil")'")
         }
     }//end func Seque
     
     // iOS LocationServices:  when you get location from CLLocationManager, record gUserLat & gUserLon, and stop updates
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        //print(locations[0])
+        //print(😁 \(codeFile)#\(#line) locations[0])
         userLocation = locations[0]
         gUserLat = userLocation.coordinate.latitude
         gUserLon = userLocation.coordinate.longitude
-        print("\n** locationManager",gUserLat,gUserLon,"**\n")
+        print("\n😁 \(codeFile)#\(#line) ** locationManager",gUserLat,gUserLon,"**\n")
         locationManager.stopUpdatingLocation()
     }
 
@@ -238,48 +239,48 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
     // ------ Dismiss Keybooard if user taps "Return" ------
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
-        print("\ntextFieldShouldReturn called by:\(textField.text!)\n")
+        print("\n😁 \(codeFile)#\(#line) textFieldShouldReturn called by:\(textField.text!)\n")
         return true
     }
     
     //MARK: ------ IBActions ------
     @IBAction func btnAlertsPress(_ sender: Any) {
         self.view.endEditing(true)
-        lblError.text = DoAlerts(jsonResult: globalDictJSON)
+        lblError.text = doAlerts(jsonResult: globalDictJSON)
     }
     @IBAction func btnAlmanacPress(_ sender: Any) {
         self.view.endEditing(true)
-        lblError.text = DoAlmanac(jsonResult: globalDictJSON)
-        lblError.text = DoAstronomy(jsonResult: globalDictJSON)
+        lblError.text = doAlmanac(jsonResult: globalDictJSON)
+        lblError.text = doAstronomy(jsonResult: globalDictJSON)
     }
     @IBAction func btnConditionsPress(_ sender: Any) {
         self.view.endEditing(true)
-        lblError.text = DoCurrentObservation(jsonResult: globalDictJSON)
+        lblError.text = doCurrentObservation(jsonResult: globalDictJSON)
     }
     @IBAction func btnHurricanePress(_ sender: Any) {
         self.view.endEditing(true)
-        lblError.text = DoHurricane(jsonResult: globalDictJSON)
+        lblError.text = doHurricane(jsonResult: globalDictJSON)
     }
     @IBAction func btnForecastPress(_ sender: Any) {
         self.view.endEditing(true)
-        lblError.text = DoForecast(jsonResult: globalDictJSON)
+        lblError.text = doForecast(jsonResult: globalDictJSON)
     }
     @IBAction func btnHourlyPress(_ sender: Any) {
         self.view.endEditing(true)
-        lblError.text = DoHourly(jsonResult: globalDictJSON)
+        lblError.text = doHourly(jsonResult: globalDictJSON)
     }
     @IBAction func btnPlannerPress(_ sender: Any) {
         self.view.endEditing(true)
         if wuFeaturesArr[iPlanner] {
-            let temp = DoPlanner(jsonResult: globalDictJSON)
+            let temp = doPlanner(jsonResult: globalDictJSON)
             lblError.text = temp
         } else {
-            lblError.text = DoHistory(jsonResult: globalDictJSON)
+            lblError.text = doHistory(jsonResult: globalDictJSON)
         }
     }
     @IBAction func btnTidePress(_ sender: Any) {
         self.view.endEditing(true)
-        lblError.text = DoTide(jsonResult: globalDictJSON)
+        lblError.text = doTide(jsonResult: globalDictJSON)
     }
 
     //MARK: Move this to GeoLookup =====================
@@ -324,7 +325,7 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
     // ------ txtCity Editing Ended ------
     @IBAction func txtCityEditEnd(_ sender: UITextField) {
         var str = txtCity.text!.trim
-        print("Home view: txtCityEditEnd '\(str)'")
+        print("😁 \(codeFile)#\(#line) Home view: txtCityEditEnd '\(str)'")
         if str.count == 5 && isNumeric(str) {
             searchType = .zip
         }
@@ -332,9 +333,9 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
         str = str.replacingOccurrences(of: "  ", with: " ")
         if !str.contains(",") {
             //let sp1 = str.indexOf(searchforStr: " ")
-            let sp2 = str.IndexOfRev(" ")
+            let sp2 = str.lastIntIndexOf(" ")
             if sp2 > 0 {
-                var state =  str.mid(begin: sp2 + 1)
+                var state =  str.substring(begin: sp2 + 1)
                 if state.count == 2 { state = state.uppercased() }
                 str = str.left(sp2) + "," + state
                 txtCity.text = str
@@ -402,12 +403,12 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
             let state = splitCityState[1].trim
             place = state + "/" + city
             UserDefaults.standard.set(cityState,  forKey: UDKey.cityState )//"CityState")
-            print("Homepage saved City/State = \(cityState)")
+            print("😁 \(codeFile)#\(#line) Homepage saved City/State = \(cityState)")
 
         case .station:
             let station = getFirstPart(txtCity.text!)
             UserDefaults.standard.set(station,    forKey: UDKey.station )
-            print("Homepage saved Station ID = \(station)")
+            print("😁 \(codeFile)#\(#line) Homepage saved Station ID = \(station)")
             if station.count <= 4 {
                 place = station
             } else {
@@ -417,7 +418,7 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
         case .zip:
             let zip = getFirstPart(txtCity.text!)
             UserDefaults.standard.set(zip, forKey: UDKey.zip)//"Zip")
-            print("Homepage saved Zip        = \(zip)")
+            print("😁 \(codeFile)#\(#line) Homepage saved Zip        = \(zip)")
             place = "zip: " + zip
 
         case .latlon:
@@ -428,7 +429,7 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
             }
             UserDefaults.standard.set(tupleLL.lat, forKey: UDKey.lat)
             UserDefaults.standard.set(tupleLL.lon, forKey: UDKey.lon)
-            print("Homepage saved LatLon = \(tupleLL.lat),\(tupleLL.lon)")
+            print("😁 \(codeFile)#\(#line) Homepage saved LatLon = \(tupleLL.lat),\(tupleLL.lon)")
             place = "\(tupleLL.lat),\(tupleLL.lon)"
 
         default:
@@ -438,7 +439,7 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
         lastSearch = txtCity.text!
         UserDefaults.standard.set(searchType.rawValue, forKey: UDKey.searchType)
         UserDefaults.standard.set(lastSearch,          forKey: UDKey.lastSearch)
-        print("Homepage.saveHomepSearch saved SearchType = \(searchType ), LastSearch = \(lastSearch) ")
+        print("😁 \(codeFile)#\(#line) Homepage.saveHomepSearch saved SearchType = \(searchType ), LastSearch = \(lastSearch) ")
         return (searchType, place, error)
     }
 
@@ -485,7 +486,7 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
                 //button.backgroundColor = gDataIsCurrent ? colorButtonNorm : colorButtonGray   //blue=(0x007AFF)
                 button.isHidden = !isOn            // Hide Buttons not in wuFeatures list.
 
-                //print("Feature#\(iButton), button[\(iButton)] = \(wuFeaturesArr[button.tag])")
+                //print("😁 \(codeFile)#\(#line) Feature#\(iButton), button[\(iButton)] = \(wuFeaturesArr[button.tag])")
             }//endif
         }//next iButton
     }
@@ -508,15 +509,15 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
         do {
             let data = try Data(contentsOf: url)
             let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers)
-            print(json)
+            print("😁 \(codeFile)#\(#line)", json)
         } catch {
-            print(error)
+            print("⛔️ \(codeFile)#\(#line)", error.localizedDescription)
         }
     }
 
     //MARK: ---- Do each of the selected Featuees ----
     //--------------------------- DoAlerts ------------------------
-    func DoAlerts(jsonResult: AnyObject) -> String {
+    func doAlerts(jsonResult: AnyObject) -> String {
         clearRawData()
         if !gAlerts.hasData {
             return "\"alerts\" not in downloaded data!!"
@@ -524,7 +525,7 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
         let alertsArr = gAlerts.data
 
         let countTxt = showCount(count: alertsArr.count, name: "Alert", ifZero: "No")
-        print(countTxt)
+        print("😁 \(codeFile)#\(#line) countTxt = \(countTxt)")
         lblRawDataHeading.textAlignment = NSTextAlignment.center
         lblRawDataHeading.text = countTxt
         if alertsArr.count == 0 {return ""}
@@ -539,7 +540,7 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
             aa += desc + "\n" + message
         }
         txtRawData.text = aa
-        print("Alerts Done")
+        print("😁 \(codeFile)#\(#line) Alerts Done")
         return ""
         
         /*
@@ -558,10 +559,10 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
          tz_short
          
          */
-    }//end func DoAlerts
+    }//end func doAlerts
     
-    //--------------------------- DoAlmanac ------------------------
-    func DoAlmanac(jsonResult: AnyObject) -> String {
+    //--------------------------- doAlmanac ------------------------
+    func doAlmanac(jsonResult: AnyObject) -> String {
         clearRawData()
         txtRawData.font = UIFont(name: rawFontDefault!.fontName, size: 17)
         if !gAlmanac.hasData {
@@ -614,10 +615,10 @@ temp_high --> {
     }
 ======================== end Almanac =========================
 */
-    }//end func DoAlmanac
+    }//end func doAlmanac
     
-    //---------------------------------- DoAstronomy ------------------------------------
-    func DoAstronomy(jsonResult: AnyObject) -> String {
+    //---------------------------------- doAstronomy ------------------------------------
+    func doAstronomy(jsonResult: AnyObject) -> String {
         //clearRawData()
         if !gAstronomy.hasData {
             return "\"astronomy\" not in downloaded data!!"
@@ -693,10 +694,10 @@ temp_high --> {
          percentIlluminated --> 31
          ======================== end MoonPhase expanded =========================
 */
-        }//end func DoAstronomy
+        }//end func doAstronomy
 
     // ------------------------------- Do current_observation ---------------------------
-    func DoCurrentObservation(jsonResult: AnyObject) -> String {
+    func doCurrentObservation(jsonResult: AnyObject) -> String {
         clearRawData()
         txtRawData.font = UIFont(name: rawFontDefault!.fontName, size: 16)
         if !gConditions.hasData {
@@ -716,13 +717,13 @@ temp_high --> {
         var aa = ""
         
         let displayLocation = Location(loc: dictDisplayLocation)                //Convert dictionary to Location type
-        print("\n---- displayLocation ----\n\(displayLocation)\n")
+        print("\n😁 \(codeFile)#\(#line) ---- displayLocation ----\n\(displayLocation)\n")
         var observationLocation = Location(loc: dictObservationLocation)
-        print("\n---- observationLocation ----\n\(observationLocation)\n")
+        print("\n😁 \(codeFile)#\(#line) ---- observationLocation ----\n\(observationLocation)\n")
         
         if observationLocation.lat == "" || observationLocation.lon == "" {
             observationLocation = displayLocation
-            print("\n---- observationLocation ----\n\(observationLocation)\n")
+            print("\n😁 \(codeFile)#\(#line) ---- observationLocation ----\n\(observationLocation)\n")
         }
         
         let dfull = displayLocation.full
@@ -848,13 +849,13 @@ temp_high --> {
         }
         aa += formatDictionaryStr(title: "altimeter", str: pressure_in, titleLen: titleLen) + " \(trendText)\n"
 
-        print(aa)
+        print("😁 \(codeFile)#\(#line) \(aa)")
 
         lblRawDataHeading.text = "\(station_id) for \(observationTime)"
         
         txtRawData.text = aa
 
-        print("😀display_location printed!")
+        print("😁 \(codeFile)#\(#line) display_location printed!")
 
         return ""
 /*
@@ -932,10 +933,10 @@ temp_high --> {
 ======================== end current_observation base =========================
 */
 
-    }//end func DoCurrentObservation
+    }//end func doCurrentObservation
     
     //----------------------- DoGeolookup ---------------------------
-    func DoGeolookup (jsonResult: AnyObject) -> String {
+    func doGeolookup (jsonResult: AnyObject) -> String {
         clearRawData()
         if !gGeoLookup.hasData {
             return "\"location\" not in downloaded data!!"
@@ -951,7 +952,7 @@ temp_high --> {
     
     
     //----------------------- DoHistory ---------------------------
-    func DoHistory (jsonResult: AnyObject) -> String {
+    func doHistory (jsonResult: AnyObject) -> String {
         clearRawData()
         txtRawData.font = UIFont(name: rawFontDefault!.fontName, size: 18)
 
@@ -963,16 +964,16 @@ temp_high --> {
         guard let dailysummaryArr = dictHistory["dailysummary"] as? [[String: AnyObject]] else {return "\"dailysummaryArr\" not in \"history\""}
         guard let observationsArr = dictHistory["observations"] as? [[String: AnyObject]] else {return "\"observationsArr\" not in \"history\""}
         
-        print("\n\(dictHistory.count) \("item".pluralize(dictHistory.count)) in dictHistory")
+        print("\n😁 \(codeFile)#\(#line) \(dictHistory.count) \("item".pluralize(dictHistory.count)) in dictHistory")
         printDictionary(dict: dictHistory, expandLevels: 0, dashLen: 0, title: "History")
         
-        print("\n\(observationsArr.count) \("item".pluralize(observationsArr.count)) in observationsArr\n")
+        print("\n😁 \(codeFile)#\(#line) \(observationsArr.count) \("item".pluralize(observationsArr.count)) in observationsArr\n")
         if observationsArr.count > 0 {
             guard let dict = observationsArr.first else {return "No observations in History"}
             printDictionary(dict: dict, expandLevels: 0, dashLen: 0, title: "observationsArr[0]")
         }
         
-        print("\n\(dailysummaryArr.count) \("item".pluralize(dailysummaryArr.count)) in dailysummaryArr")
+        print("\n😁 \(codeFile)#\(#line) \(dailysummaryArr.count) \("item".pluralize(dailysummaryArr.count)) in dailysummaryArr")
         if dailysummaryArr.count > 0 {
             guard let dict = dailysummaryArr.first else {return "No dailysummary in History"}
             printDictionary(dict: dict, expandLevels: 0, dashLen: 33, title: "dailysummaryArr[0]")
@@ -1067,10 +1068,10 @@ observations ---------> (Array) with 27 items
          ==== end dailysummary[0] ====
  */
         return ""        
-    }//end func DoHistory
+    }//end func doHistory
     
     //------------------------------------ DoHurricane ----------------------------------
-    func DoHurricane (jsonResult: AnyObject) -> String {
+    func doHurricane (jsonResult: AnyObject) -> String {
         clearRawData()
         lblRawDataHeading.textAlignment = NSTextAlignment.center
         lblRawDataHeading.text = "No Report from Tropics"       // default label
@@ -1079,7 +1080,7 @@ observations ---------> (Array) with 27 items
         }
         let hurricaneArr = gHurricane.data
 
-        print("\n\(hurricaneArr.count) storms in hurricaneArr (jsonResult[\"currenthurricane\"])")
+        print("\n😁 \(codeFile)#\(#line) \(hurricaneArr.count) storms in hurricaneArr (jsonResult[\"currenthurricane\"])")
         if hurricaneArr.count == 0 { return "" }
         guard let dictHurricane0 = hurricaneArr.first else {return "Hurricane[0] not found!"}
         printDictionary(dict: dictHurricane0, expandLevels: 0, dashLen: 0, title: "currenthurricane[0]")
@@ -1102,27 +1103,27 @@ observations ---------> (Array) with 27 items
             let dictStormInfo = dictHurricane["stormInfo"]      as! [String: AnyObject]
             let id = dictStormInfo["stormNumber"] as? String ?? "???"
             guard let dictCurrent = dictHurricane["Current"] as? [String: AnyObject] else {
-                print("No current in dictHurricane!\n")
+                print("😡 \(codeFile)#\(#line) No current in dictHurricane!\n")
                 continue
             }
             guard let dictTimeGMT = dictCurrent["TimeGMT"] as? [String: AnyObject] else {
-                print("No dictTimeGMT in dictCurrent!\n")
+                print("😡 \(codeFile)#\(#line) No dictTimeGMT in dictCurrent!\n")
                 continue
             }
             let epoch = dictTimeGMT["epoch"] as? String ?? "???"
             let thisID = id + epoch
             if thisID != lastID {
-                print("😃Storm# \(id) \(epoch) is OK")
+                print("😁 \(codeFile)#\(#line) Storm# \(id) \(epoch) is OK")
                 isUnique.append(true)
                 numUniqueStorms += 1
             } else {
-            print("😡Storm# \(id) \(epoch) is a DUPE!")
+            print("😡 \(codeFile)#\(#line) Storm# \(id) \(epoch) is a DUPE!")
                 isUnique.append(false)
             }
             lastID = thisID
         }
 
-        print("nHurrsReported = \(nHurrsReported)  numUniqueStorms = \(numUniqueStorms)\n")
+        print("😁 \(codeFile)#\(#line) nHurrsReported = \(nHurrsReported)  numUniqueStorms = \(numUniqueStorms)\n")
         lblRawDataHeading.text = showCount(count: numUniqueStorms, name: "Tropical System", ifZero: "No")  //"\(hurricaneArr.count) storms"
 
         //let trackArr0 = dictHurricane0["track"] as! NSArray
@@ -1261,10 +1262,10 @@ observations ---------> (Array) with 27 items
          ======================== end extendedForecastArr00 base =========================
 
 */
-    }//end func DoHurricane
+    }//end func doHurricane
     
     //----------------------------- DoForecast --------------------------------
-    func DoForecast (jsonResult: AnyObject) -> String {
+    func doForecast (jsonResult: AnyObject) -> String {
         clearRawData()
         lblRawDataHeading.font = txtRawData.font
         if !gForecast.hasData {
@@ -1287,7 +1288,7 @@ observations ---------> (Array) with 27 items
         print()
         
         guard let simpForecastDaysArr = (dictSimpleForecast["forecastday"] as? NSArray) else {return "\"simpForecastDaysArr\" not in dictSimpleForecast"}
-        print("\(simpForecastDaysArr.count) entries in simpForecastDaysArr.")
+        print("😁 \(codeFile)#\(#line) \(simpForecastDaysArr.count) entries in simpForecastDaysArr.")
         
         var aa = ""
         for i in 0..<simpForecastDaysArr.count {
@@ -1356,10 +1357,10 @@ date {
 }
 */
         
-    }//end func DoForecast
+    }//end func doForecast
 
     //-------------------------- DoHourly -----------------------
-    func DoHourly(jsonResult: AnyObject) -> String {
+    func doHourly(jsonResult: AnyObject) -> String {
         let myError = ""
         clearRawData()
         lblRawDataHeading.font = txtRawData.font
@@ -1368,19 +1369,19 @@ date {
         }
         let dictHourlyArr = gHourly.data
 
-        print("------------ hourlyArr[0] -----------")
-        print("hourlyArr.count = \(dictHourlyArr.count)")
+        print("😁 \(codeFile)#\(#line) ------------ hourlyArr[0] -----------")
+        print("😁 \(codeFile)#\(#line) hourlyArr.count = \(dictHourlyArr.count)")
         var aa = ""
         printDictionary(dict: dictHourlyArr.first, expandLevels: 0, dashLen: 0, title: "HourlyArr[0]")
         printDictionary(dict: dictHourlyArr.first, expandLevels: 1, dashLen: 0, title: "HourlyArr[0]")
 
         for dictHourly in dictHourlyArr {
-            let d = dictHourly["FCTTIME"] as! [String: AnyObject]
-            let weekD = d["weekday_name_abbrev"] as! String
-            let mo = d["mon_padded"] as! String
-            let da = d["mday_padded"] as! String
-            let hr = d["hour_padded"] as! String
-            let mn = d["min"] as! String
+            let dayDict = dictHourly["FCTTIME"] as! [String: AnyObject]
+            let weekD   = dayDict["weekday_name_abbrev"] as! String
+            let mo = dayDict["mon_padded"] as! String
+            let da = dayDict["mday_padded"] as! String
+            let hr = dayDict["hour_padded"] as! String
+            let mn = dayDict["min"] as! String
             //let ampm = d["ampm"] as! String
             let nHr = Int(hr)!
             if nHr < 9 || nHr > 18 { continue }
@@ -1434,18 +1435,18 @@ date {
          yday = 263;year = 2017;
          }
     */
-    }//end func DoHourly
+    }//end func doHourly
     
     //
     func hourlyEnglishOrMetric(key: String, dict: [String: AnyObject], isMetric: Bool) -> String {
-        let sysKey = isMetric ? "metric" : "english"
-        guard let d = dict[key] as? [String: AnyObject] else { return "?" }
-        guard let val = d[sysKey] as? String else { return "?int?" }
-        return val
+        let measureKey = isMetric ? "metric" : "english"
+        guard let valAny = dict[key] as? [String: AnyObject] else { return "?" }
+        guard let str = valAny[measureKey] as? String else { return "?int?" }
+        return str
     }//end func
     
     //------------------------- DoPlanner ------------------------
-    func DoPlanner(jsonResult: AnyObject, isMetric: Bool = false) -> String {
+    func doPlanner(jsonResult: AnyObject, isMetric: Bool = false) -> String {
         clearRawData()
         txtRawData.font = UIFont(name: rawFontDefault!.fontName, size: 15)
         if !gPlanner.hasData {
@@ -1570,6 +1571,7 @@ date {
         }
         a2 += "Dewpoint   <60    >60    >70\n"
         a2 += "           \(pctDP60Minus)%    \(pctDP60plus)%     \(pctDP70plus)%\n\n"
+        print("😁 \(codeFile)#\(#line) ")
         print(pctCloudy, pctPartlyCloudy, pctSunny)
         print(pctTempBelowFreezing,pctTempOverFreezing,pctTempOver60,pctTempOver90)
         print(pctDP60plus, pctDP70plus)
@@ -1658,7 +1660,7 @@ date {
     
     
     // ------ Extract (min, avg, max)degrees from JSON{avg = {C = ""; F = "";}; max = {C = ""; F = "";}; min = {C =  ""; F = ""}} ---
-    // used by DoPlanner
+    // used by doPlanner
     func plannerDegMinAvgMax(key: String, dictSource: [String: AnyObject], isMetric: Bool = false) -> (min:String, avg:String, max:String) {
         guard let dictMain = dictSource[key] as? [String: AnyObject] else {return ("?", "?", "?")}
         let dict = plannerMinAvgMax(dict: dictMain)
@@ -1674,7 +1676,7 @@ date {
     }
     
     // ------ Extract (min, avg, max)degrees from JSON{avg = {avg={cm=""; in=""}; max={cm=""; in=""}; min={cm=""; in=""}} ---
-    // used by DoPlanner
+    // used by doPlanner
     func plannerInchMinAvgMax(key: String, dictSource: [String: AnyObject], metric: Bool = false) -> (min:String, avg:String, max:String) {
         guard let dictMain = dictSource[key] as? [String: AnyObject] else {return ("?", "?", "?")}
         let dict = plannerMinAvgMax(dict: dictMain)
@@ -1697,7 +1699,7 @@ date {
     }
     
     //------------------------------ DoTide --------------------------------
-    func DoTide(jsonResult: AnyObject) -> String {
+    func doTide(jsonResult: AnyObject) -> String {
         clearRawData()
         txtRawData.font = UIFont(name: rawFontDefault!.fontName, size: 14)
         if !gTide.hasData {
@@ -1712,12 +1714,12 @@ date {
         let dictTideInf0 = dictTideInfoArr[0]
         //let lat = ((dictTide["tideInfo"] as? NSArray)?[0] as? [String: AnyObject])?["lat"] as? String
         
-        guard let TideSummaryArr = dictTide["tideSummary"] as? [[String: AnyObject]] else { return "Could not create \"TideSummaryArr\"" }
+        guard let tideSummaryArr = dictTide["tideSummary"] as? [[String: AnyObject]] else { return "Could not create \"TideSummaryArr\"" }
         
-        guard let TideSummaryStatsArr = dictTide["tideSummaryStats"] as? [[String: AnyObject]] else { return "Could not create \"TideSummaryStatsArr\"" }
-        let dictTideSummaryStats0 = TideSummaryStatsArr[0]
+        guard let tideSummaryStatsArr = dictTide["tideSummaryStats"] as? [[String: AnyObject]] else { return "Could not create \"TideSummaryStatsArr\"" }
+        let dictTideSummaryStats0 = tideSummaryStatsArr[0]
         
-        //print("========================== tideInfo ===========================")
+        //print("😁 \(codeFile)#\(#line) ========================== tideInfo ===========================")
         var aa = "----- tideInfo -----\n"
 
         printDictionary(dict: dictTideInf0, expandLevels: 0, dashLen: 0, title: "tideInfo")
@@ -1742,20 +1744,21 @@ date {
         aa += "Min Height = \(minHeight) \(units)\n"
         aa += "Max Height = \(maxHeight) \(units)\n"
         
-        print(TideSummaryArr.count, " entries in Tide Summary Array")
+        print("😁 \(codeFile)#\(#line) \(tideSummaryArr.count) entries in Tide Summary Array")
         print()
 
-        if TideSummaryArr.count >= 1 {
-            printDictionary(dict: TideSummaryArr[0], expandLevels: 1, dashLen: 0, title: "TideSummaryArr[0]")
+        if tideSummaryArr.count >= 1 {
+            printDictionary(dict: tideSummaryArr[0], expandLevels: 1, dashLen: 0, title: "TideSummaryArr[0]")
         } else {
             aa += "\n--- Tide Info Missing! ---"
         }
         var prevDay = ""
-        for dictTideSummary in TideSummaryArr {
+        for dictTideSummary in tideSummaryArr {
             //let dictTideSummary = tideSummary as! [String: AnyObject]
             let dictData = dictTideSummary["data"] as! [String: AnyObject]
             let dictDate = dictTideSummary["date"] as! [String: AnyObject]
             let datePretty = dictDate["pretty"] as? String ?? "nil on nil"
+            print("😁 \(codeFile)#\(#line) ")
             print(dictDate["pretty"]!, dictData["type"]!,  dictData["height"]!)
 
             let timeDate = datePretty.components(separatedBy: " on ")
@@ -1787,7 +1790,7 @@ date {
                 let dateFormatter = DateFormatter()
                 dateFormatter.dateFormat = "EEE MMM dd"
                 strDate = dateFormatter.string(from: localDate)
-                print(strDate)
+                print("😁 \(codeFile)#\(#line) \(strDate)")
             }
             let char2 = strTime[strTime.index(strTime.startIndex, offsetBy: 1)]
             if char2 == ":" {
@@ -1807,9 +1810,9 @@ date {
         DispatchQueue.main.async {
             self.txtRawData.text = aa
         }
-        print("😀tideInfo printed!")
+        print("😁 \(codeFile)#\(#line) tideInfo printed!")
         return ""
-    }//end func DoTide
+    }//end func doTide
     
   //===========================================================================
 }
@@ -1820,14 +1823,14 @@ extension WeatherCentralVC: WuAPIdelegate {
 
     //---- NotificationCenter -  wuDownloadDone Notification ----
     @objc func wuDownloadDoneNotification() {
-        print("\n😃😡😡😃Homepage got the wuDownloadDone Notification😃😡😡😃\n")
+        print("\n😃😡😡😃 \(codeFile)#\(#line) Homepage got the wuDownloadDone Notification😃😡😡😃\n")
         lblError.text = "got the wuDownloadDone Notification"
     }
 
 
     //This function is called your download request
     func startWuDownload(wuURL: URL, place: String) {
-        WuDownloadDone = false
+        wuDownloadDone = false
         lblError.text = "...downloading"       // change this label, start activityIndicators
         self.activityIndicator.startAnimating()
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
@@ -1840,7 +1843,7 @@ extension WeatherCentralVC: WuAPIdelegate {
     // ------ All the download data has been placed in the global Features variables ------
     func wuAPIdownloadDone(_ controller: WuAPI, isOK: Bool, numFeaturesRequested: Int,  numFeaturesReceived: Int, errStr: String){    //delegate (6)
         DispatchQueue.main.async {
-            print("WeatherCentralVC wuAPIdownloadDone delegate reached:")
+            print("😁 \(self.codeFile)#\(#line) WeatherCentralVC wuAPIdownloadDone delegate reached:")
             print("errStr = \(errStr)")
             let es = isOK ? "" : "\(errStr)\n"
             let msg = "isOK = \(isOK)\n\(es)\(numFeaturesRequested) features requested, \(numFeaturesReceived) received."
@@ -1874,26 +1877,26 @@ extension WeatherCentralVC: WuAPIdelegate {
 
                 switch singleItem {
                 case iAlerts:
-                    self.lblError.text = self.DoAlerts(jsonResult: globalDictJSON)
+                    self.lblError.text = self.doAlerts(jsonResult: globalDictJSON)
                 case iAlmanac:
-                    self.lblError.text = self.DoAlmanac(jsonResult: globalDictJSON)
-                    self.lblError.text = self.DoAstronomy(jsonResult: globalDictJSON)
+                    self.lblError.text = self.doAlmanac(jsonResult: globalDictJSON)
+                    self.lblError.text = self.doAstronomy(jsonResult: globalDictJSON)
                 case iConditions:
-                    self.lblError.text = self.DoCurrentObservation(jsonResult: globalDictJSON)
+                    self.lblError.text = self.doCurrentObservation(jsonResult: globalDictJSON)
                 case iGeolookup:
-                    self.lblError.text = self.DoGeolookup(jsonResult: globalDictJSON)
+                    self.lblError.text = self.doGeolookup(jsonResult: globalDictJSON)
                 case iHistory, iYesterday:
-                    self.lblError.text = self.DoHistory(jsonResult: globalDictJSON)
+                    self.lblError.text = self.doHistory(jsonResult: globalDictJSON)
                 case iHurricane:
-                    self.lblError.text = self.DoHurricane(jsonResult: globalDictJSON)
+                    self.lblError.text = self.doHurricane(jsonResult: globalDictJSON)
                 case iForecast, iForecast10day:
-                    self.lblError.text = self.DoForecast(jsonResult: globalDictJSON)
+                    self.lblError.text = self.doForecast(jsonResult: globalDictJSON)
                 case iHourly, iHourly10Day:
-                    self.lblError.text = self.DoHourly(jsonResult: globalDictJSON)
+                    self.lblError.text = self.doHourly(jsonResult: globalDictJSON)
                 case iPlanner:
-                    self.lblError.text = self.DoPlanner(jsonResult: globalDictJSON)
+                    self.lblError.text = self.doPlanner(jsonResult: globalDictJSON)
                 case iTide:
-                    self.lblError.text = self.DoTide(jsonResult: globalDictJSON)
+                    self.lblError.text = self.doTide(jsonResult: globalDictJSON)
                 default:
                     self.lblError.text = "Could not identify Feature#\(singleItem)"
                 }//end switch

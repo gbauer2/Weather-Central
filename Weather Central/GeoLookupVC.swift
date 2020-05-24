@@ -3,7 +3,7 @@
 //  Weather Central
 //
 //  Created by George Bauer on 9/28/17.
-//  Copyright © 2017 GeorgeBauer. All rights reserved.
+//  Copyright © 2017-2020 GeorgeBauer. All rights reserved.
 //
 
 import UIKit
@@ -17,8 +17,8 @@ var gSearchLon  = 0.0
 class GeoLookupVC: UIViewController, UITextFieldDelegate, CLLocationManagerDelegate, MapVCdelegate {
                                                                                                     //delegate
     //MARK: ---- my vars ----
-    var WuDownloadDone = false
-    var Detail = ""
+    var wuDownloadDone = false
+    var detail = ""
     var selectedStationID = ""
     var infoStations = [StationInfo]()
     var cityState = ""
@@ -34,7 +34,7 @@ class GeoLookupVC: UIViewController, UITextFieldDelegate, CLLocationManagerDeleg
     var lonDelta = 0.25
 
     var locationManager = CLLocationManager()
-    var userLocation = CLLocation(latitude: 0.0, longitude: 0.0)
+    var userLocation = CLLocation(latitude: 28.5, longitude: -81.55)
     //var userLat: Double = 0
     //var userLon: Double = 0
     //MARK: ---- IBOutlet's ----
@@ -83,7 +83,7 @@ class GeoLookupVC: UIViewController, UITextFieldDelegate, CLLocationManagerDeleg
         gSearchLat  = gUserLat
         gSearchLon  = gUserLon
         searchName = "You"
-        searchType = .near     // deault
+        searchType = .near     // default
 
         // Start process to update user location
         locationManager.delegate = self
@@ -100,7 +100,7 @@ class GeoLookupVC: UIViewController, UITextFieldDelegate, CLLocationManagerDeleg
         cityState    = UserDefaults.standard.object(forKey: UDKey.cityState)  as? String ?? ""
         zip          = UserDefaults.standard.object(forKey: UDKey.zip)        as? String ?? ""
         stationID    = UserDefaults.standard.object(forKey: UDKey.station)    as? String ?? ""
-        print("GeoLookup.viewDidLoad got   searchType = \(searchType)   LsstSearch = \(lastSearch)")
+        print("GeoLookup.viewDidLoad got   searchType = \(searchType)   LastSearch = \(lastSearch)")
 
         txtCity.text = cityState
         enableButton(btn: self.btnCity, enable: isCityStateValid(txtCity.text!))
@@ -116,10 +116,10 @@ class GeoLookupVC: UIViewController, UITextFieldDelegate, CLLocationManagerDeleg
         enableButton(btn: btnLatLon, enable: false)
 
         if searchType == .latlon {
-            let LLtuple = decodeLL(latLonTxt: lastSearch)
-            if LLtuple.errorLL.isEmpty {
-                txtLat.text = "\(LLtuple.lat)"
-                txtLon.text = "\(LLtuple.lon)"
+            let latLonTuple = decodeLL(latLonTxt: lastSearch)
+            if latLonTuple.errorLL.isEmpty {
+                txtLat.text = "\(latLonTuple.lat)"
+                txtLon.text = "\(latLonTuple.lon)"
                 //gLat = UserDefaults.standard.object(forKey: UDKey.lat)              as? Double ?? 0.0
                 //gLon = UserDefaults.standard.object(forKey: UDKey.lon)              as? Double ?? 0.0
                 enableButton(btn: btnLatLon, enable: true)
@@ -147,7 +147,7 @@ class GeoLookupVC: UIViewController, UITextFieldDelegate, CLLocationManagerDeleg
         print("segueID = \(segue.identifier ?? "No ID!")")
         guard let thisSegueID = segue.identifier else { return }
         switch thisSegueID {
-        case SegueID.GeoLookupToMap:
+        case SegueID.geoLookupToMap:
             print("Goin to the Map!!")
             let mapVC = segue.destination as! MapVC
             mapVC.searchLat = gSearchLat
@@ -230,15 +230,15 @@ class GeoLookupVC: UIViewController, UITextFieldDelegate, CLLocationManagerDeleg
         if !isCityStateValid(txtCity.text!) {
             str = str.replacingOccurrences(of: "  ", with: " ")
             //let sp1 = str.indexOf(searchforStr: " ")
-            let sp2 = str.IndexOfRev(" ")
+            let sp2 = str.lastIntIndexOf(" ")
             if sp2 <= 0 { return }
-            state =  str.mid(begin: sp2 + 1)
+            state =  str.substring(begin: sp2 + 1)
             if state.count == 2 { state = state.uppercased() }
             str = str.left(sp2) + "," + state
             enableButton(btn: btnCity, enable: isCityStateValid(str))
         }//endif
-        let pComma = str.IndexOf(searchforStr: ",")
-        state =  str.mid(begin: pComma + 1)
+        let pComma = str.firstIntIndexOf(",")
+        state =  str.substring(begin: pComma + 1)
         if state.count == 2 { state = state.uppercased() }
         str = str.left(pComma + 1) + state
         txtCity.text = str
@@ -256,7 +256,7 @@ class GeoLookupVC: UIViewController, UITextFieldDelegate, CLLocationManagerDeleg
             prefix = "S"
         }
         if prefix == "N" || prefix == "S" {
-            latStr = latStr.mid(begin: 1, length: 0)    // 
+            latStr = latStr.substring(begin: 1, length: 0)    // 
         } else {
             prefix = "N"
         }
@@ -282,7 +282,7 @@ class GeoLookupVC: UIViewController, UITextFieldDelegate, CLLocationManagerDeleg
             prefix = "W"
         }
         if prefix == "W" || prefix == "E" {
-            lonStr = lonStr.mid(begin: 1, length: 0)
+            lonStr = lonStr.substring(begin: 1, length: 0)
         } else {
             prefix = "E"
         }
@@ -448,17 +448,17 @@ class GeoLookupVC: UIViewController, UITextFieldDelegate, CLLocationManagerDeleg
     //MARK: ---- funcs for Buttons ----
     func lookupStation() {
         var place = txtStation.text!
-        let n = place.count
-        if n < 3 || n > 11 || (n < 5 && n > 4) {
+        let count = place.count
+        if count < 3 || count > 11 || (count < 5 && count > 4) {
             showError("3 or 4 characters for an airport or 5-11 characters for a pws")
             return
         }
-        if n>4 {place = "pws:" + place}
+        if count>4 {place = "pws:" + place}
         lookupPlace(place: place)
     }
     
     func lookupPlace(place: String) {
-        Detail = ""
+        detail = ""
         lblDetail.text = ""
         stations = []
         infoStations = []
@@ -541,7 +541,7 @@ extension GeoLookupVC: WuAPIdelegate {
 
     //This function is called your download request
     func startWuDownload(wuURL: URL, place: String) {
-        WuDownloadDone = false
+        wuDownloadDone = false
         lblError.text = "...downloading"       // change this label, start activityIndicators
         self.activityIndicator.startAnimating()
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
@@ -625,7 +625,7 @@ extension GeoLookupVC: WuAPIdelegate {
             //printDictionary(dict: dictApStationA0, expandLevels: 1, dashLen: 0, title: "Airport station[0]")
 
             print("\n \(apStationArr.count) airport wx stations")
-            self.Detail = "  \(apStationArr.count) airport wx stations\n"
+            self.detail = "  \(apStationArr.count) airport wx stations\n"
             //var stationArr = [String]()
             var closestAirportLat = 9.9
             var closestAirportLon = 9.9
@@ -665,7 +665,7 @@ extension GeoLookupVC: WuAPIdelegate {
             }
 
             print("\n\(pwsStationArr.count) personal wx stations")
-            self.Detail += "\n \(pwsStationArr.count) personal wx stations\n"
+            self.detail += "\n \(pwsStationArr.count) personal wx stations\n"
             var furthestPwsLat = 0.0
             var furthestPwsLon = 0.0
 
@@ -725,7 +725,7 @@ extension GeoLookupVC: WuAPIdelegate {
             self.txtLat.text = self.latStr
             self.txtLon.text = self.lonStr
             self.enableButton(btn: self.btnLatLon, enable: isLatValid(self.latStr) && isLonValid(self.lonStr) )
-            self.lblDetail.text = self.Detail
+            self.lblDetail.text = self.detail
 
         }//end DispatchQueue
     }//end func

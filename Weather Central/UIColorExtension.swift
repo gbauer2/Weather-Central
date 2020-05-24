@@ -11,22 +11,21 @@ import UIKit
 extension UIColor {
     //------ initialize a UIColor with a Hex value ------
     public convenience init?(hexString: String) {
-        let r, g, b, a: CGFloat
 
         if hexString.hasPrefix("#") {
-            let hexColor = hexString.mid(begin: 1)
+            let hexColor = hexString.substring(begin: 1)
 
             if hexColor.count == 8 {
                 let scanner = Scanner(string: hexColor)
                 var hexNumber: UInt64 = 0
 
                 if scanner.scanHexInt64(&hexNumber) {
-                    r = CGFloat((hexNumber & 0xff000000) >> 24) / 255
-                    g = CGFloat((hexNumber & 0x00ff0000) >> 16) / 255
-                    b = CGFloat((hexNumber & 0x0000ff00) >>  8) / 255
-                    a = CGFloat(hexNumber & 0x000000ff) / 255
+                    let red   = CGFloat((hexNumber & 0xff000000) >> 24) / 255
+                    let green = CGFloat((hexNumber & 0x00ff0000) >> 16) / 255
+                    let blue  = CGFloat((hexNumber & 0x0000ff00) >>  8) / 255
+                    let alpha = CGFloat(hexNumber & 0x000000ff) / 255
 
-                    self.init(red: r, green: g, blue: b, alpha: a)
+                    self.init(red: red, green: green, blue: blue, alpha: alpha)
                     return
                 }//end if scanner
             }//end if len == 8
@@ -45,14 +44,14 @@ extension UIColor {
 
         scanner.scanHexInt64(&rgbValue)
 
-        let r = (rgbValue & 0xff0000) >> 16
-        let g = (rgbValue & 0xff00) >> 8
-        let b = rgbValue & 0xff
+        let red   = (rgbValue & 0xff0000) >> 16
+        let green = (rgbValue & 0xff00) >> 8
+        let blue  = rgbValue & 0xff
 
         self.init(
-            red:   CGFloat(r) / 0xff,
-            green: CGFloat(g) / 0xff,
-            blue:  CGFloat(b) / 0xff, alpha: 1
+            red:   CGFloat(red)     / 0xff,
+            green: CGFloat(green)   / 0xff,
+            blue:  CGFloat(blue)    / 0xff, alpha: 1
         )
     }
 }
