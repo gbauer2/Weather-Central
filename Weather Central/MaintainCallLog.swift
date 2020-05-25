@@ -24,7 +24,7 @@ var gNumCallsToday = 0
 var callLog = [Date(),Date(),Date(),Date(),Date(), Date(),Date(),Date(),Date(),Date()]
 
 //MARK: --- Call this function when app first loads ---
-public func CallLogInit() {
+public func callLogInit() {
     // 1 Read perm
     gDateLastRun   = UserDefaults.standard.object(forKey: UDKey.dateLastRun)    as? Date ?? Date()
     gDateLastCall  = UserDefaults.standard.object(forKey: UDKey.wuDateLastCall) as? Date ?? Date()
@@ -36,7 +36,7 @@ public func CallLogInit() {
     
     UserDefaults.standard.set(Date(), forKey: UDKey.dateLastRun)
 
-    let codeFile = "MaintainCallLog.CallLogInit"
+    let codeFile = "MaintainCallLog.callLogInit"
     let secHowLong = Date().timeIntervalSince(gDateLastRun)
     if secHowLong <= 99 {
         print("\n😁 \(codeFile)#\(#line) It's been \(Int(secHowLong)) seconds since last run.\n")
@@ -51,7 +51,7 @@ public func CallLogInit() {
         }
     }//end else secHowLong <= 99
     
-}//end func CallLogInit
+}//end func callLogInit
 
 //MARK: --- Call this function before making a WU API call --
 // ------ Check to see if this call would exceed 10/minute or 500/day
@@ -90,7 +90,7 @@ public func tryToLogCall(makeCall: Bool) -> (isOK:Bool, numCallsLastMinute: Int,
 // ------ Check number of calls today against daily limit (resetting daily limit if new day) ------
 public func checkDailyLimit() -> Bool {
     let dateET = getTimeEastern(localDate: Date())
-    let ymdNowET = CalcYmd(date: dateET)
+    let ymdNowET = calcYmd(date: dateET)
     let codeFile = "MaintainCallLog.checkDailyLimit"
     print("😁 \(codeFile)#\(#line) ymdNowET = \(ymdNowET)")
     
@@ -120,7 +120,7 @@ public func getTimeEastern(localDate: Date) -> Date {
 }//end func
 
 // ------ Create the Int YYYYMMDD from a date ------
-public func CalcYmd(date:Date) -> Int {
+public func calcYmd(date:Date) -> Int {
     //: Using the current calendar, get the components
     let unitFlags:Set<Calendar.Component> = [ .year, .month, .day, .hour, .minute, .second, .calendar, .timeZone]
     let dateComponentsNow = Calendar.current.dateComponents(unitFlags, from: date)

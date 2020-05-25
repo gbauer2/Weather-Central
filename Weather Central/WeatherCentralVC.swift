@@ -66,7 +66,7 @@ Get some stuff with every query *Almanac&Astron= 1K,
 import UIKit
 import CoreLocation
 
-class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManagerDelegate {
+class WeatherCentralVC: UIViewController {
     //let allowedFeatures = ["alerts", "almanac", "astronomy", "conditions", "currenthurricane", "forecast", "forecast10day", "geolookup", "history", "hourly", "hourly10day", "planner", "rawtide", "satellite", "tide", "webcams", "yesterday"]
 
     //MARK: ---- WeatherCentralVC Variables ----
@@ -114,16 +114,16 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
         // get Device Stats
         let screenWidth  = UIScreen.main.bounds.size.width
         let screenHeight = UIScreen.main.bounds.size.height
-        let ver          = Device.TheCurrentDeviceVersion
+        let ver          = Device.currentDeviceVersion
         let orientation  = UIDevice.current.orientation.isLandscape ? "Landscape" : "Portrait"
         let devName      = UIDevice.current.name
         let devSystem    = UIDevice.current.systemName
         //let d          = UIDevice.current.batteryLevel
-        print("😁 \(codeFile)#\(#line) W=\(Int(screenWidth)), H=\(Int(screenHeight)), \(Device.PHONE_OR_PAD) in \(orientation), \(devName), \(devSystem) \(ver) 😁")
+        print("😁 \(codeFile)#\(#line) W=\(Int(screenWidth)), H=\(Int(screenHeight)), \(Device.deviceType) in \(orientation), \(devName), \(devSystem) \(ver) 😁")
         print("😁 \(codeFile)#\(#line) User Prefered Text Size = ", UIApplication.shared.preferredContentSizeCategory)
         print()
         rawFontDefault = txtRawData.font    // save default txtRawData Font from storyboard setting.
-        CallLogInit()                       // loads CallLog stats from UserDefaults
+        callLogInit()                       // loads CallLog stats from UserDefaults
 
         locationManager.delegate = self     // let's get our location
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
@@ -209,9 +209,10 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
                 zip = ""
                 station = ""
             }
-            _ = saveHomepageSearch(txtCity.text!)
+            let cityTxt = txtCity.text ?? "??"
+            _ = saveHomepageSearch(cityTxt)
             if searchType != .none && homeSearchChanged {
-                lastSearch = txtCity.text!
+                lastSearch = cityTxt
             }
             homeSearchChanged = false
         case SegueID.homeToFeatures?:                      //"segueFeatures"
@@ -221,26 +222,9 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
         }
     }//end func Seque
     
-    // iOS LocationServices:  when you get location from CLLocationManager, record gUserLat & gUserLon, and stop updates
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        //print(😁 \(codeFile)#\(#line) locations[0])
-        userLocation = locations[0]
-        gUserLat = userLocation.coordinate.latitude
-        gUserLon = userLocation.coordinate.longitude
-        print("\n😁 \(codeFile)#\(#line) ** locationManager",gUserLat,gUserLon,"**\n")
-        locationManager.stopUpdatingLocation()
-    }
-
     // ------ Dismiss Keybooard if user taps empty area ------
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         self.view.endEditing(true)
-    }
-    
-    // ------ Dismiss Keybooard if user taps "Return" ------
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-        print("\n😁 \(codeFile)#\(#line) textFieldShouldReturn called by:\(textField.text!)\n")
-        return true
     }
     
     //MARK: ------ IBActions ------
@@ -302,7 +286,7 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
             gDataIsCurrent = false      // disable Feature Buttons
             setFeatureButtons()
         }
-        let citytxt = txtCity.text!     // text after change
+        let citytxt = txtCity.text ?? "?" // text after change
         let cnt     = citytxt.count     // number of chars now
         let prev    = prevCityLen       // previous number of chars
         prevCityLen = cnt               // udate prevCityLen to now
@@ -324,7 +308,7 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
 
     // ------ txtCity Editing Ended ------
     @IBAction func txtCityEditEnd(_ sender: UITextField) {
-        var str = txtCity.text!.trim
+        var str = txtCity.text?.trim ?? ""
         print("😁 \(codeFile)#\(#line) Home view: txtCityEditEnd '\(str)'")
         if str.count == 5 && isNumeric(str) {
             searchType = .zip
@@ -359,14 +343,14 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
             return
         }
 
-        let ss = saveHomepageSearch(txtCity.text!)
+        let ss = saveHomepageSearch(txtCity.text ?? "??")
         let place = ss.place
         if ss.error != "" {
             showError(ss.error)
             return
         }
 
-        let urlTuple = makeWuUrlJson(APIKey: gAPIKey, features: featuresStr, place: place)
+        let urlTuple = makeWuUrlJson(wuAPIKey: gAPIKey, features: featuresStr, place: place)
         if urlTuple.errorStr != "" {
             showError(urlTuple.errorStr)
             return
@@ -397,7 +381,7 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
             place = "\(gUserLat),\(gUserLon)"
 
         case .city:
-            let cityState = getFirstPart(txtCity.text!)
+            let cityState = getFirstPart(txtCity.text)
             let splitCityState = cityState.components(separatedBy: ",")
             let city  = splitCityState[0].trim
             let state = splitCityState[1].trim
@@ -406,7 +390,7 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
             print("😁 \(codeFile)#\(#line) Homepage saved City/State = \(cityState)")
 
         case .station:
-            let station = getFirstPart(txtCity.text!)
+            let station = getFirstPart(txtCity.text)
             UserDefaults.standard.set(station,    forKey: UDKey.station )
             print("😁 \(codeFile)#\(#line) Homepage saved Station ID = \(station)")
             if station.count <= 4 {
@@ -416,7 +400,7 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
             }
 
         case .zip:
-            let zip = getFirstPart(txtCity.text!)
+            let zip = getFirstPart(txtCity.text)
             UserDefaults.standard.set(zip, forKey: UDKey.zip)//"Zip")
             print("😁 \(codeFile)#\(#line) Homepage saved Zip        = \(zip)")
             place = "zip: " + zip
@@ -436,7 +420,7 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
             showError("You must enter a City/State or Zip or WxStation or Lat/Lon or blank for local.")
             return (.none, "", error)
         }
-        lastSearch = txtCity.text!
+        lastSearch = txtCity.text ?? ""
         UserDefaults.standard.set(searchType.rawValue, forKey: UDKey.searchType)
         UserDefaults.standard.set(lastSearch,          forKey: UDKey.lastSearch)
         print("😁 \(codeFile)#\(#line) Homepage.saveHomepSearch saved SearchType = \(searchType ), LastSearch = \(lastSearch) ")
@@ -579,19 +563,18 @@ class WeatherCentralVC: UIViewController, UITextFieldDelegate, CLLocationManager
         lblRawDataHeading.text = "Almanac for \(apt)"
         
         guard let dictTempLow = dictAlmanac["temp_low"] as? [String: AnyObject] else {return "\"almanac/temp_low\" not in downloaded data!"}
-        
         let dictLowNormal = dictTempLow["normal"] as! [String: AnyObject]
-        let strLowNormF = dictLowNormal["F"] as? String ?? "?"
+        let strLowNormF   = dictLowNormal["F"]    as? String ?? "?"
         let dictLowRecord = dictTempLow["record"] as! [String: AnyObject]
-        let strLowRecF = dictLowRecord["F"] as? String ?? "?"
-        let yrLow = dictTempLow["recordyear"] as? String ?? "?"
+        let strLowRecF    = dictLowRecord["F"]    as? String ?? "?"
+        let yrLow         = dictTempLow["recordyear"] as? String ?? "?"
+
         guard let dictTempHigh = dictAlmanac["temp_high"] as? [String: AnyObject] else {return "\"almanac/temp_high\" not in downloaded data!"}
-        
         let dictHighNormal = dictTempHigh["normal"] as! [String: AnyObject]
-        let strHighNormF = dictHighNormal["F"] as! String
+        let strHighNormF   = dictHighNormal["F"]    as! String
         let dictHighRecord = dictTempHigh["record"] as! [String: AnyObject]
-        let strHighRecF = dictHighRecord["F"] as! String
-        let yrHigh = dictTempHigh["recordyear"] as? String ?? "?"
+        let strHighRecF    = dictHighRecord["F"]    as! String
+        let yrHigh         = dictTempHigh["recordyear"] as? String ?? "?"
         
         a1 += "      Normal     Record\n"
         a1 += "Low     \( strLowNormF)°      \( strLowRecF)° \(yrLow)\n"
@@ -631,11 +614,11 @@ temp_high --> {
         var aa = ""
         
         let dictSunrise = dictMoonPhase["sunrise"] as! [String: AnyObject]
-        let srHr = dictSunrise["hour"] as! String
+        let srHr  = dictSunrise["hour"]   as! String
         let srMin = dictSunrise["minute"] as! String
         
         let dictSunset = dictMoonPhase["sunset"] as! [String: AnyObject]
-        let ssHr = dictSunset["hour"] as! String
+        let ssHr = dictSunset["hour"]    as! String
         let ssMin = dictSunset["minute"] as! String
         //Settings.is24hr = true
         var hhmmStr1 = ""
@@ -647,11 +630,11 @@ temp_high --> {
         aa += "\n"
         
         let dictMoonrise = dictMoonPhase["moonrise"] as! [String: AnyObject]
-        let mrHr = dictMoonrise["hour"] as! String
+        let mrHr  = dictMoonrise["hour"]   as! String
         let mrMin = dictMoonrise["minute"] as! String
         
         let dictMoonset = dictMoonPhase["moonset"] as! [String: AnyObject]
-        let msHr = dictMoonset["hour"] as! String
+        let msHr  = dictMoonset["hour"]   as! String
         let msMin = dictMoonset["minute"] as! String
 
         hhmmStr1 = makeTimeStr(hrStr: mrHr, minStr: mrMin, to24: Settings.is24hr)
@@ -659,14 +642,14 @@ temp_high --> {
 
         aa += "Moonrise \(hhmmStr1) Moonset \(hhmmStr2)\n"
         
-        let ageOfMoon  = dictMoonPhase["ageOfMoon"]!
-        let percentIlluminated   = dictMoonPhase["percentIlluminated"]!
-        let phaseofMoon   = dictMoonPhase["phaseofMoon"]!
+        let ageOfMoon          = dictMoonPhase["ageOfMoon"]!
+        let percentIlluminated = dictMoonPhase["percentIlluminated"]!
+        let phaseOfMoon        = dictMoonPhase["phaseofMoon"]!
 
-        aa += "\(ageOfMoon) days  \(percentIlluminated)% Illuminated\n  \(phaseofMoon)\n"
+        aa += "\(ageOfMoon) days  \(percentIlluminated)% Illuminated\n  \(phaseOfMoon)\n"
         
-        let a1 = txtRawData.text
-        txtRawData.text = "\n" + a1! + "\n" + aa
+        let a1 = txtRawData.text ?? "?"
+        txtRawData.text = "\n" + a1 + "\n" + aa
 
         return ""
 /*
@@ -765,16 +748,16 @@ temp_high --> {
         aa += "\(observationTime) \(local_tz_short)\n"
         //--------
         
-        let wind_dir = dictCurrentObservation["wind_dir"] as? String ?? "?"
-        let wind_degrees = dictCurrentObservation["wind_degrees"] as? Int ?? -1
-        let wind_mph = dictCurrentObservation["wind_mph"] as? Int ?? -1
-        let wind_gust_mph = dictCurrentObservation["wind_gust_mph"] as AnyObject
+        let windDir     = dictCurrentObservation["wind_dir"]      as? String ?? "?"
+        let windDegrees = dictCurrentObservation["wind_degrees"]  as? Int ?? -1
+        let windMph     = dictCurrentObservation["wind_mph"]      as? Int ?? -1
+        let windGustMph = dictCurrentObservation["wind_gust_mph"] as AnyObject
         var windGustVal = 0.0
         var windGustStr = ""
-        if wind_gust_mph is Double {
-            windGustVal = wind_gust_mph as! Double
-        } else if wind_gust_mph is String {
-            if let mphGust = Double(wind_gust_mph as! String) {
+        if windGustMph is Double {
+            windGustVal = windGustMph as! Double
+        } else if windGustMph is String {
+            if let mphGust = Double(windGustMph as! String) {
                 windGustVal = mphGust
             }
         }
@@ -783,7 +766,7 @@ temp_high --> {
         }
         let wind_string = dictCurrentObservation["wind_string"] as? String ?? "?"
         aa += "Wind \(wind_string) \n"
-        aa += "     (\(wind_dir)(\(wind_degrees)) @ \(wind_mph)\(windGustStr) mph)\n"
+        aa += "     (\(windDir)(\(windDegrees)) @ \(windMph)\(windGustStr) mph)\n"
         
         let weather = dictCurrentObservation["weather"] as? String ?? "?"
         aa += formatDictionaryStr(title: "weather", str: weather, titleLen: titleLen) + "\n"
@@ -791,14 +774,8 @@ temp_high --> {
         let visibility_mi = dictCurrentObservation["visibility_mi"] as? String ?? "?"
         aa += formatDictionaryStr(title: "visibility", str: visibility_mi, titleLen: titleLen) + " mi\n"
         
-        //let temp_f = dictCurrentObservation["temp_f"] as? Double ?? -99.0
-        //aa += formatDictionaryDbl(title: "temp_f", num: temp_f, titleLen: titleLen) + "\n"
-        
         let temperature_string = dictCurrentObservation["temperature_string"] as? String ?? "?"
         aa += formatDictionaryStr(title: "temperature", str: temperature_string, titleLen: titleLen) + "\n"
-        
-        //let dewpoint_f = dictCurrentObservation["dewpoint_f"] as? Double ?? -99.0
-        //aa += formatDictionaryDbl(title: "dewpoint_f", num: dewpoint_f, titleLen: titleLen) + "\n"
         
         let dewpoint_string = dictCurrentObservation["dewpoint_string"] as? String ?? "?"
         aa += formatDictionaryStr(title: "dewpoint", str: dewpoint_string, titleLen: titleLen) + "\n"
@@ -806,26 +783,14 @@ temp_high --> {
         let relative_humidity = dictCurrentObservation["relative_humidity"] as? String ?? "?"
         aa += formatDictionaryStr(title: "relative humidity", str: relative_humidity, titleLen: titleLen) + "\n"
         
-        //let windchill_f = dictCurrentObservation["windchill_f"] as? String ?? "?"
-        //aa += formatDictionaryStr(title: "windchill", str: windchill_f, titleLen: titleLen) + "\n"
-        
         let windchill_string = dictCurrentObservation["windchill_string"] as? String ?? "?"
         aa += formatDictionaryStr(title: "windchill", str: windchill_string, titleLen: titleLen) + "\n"
-        
-        //let heat_index_f = dictCurrentObservation["heat_index_f"] as? Double ?? -99.9
-        //aa += formatDictionaryDbl(title: "heat_index_f", num: heat_index_f, titleLen: titleLen) + "\n"
         
         let heat_index_string = dictCurrentObservation["heat_index_string"] as? String ?? "?"
         aa += formatDictionaryStr(title: "heat index", str: heat_index_string, titleLen: titleLen) + "\n"
         
-        //let feelslike_f = dictCurrentObservation["feelslike_f"] as? String ?? "?"
-        //aa += formatDictionaryStr(title: "feelslike_f", str: feelslike_f, titleLen: titleLen) + "\n"
-        
         let feelslike_string = dictCurrentObservation["feelslike_string"] as? String ?? "?"
         aa += formatDictionaryStr(title: "feelslike", str: feelslike_string, titleLen: titleLen) + "\n"
-        
-        //let precip_1hr_in = dictCurrentObservation["precip_1hr_in"] as? String ?? "?"
-        //aa += formatDictionaryStr(title: "precip_1hr_in", str: precip_1hr_in, titleLen: titleLen) + "\n"
         
         let precip_1hr_string = dictCurrentObservation["precip_1hr_string"] as? String ?? "-999"
         if precip_1hr_string.range(of:"-999") == nil {
@@ -934,7 +899,8 @@ temp_high --> {
 */
 
     }//end func doCurrentObservation
-    
+
+
     //----------------------- DoGeolookup ---------------------------
     func doGeolookup (jsonResult: AnyObject) -> String {
         clearRawData()
@@ -1383,7 +1349,7 @@ date {
             let hr = dayDict["hour_padded"] as! String
             let mn = dayDict["min"] as! String
             //let ampm = d["ampm"] as! String
-            let nHr = Int(hr)!
+            let nHr = Int(hr) ?? 0
             if nHr < 9 || nHr > 18 { continue }
             if nHr == 9 { aa += "\n" }
             aa += "\(weekD) \(mo)/\(da) \(hr):\(mn) "
@@ -1566,8 +1532,8 @@ date {
         a2 += "Temp  <32   32-59   60-89   90+\n"
         a2 += "       \(pctTempBelowFreezing)%     \(pctTempOverFreezing)%     \(pctTempOver60)%    \(pctTempOver90)%\n\n"
         var pctDP60Minus = ""
-        if isNumeric(pctDP60plus) && isNumeric(pctDP70plus) {
-            pctDP60Minus = String(100 - Int(pctDP60plus)! - Int(pctDP70plus)!)
+        if let p60 = Int(pctDP60plus), let p70 = Int(pctDP70plus) {
+            pctDP60Minus = String(100 - p60 - p70)
         }
         a2 += "Dewpoint   <60    >60    >70\n"
         a2 += "           \(pctDP60Minus)%    \(pctDP60plus)%     \(pctDP70plus)%\n\n"
@@ -1759,7 +1725,7 @@ date {
             let dictDate = dictTideSummary["date"] as! [String: AnyObject]
             let datePretty = dictDate["pretty"] as? String ?? "nil on nil"
             print("😁 \(codeFile)#\(#line) ")
-            print(dictDate["pretty"]!, dictData["type"]!,  dictData["height"]!)
+            print(dictDate["pretty"] ?? "?", dictData["type"] ?? "?",  dictData["height"] ?? "?")
 
             let timeDate = datePretty.components(separatedBy: " on ")
 
@@ -1817,7 +1783,35 @@ date {
   //===========================================================================
 }
 
-//MARK: =================== WuAPIdelegate Extension =======================
+//MARK:- UITextFieldDelegate Exten
+extension WeatherCentralVC: UITextFieldDelegate {
+
+    // ------ Dismiss Keybooard if user taps "Return" ------
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        print("\n😁 \(codeFile)#\(#line) textFieldShouldReturn called by:\(textField.text ?? "?")\n")
+        return true
+    }
+
+}//end extension: UITextFieldDelegate
+
+
+//MARK:- CLLocationManagerDelegate
+extension WeatherCentralVC: CLLocationManagerDelegate {
+
+    // iOS LocationServices:  when you get location from CLLocationManager, record gUserLat & gUserLon, and stop updates
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        userLocation = locations[0]
+        gUserLat = userLocation.coordinate.latitude
+        gUserLon = userLocation.coordinate.longitude
+        print("\n🧭 \(codeFile)#\(#line) ** locationManager",gUserLat,gUserLon,"**\n")
+        locationManager.stopUpdatingLocation()
+    }
+
+}//end extension: CLLocationManagerDelegate
+
+
+//MARK: WuAPIdelegate Extension
 extension WeatherCentralVC: WuAPIdelegate {
     //                          delegate <— (4)
 
@@ -1905,7 +1899,7 @@ extension WeatherCentralVC: WuAPIdelegate {
         }//end DispatchQueue
     }//end func
 
-}//end extension
+}//end extension: WuAPIdelegate
 
 
 /* wunderground keywords

@@ -11,6 +11,7 @@ import UIKit
 class FeatureSelectorVC: UIViewController, UITextFieldDelegate {
     
     //MARK: ---- Variables ----
+    let codeFile = "FeatureSelectorVC"
     let allowedFeatures = ["xxx", "alerts", "almanac", "astronomy", "conditions", "currenthurricane", "forecast", "forecast10day", "geolookup", "history", "hourly", "hourly10day", "planner--------", "rawtide", "satellite", "tide", "webcams", "yesterday"]
 
     var plannerSuffix = "09010910"
@@ -33,10 +34,10 @@ class FeatureSelectorVC: UIViewController, UITextFieldDelegate {
         // 1. Load wuFeaturesArr[] from permanent storage "wuFeaturesArray"
         let nameObject = UserDefaults.standard.object(forKey: UDKey.featuresArr)//"wuFeaturesArray")
         if let temp = nameObject as? [Bool] {
-            print("wuFeaturesArray = \(temp)")
+            print("🙂 \(codeFile)#\(#line) wuFeaturesArray = \(temp)")
             wuFeaturesArr = temp
         } else {
-            print("UserDefaults.standard.object(forKey: \"\(UDKey.featuresArr)\") NOT Found.")
+            print("😡 \(codeFile)#\(#line) UserDefaults.standard.object(forKey: \"\(UDKey.featuresArr)\") NOT Found.")
         } //end if let name
         
         // 2. Set Selection Status on Check Buttons according to wuFeaturesArr[]
@@ -99,8 +100,8 @@ class FeatureSelectorVC: UIViewController, UITextFieldDelegate {
                 lblError.text = "\(plannerSuffix)"
                 return
             }
-            UserDefaults.standard.set(txtDate1.text!, forKey: UDKey.wuPlannerDate1)//"wuPlannerDate1")
-            UserDefaults.standard.set(txtDate2.text!, forKey: UDKey.wuPlannerDate2)//"wuPlannerDate2")
+            UserDefaults.standard.set(txtDate1.text ?? "??", forKey: UDKey.wuPlannerDate1)//"wuPlannerDate1")
+            UserDefaults.standard.set(txtDate2.text ?? "??", forKey: UDKey.wuPlannerDate2)//"wuPlannerDate2")
         }//endif wuFeaturesArr[idxPlanner]
         
         if didAddFeature { gDataIsCurrent = false }
@@ -116,32 +117,32 @@ class FeatureSelectorVC: UIViewController, UITextFieldDelegate {
         // Save featuresStr string in permanent storage "wuFeatures"
         UserDefaults.standard.set(featuresStr, forKey: UDKey.featuresStr)//"wuFeatures")
         
-        print("featuresStr = \n\(featuresStr)")
+        print("🙂 \(codeFile)#\(#line) featuresStr = \n    \(featuresStr)")
         //navigationController?.popViewController(animated: true)
         guard (navigationController?.popToRootViewController(animated:true)) != nil else {
-            print("No navigationController")
+            print("😡 \(codeFile)#\(#line) No navigationController")
             return
         }
     }//end func
     
     //------ One of the Checkboxes was Pressed ------
-    @IBAction func btnCheckPress(_ sender: Any) {
+    @IBAction func btnCheckPress(_ sender: UIButton) {
         self.view.endEditing(true)
         
-        let sendr = sender as! UIButton
+        //let sendr = sender as! UIButton
         
-        sendr.isSelected = !sendr.isSelected
+        sender.isSelected = !sender.isSelected
         //sendr.setImage(UIImage(named: "checkbox_no"), for: UIControlState.normal)
-        if sendr.isSelected {
+        if sender.isSelected {
             didAddFeature = true                    // a Feature has been added
         }
         btnSave.isEnabled = true
 
-        wuFeaturesArr[sendr.tag] = sendr.isSelected
+        wuFeaturesArr[sender.tag] = sender.isSelected
         
-        toggleItems(newItem: sendr.tag)
+        toggleItems(newItem: sender.tag)
         
-        print(wuFeaturesArr)
+        print("🙂 \(codeFile)#\(#line)\n", wuFeaturesArr)
     }
  
     @IBAction func txtDate1Edit(_ sender: UITextField) {
@@ -155,9 +156,9 @@ class FeatureSelectorVC: UIViewController, UITextFieldDelegate {
         didAddFeature = true
         btnSave.isEnabled = didAddFeature
 
-        print(sender.text!)
+        let textAfter = sender.text ?? ""
+        print("🙂 \(codeFile)#\(#line) \(textAfter)")
 
-        let textAfter = sender.text!
         switch textAfter.count {
         case 0:
             return                              // empty - ok
@@ -165,7 +166,7 @@ class FeatureSelectorVC: UIViewController, UITextFieldDelegate {
             if isNumeric(textAfter) { return }  // single digit - ok
         case 2:
             if isNumeric(textAfter) {
-                let mo = Int(textAfter)!
+                let mo = Int(textAfter) ?? 0
                 if mo >= 1 && mo <= 12 {
                     return                      // 2 digits - ok
                 }
@@ -175,7 +176,7 @@ class FeatureSelectorVC: UIViewController, UITextFieldDelegate {
             }
         case 3:
             if isNumeric(textAfter) {
-                let mo = Int(textAfter.left(2))!
+                let mo = Int(textAfter.left(2)) ?? 0
                 if mo >= 1 && mo <= 12 {
                     sender.text = textAfter.left(2) + "/" + textAfter.right(1)
                 }
@@ -190,7 +191,7 @@ class FeatureSelectorVC: UIViewController, UITextFieldDelegate {
             }
         case 5:
             if isNumeric(textAfter.right(2)){
-                let day = Int(textAfter.right(2))!
+                let day = Int(textAfter.right(2)) ?? 0
                 if day >= 1 && day <= 31 {
                     return
                 }
@@ -202,14 +203,14 @@ class FeatureSelectorVC: UIViewController, UITextFieldDelegate {
 
     //MARK: ---- support funcs ----
     func makePlannerSuffix() -> String {
-        let mmdd1 = makeMMDD(mm_dd: txtDate1.text!)
+        let mmdd1 = makeMMDD(mm_dd: txtDate1.text ?? "")
         if mmdd1.count != 4 {return "1st " + mmdd1}
 
-        let mmdd2 = makeMMDD(mm_dd: txtDate2.text!)
+        let mmdd2 = makeMMDD(mm_dd: txtDate2.text ?? "")
         if mmdd2.count != 4 {return "2nd " + mmdd2}
 
-        var int1 = Int(mmdd1)!
-        let int2 = Int(mmdd2)!
+        var int1 = Int(mmdd1) ?? 0
+        let int2 = Int(mmdd2) ?? 0
         if int1 > 1200 { int1 = int1 - 1200}
         if int1 > int2 {
             return "2nd planner date must be >= 1st"

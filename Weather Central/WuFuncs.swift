@@ -177,11 +177,11 @@ struct Location {
 
 //MARK: ---- Subs ----
 //      Make URL from "myAPIKey", "features", and "place" -> returns (url,error)
-public func makeWuUrlJson(APIKey: String, features: String, place: String) -> (url: URL, errorStr: String) {
+public func makeWuUrlJson(wuAPIKey: String, features: String, place: String) -> (url: URL, errorStr: String) {
     var featuresX = features
     if !features.hasSuffix("/") { featuresX = featuresX + "/" }
     let placeX = place.replacingOccurrences(of: " ", with: "_")
-    let urlStr = "https://api.wunderground.com/api/\(APIKey)/\(featuresX)q/\(placeX).json"
+    let urlStr = "https://api.wunderground.com/api/\(wuAPIKey)/\(featuresX)q/\(placeX).json"
     guard let url = URL(string: urlStr) else {
         let errorStr = "Err201 in URL: \(urlStr)"
         print("\n\(errorStr)")
@@ -201,7 +201,7 @@ public func getSearchType(searchText: String) -> LocationSelectionType {
     return .none
 }
 
-public func isLocalValid(_ text: String) -> Bool {
+public func isLocalValid(_ text: String?) -> Bool {
     let txt = getFirstPart(text).lowercased()
     if txt == "" || txt == "local" || txt == "near" || txt == "nearby" || txt == "me" { return true }
     return false
@@ -233,7 +233,8 @@ public func isStationValid(_ stationName: String) -> Bool {
     return true
 }
 
-public func isCityStateValid(_ cityState: String) -> Bool {
+public func isCityStateValid(_ cityState: String?) -> Bool {
+    guard let cityState = cityState else { return false }
     if cityState.count < 4      { return false }
     if !cityState.contains(",") { return false }
     if cityState.firstIntIndexOf(",") > cityState.count - 3 { return false }
@@ -243,40 +244,42 @@ public func isCityStateValid(_ cityState: String) -> Bool {
     //let digits = CharacterSet.decimalDigits
 
     for uni in cityState.unicodeScalars {
-        if !letters.contains(uni) && uni != " " && uni != "," && uni != "."
-            { return false }
+        if !letters.contains(uni) && uni != " " && uni != "," && uni != "." {
+            return false            
+        }
     }
     return true
 }
 
-public func isZipValid(_ zip: String) -> Bool {
+public func isZipValid(_ zip: String?) -> Bool {
     let zp = getFirstPart(zip)
     if zp.count != 5 {return false}
     if Int(zp) != nil {return true}
     return false
 }
 
-public func isLatValid(_ latTxt: String) -> Bool {
+public func isLatValid(_ latTxt: String?) -> Bool {
     return getLat(latTxt) != nil
 }
 
-public func isLonValid(_ lonTxt: String) -> Bool {
+public func isLonValid(_ lonTxt: String?) -> Bool {
     return getLon(lonTxt) != nil
 }
 
-public func getLat(_ latTxt: String) -> Double? {
-    if latTxt.count < 2                 {return nil}  // < 2 chars in Lat
+public func getLat(_ latTxt: String?) -> Double? {
+    guard let latTxt = latTxt else      { return nil }
+    if latTxt.count < 2                 { return nil }  // < 2 chars in Lat
     var latStr = latTxt.uppercased()
     latStr = latStr.replacingOccurrences(of: "°", with: "")     // remove degree sign
     var isSouth = false
 
     if latStr.contains("S") {
-        if latStr.contains("-") { return nil }
+        if latStr.contains("-")         { return nil }
         isSouth = true
         latStr = latStr.replacingOccurrences(of: "S", with: "")
     }
     if latStr.contains("N") {
-        if isSouth { return nil }
+        if isSouth                      { return nil }
         if latStr.contains("-") { return nil }
         latStr = latStr.replacingOccurrences(of: "N", with: "")
     }
@@ -287,7 +290,8 @@ public func getLat(_ latTxt: String) -> Double? {
     return lat
 }
 
-public func getLon(_ lonTxt: String ) -> Double? {
+public func getLon(_ lonTxt: String?) -> Double? {
+    guard let lonTxt = lonTxt else      { return nil }
     if lonTxt.count < 2                 {return nil}  // < 2 chars in Lon
     var lonStr = lonTxt.uppercased()
     lonStr = lonStr.replacingOccurrences(of: "°", with: "")     // remove degree sign
@@ -337,7 +341,8 @@ public func decodeLL(latLonTxt: String) -> (lat: Double, lon: Double, errorLL: S
 }
 
 // get the 1st part of a String, separated by 'separator' (default ":") trimmed
-public func getFirstPart(_ text: String, separator: String = ":") -> String {
+public func getFirstPart(_ text: String?, separator: String = ":") -> String {
+    guard let text = text else { return "" }
     if !text.contains(separator) { return text }
     let idx = text.firstIntIndexOf(separator)
     return text.left(idx).trim

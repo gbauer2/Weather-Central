@@ -21,21 +21,21 @@ struct Device {
 //        return Singleton.device
 //    }
 
-    static var TheCurrentDeviceVersion: Float {
+    static var currentDeviceVersion: Float {
         struct Singleton {
             static let version = Float(UIDevice.current.systemVersion) ?? 0.0
         }
         return Singleton.version
     }
 
-    static var TheCurrentDeviceHeight: CGFloat {
+    static var currentDeviceHeight: CGFloat {
         struct Singleton {
             static let height = CGFloat(UIScreen.main.bounds.size.height)
         }
         return Singleton.height
     }
 
-    static var TheCurrentDeviceWidth: CGFloat {
+    static var currentDeviceWidth: CGFloat {
         struct Singleton {
             static let width = CGFloat(UIScreen.main.bounds.size.width)
         }
@@ -44,7 +44,7 @@ struct Device {
 
     // MARK: - Device Idiom Checks
 
-    static var PHONE_OR_PAD: String {
+    static var deviceType: String {
         if isPhone() {
             return "iPhone"
         } else if isPad() {
@@ -53,7 +53,7 @@ struct Device {
         return "Not iPhone nor iPad"
     }
 
-    static var DEBUG_OR_RELEASE: String {
+    static var debugOrRelease: String {
         #if DEBUG
             return "Debug"
         #else
@@ -61,7 +61,7 @@ struct Device {
         #endif
     }
 
-    static var SIMULATOR_OR_DEVICE: String {
+    static var simulatorOrDevice: String {
         #if targetEnvironment(simulator)
             return "Simulator"
         #else
@@ -94,11 +94,11 @@ struct Device {
     }
 
     static func isSimulator() -> Bool {
-        return SIMULATOR_OR_DEVICE == "Simulator"
+        return simulatorOrDevice == "Simulator"
     }
 
     static func isDevice() -> Bool {
-        return SIMULATOR_OR_DEVICE == "Device"
+        return simulatorOrDevice == "Device"
     }
 
     // MARK: - Device Version Checks
@@ -112,19 +112,19 @@ struct Device {
     }
 
     static func isVersion(version: Versions) -> Bool {
-        return TheCurrentDeviceVersion >= version.rawValue && TheCurrentDeviceVersion < (version.rawValue + 1.0)
+        return currentDeviceVersion >= version.rawValue && currentDeviceVersion < (version.rawValue + 1.0)
     }
 
     static func isVersionOrLater(version: Versions) -> Bool {
-        return TheCurrentDeviceVersion >= version.rawValue
+        return currentDeviceVersion >= version.rawValue
     }
 
     static func isVersionOrEarlier(version: Versions) -> Bool {
-        return TheCurrentDeviceVersion < (version.rawValue + 1.0)
+        return currentDeviceVersion < (version.rawValue + 1.0)
     }
 
     static var CURRENT_VERSION: String {
-        return "\(TheCurrentDeviceVersion)"
+        return "\(currentDeviceVersion)"
     }
 
 
@@ -140,15 +140,15 @@ struct Device {
     }
 
     static func isSize(height: Heights) -> Bool {
-        return TheCurrentDeviceHeight == height.rawValue
+        return currentDeviceHeight == height.rawValue
     }
 
     static func isSizeOrLarger(height: Heights) -> Bool {
-        return TheCurrentDeviceHeight >= height.rawValue
+        return currentDeviceHeight >= height.rawValue
     }
 
     static func isSizeOrSmaller(height: Heights) -> Bool {
-        return TheCurrentDeviceHeight <= height.rawValue
+        return currentDeviceHeight <= height.rawValue
     }
 
     static var CURRENT_SIZE: String {
@@ -161,7 +161,7 @@ struct Device {
         } else if IS_5_5_INCHES() {
             return "5.5 Inches"
         }
-        return "\(TheCurrentDeviceHeight) Points"
+        return "\(currentDeviceHeight) Points"
     }
 
     // MARK: Retina Check

@@ -3,7 +3,7 @@
 //  Weather Central
 //
 //  Created by George Bauer on 10/19/17.
-//  Copyright © 2017 GeorgeBauer. All rights reserved.
+//  Copyright © 2017-2020 GeorgeBauer. All rights reserved.
 //
 
 import UIKit
@@ -73,7 +73,8 @@ class MapVC: UIViewController, MKMapViewDelegate {
 
     //MARK: ---- @IBActions ----
     @IBAction func btnSave(_ sender: UIButton) {
-        delegate?.mapVCreturn(self, returnType: mapReturnType, stationID: lblSelected.text!, lat: latFromMap, lon: lonFromMap) //delegate
+        let stationID = lblSelected.text ?? "??"
+        delegate?.mapVCreturn(self, returnType: mapReturnType, stationID: stationID, lat: latFromMap, lon: lonFromMap) //delegate
         navigationController?.popViewController(animated: true)
     }
 
@@ -81,23 +82,28 @@ class MapVC: UIViewController, MKMapViewDelegate {
         zoomMap(1.5)
     }
 
-    func zoomMap(_ factor: Double) {
-        let latNow = mapView.region.center.latitude
-        let lonNow = mapView.region.center.longitude
-        latDelta = latDelta * factor
-        lonDelta = lonDelta * factor
-        plotMap(lat: latNow, lon: lonNow, latDelt: latDelta, lonDelt: lonDelta)
-    }
-
     @IBAction func btnZoomIn(_ sender: UIButton) {
         zoomMap(1.0/1.5)
     }
 
-    //MARK:---- general funcs ----
+    //MARK:---- General funcs ----
+
+    //---- zoomMap - increase (or decrease if <1) map region by a factor
+    func zoomMap(_ factor: Double) {
+        let latNow = mapView.region.center.latitude
+        let lonNow = mapView.region.center.longitude
+        latDelta = latDelta * factor
+        latDelta = min(latDelta, 180)
+        latDelta = max(latDelta, 0.02)
+        lonDelta = lonDelta * factor
+        lonDelta = min(lonDelta, 180)
+        lonDelta = max(lonDelta, 0.02)
+        plotMap(lat: latNow, lon: lonNow, latDelt: latDelta, lonDelt: lonDelta)
+    }
 
     // ---- Calculates region;  displays Map ----
     func plotMap(lat: Double, lon: Double, latDelt: Double, lonDelt: Double) {
-        let latitude: CLLocationDegrees = lat
+        let latitude:  CLLocationDegrees = lat
         let longitude: CLLocationDegrees = lon
         let latDelta: CLLocationDegrees = latDelt
         let lonDelta: CLLocationDegrees = lonDelt
@@ -167,7 +173,8 @@ class MapVC: UIViewController, MKMapViewDelegate {
             print("showAlert: OK")
             self.mapReturnType = .latlon
             guard (self.navigationController?.popViewController(animated:true)) != nil else {
-                print("\n😡No navigationController"); return
+                print("\n😡No navigationController")
+                return
             }
         }
         alertController.addAction(cancelAction)
@@ -190,19 +197,19 @@ class MapVC: UIViewController, MKMapViewDelegate {
             if annotationView == nil {
                 //4 If it isn't able to find a reusable view, create a new one using MKPinAnnotationView and sets its canShowCallout property to true. This triggers the popup with the city name.
                 annotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: identifier) 
-                annotationView!.canShowCallout = true
+                annotationView?.canShowCallout = true
                 
                 // 5 Create a UIButton using built-in .detailDisclosure type (small blue "i" symbol with a circle around it).
                 let btn = UIButton(type: .detailDisclosure)
-                annotationView!.rightCalloutAccessoryView = btn
+                annotationView?.rightCalloutAccessoryView = btn
 
                 let stationPin = annotation as! StationPin
 
                 annotationView?.pinTintColor = stationPin.pinColor
-                annotationView!.backgroundColor = stationPin.backgroundColor
+                annotationView?.backgroundColor = stationPin.backgroundColor
             } else {
                 // 6 If it can reuse a view, update that view to use a different annotation.
-                annotationView!.annotation = annotation
+                annotationView?.annotation = annotation
             }
             return annotationView
         }//endif is StationPin

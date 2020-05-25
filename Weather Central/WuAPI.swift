@@ -3,7 +3,7 @@
 //  Weather Central
 //
 //  Created by George Bauer on 10/13/17.
-//  Copyright © 2017 GeorgeBauer. All rights reserved.
+//  Copyright © 2017-2020 GeorgeBauer. All rights reserved.
 //
 
 import Foundation
@@ -60,7 +60,7 @@ protocol WuAPIdelegate: class {
 }
 
 class WuAPI {
-    weak var delegate: WuAPIdelegate!          //delegate <— (2)
+    weak var delegate: WuAPIdelegate?          //delegate <— (2)
 
 
     //---------------------- downloadData func ---------------------
@@ -136,7 +136,10 @@ class WuAPI {
                 numFeaturesRequested = dictFeatures.count
 
                 errorTry: do {      //See if there is an "error" entry in jsonResult.response
-                    guard let dictError = dictResponse["error"] as? [String: AnyObject] else {taskError = "";  break errorTry}
+                    guard let dictError = dictResponse["error"] as? [String: AnyObject] else {
+                        taskError = ""
+                        break errorTry
+                    }
                     printDictionary(dict: dictError, expandLevels: 1, dashLen: 0, title: "response.error")
                     taskError = "Err210:unknown error"
                     if let errType = dictError["type"]        as? String { taskError = errType }
@@ -146,7 +149,10 @@ class WuAPI {
                 }// end errorTry
 
                 resultsTry: do {    //See if there is a "results" entry in jsonResult.response (suggests other wx stations)
-                    guard let oResults = dictResponse["results"] else {taskError = "";  break resultsTry}
+                    guard let oResults = dictResponse["results"] else {
+                        taskError = ""
+                        break resultsTry
+                    }
                     taskError = "Place not found."
                     print("\n\(taskError)")
                     print("-------- Results (suggested weather stations) -------")
@@ -157,7 +163,9 @@ class WuAPI {
                         break jsonTry
                     }
                     guard let dictResults0 = resultsArr.first else {
-                        print("Results Decode failed!");break jsonTry}
+                        print("Results Decode failed!")
+                        break jsonTry                        
+                    }
                     printDictionary(dict: dictResults0, expandLevels: 0, dashLen: 0, title: "Results[0]")
                     break jsonTry
 

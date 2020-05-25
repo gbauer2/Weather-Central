@@ -71,7 +71,7 @@ class APIKeyVC: UIViewController, UITextFieldDelegate {
         } //end if len
 
         let place = "zip:34786"
-        let urlTuple = makeWuUrlJson(APIKey: textAPI, features: "conditions", place: place)
+        let urlTuple = makeWuUrlJson(wuAPIKey: textAPI, features: "conditions", place: place)
         lblError.text = urlTuple.errorStr
         if urlTuple.errorStr == "" {
             let wuURL = urlTuple.url

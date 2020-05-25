@@ -51,25 +51,24 @@ let iWebcams     = 16
 let iYesterday   = 17
 
 // persistant storage: UserDefaults.standard.object Keys
-public struct StructUDKey {
-    let wuAPIKey        = "wuapikey"
-    let station         = "wuStationID"
-    let cityState       = "CityState"
-    let zip             = "Zip"
-    let lat             = "searchLat"
-    let lon             = "searchLon"
-    let lastSearch      = "LastSearch"
-    let searchType      = "searchType"
-    let featuresArr     = "wuFeaturesArray"
-    let featuresStr     = "wuFeatures"
-    let wuPlannerDate1  = "wuPlannerDate1"
-    let wuPlannerDate2  = "wuPlannerDate2"
-    let dateLastRun     = "dateLastRun"
-    let wuDateLastCall  = "wuDateLastCall"
-    let wuYmdLastCallET = "wuYmdLastCallET"
-    let wuNumCallsToday = "wuNumCallsToday"
+public enum UDKey {
+    static let wuAPIKey        = "wuapikey"
+    static let station         = "wuStationID"
+    static let cityState       = "CityState"
+    static let zip             = "Zip"
+    static let lat             = "searchLat"
+    static let lon             = "searchLon"
+    static let lastSearch      = "LastSearch"
+    static let searchType      = "searchType"
+    static let featuresArr     = "wuFeaturesArray"
+    static let featuresStr     = "wuFeatures"
+    static let wuPlannerDate1  = "wuPlannerDate1"
+    static let wuPlannerDate2  = "wuPlannerDate2"
+    static let dateLastRun     = "dateLastRun"
+    static let wuDateLastCall  = "wuDateLastCall"
+    static let wuYmdLastCallET = "wuYmdLastCallET"
+    static let wuNumCallsToday = "wuNumCallsToday"
 }
-public let UDKey = StructUDKey()
 
 //Convert to Struct ?????
 public enum LocationSelectionType: String {
