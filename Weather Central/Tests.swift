@@ -17,7 +17,7 @@ func doTests() {
 //    testformatDbl();      count += 1
 //    testMakeTimeStr();    count += 1
 //    testShowCount();      count += 1
-    print(showCount(count: count, name: "test", ifZero: "no"), "run\n")
+    print("Tests#\(#line)", showCount(count: count, name: "test", ifZero: "no"), "run\n")
 }
 
 //MARK:- StringExtension
@@ -37,13 +37,13 @@ func testRightJust() {
 func testDoubleFormat() {
     print("\n🔶Test testDoubleFormat🔶")
     print("fieldLength = 0")
-    var Dbl = 99.1225567
-    print(Dbl.format(fmt: ".3")," \t rounds(3) to .123") //rounds to .123
-    Dbl = -Dbl
-    print(Dbl.format(fmt: ".3")," \t rounds(3) to .123") //rounds to .123
-    Dbl = 66.666666
-    print(Dbl.format(fmt: ".3")," \t rounds(3)")
-    print(Dbl.format(fmt: ".0"),"     \t rounds(0)")
+    var dbl = 99.1225567
+    print(dbl.format(fmt: ".3")," \t rounds(3) to .123") //rounds to .123
+    dbl = -dbl
+    print(dbl.format(fmt: ".3")," \t rounds(3) to .123") //rounds to .123
+    dbl = 66.666666
+    print(dbl.format(fmt: ".3")," \t rounds(3)")
+    print(dbl.format(fmt: ".0"),"     \t rounds(0)")
     print("🔶End Test testDoubleFormat🔶")
 
 }
@@ -67,13 +67,13 @@ func testformatDbl() {
     print(formatDbl(number: -99.1225567, fieldLen: 0, places: 3)," \t rounds(3) to .123") //rounds to .123
     print(formatDbl(number: 66.666666, fieldLen: 0, places: 3)," \t rounds(3)")
     print(formatDbl(number: 66.666666, fieldLen: 0, places: 0),"     \t rounds(0)")
-    let L = 7
-    print("fieldLength = \(L)")
-    print(formatDbl(number: -99.1225567, fieldLen: L, places: 4)," \t truncates(4)")
-    print(formatDbl(number: 66.6666666, fieldLen: L, places: 5)," \t truncates(5)")
-    print(formatDbl(number: 66.6666666, fieldLen: L, places: 4)," \t 66.6667 (4)")
-    print(formatDbl(number: 66.6666666, fieldLen: L, places: 2)," \t ^^66.67 (2)")
-    print(formatDbl(number: 66.6666666, fieldLen: L, places: 0)," \t ^^^^^67 (0)")
+    let fLen = 7
+    print("fieldLength = \(fLen)")
+    print(formatDbl(number: -99.1225567, fieldLen: fLen, places: 4)," \t truncates(4)")
+    print(formatDbl(number: 66.6666666, fieldLen: fLen, places: 5)," \t truncates(5)")
+    print(formatDbl(number: 66.6666666, fieldLen: fLen, places: 4)," \t 66.6667 (4)")
+    print(formatDbl(number: 66.6666666, fieldLen: fLen, places: 2)," \t ^^66.67 (2)")
+    print(formatDbl(number: 66.6666666, fieldLen: fLen, places: 0)," \t ^^^^^67 (0)")
     print("🔶End Test testformatDbl🔶")
 }
 
@@ -94,7 +94,7 @@ func testShowCount() {
     print(showCount(count: 0, name: "Thing", ifZero: "No"))
     print(showCount(count: 1, name: "Thing", ifZero: "No"))
     print(showCount(count: 2, name: "Thing", ifZero: "No"))
-    print(showCount(count: 1, name: "try", ifZero: "No"))
-    print(showCount(count: 2, name: "try", ifZero: "No"))
+    print(showCount(count: 1, name: "try",   ifZero: "No"))
+    print(showCount(count: 2, name: "try",   ifZero: "No"))
     print("🔶End Test testShowCount🔶")
 }

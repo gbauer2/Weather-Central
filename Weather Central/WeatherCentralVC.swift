@@ -499,8 +499,8 @@ class WeatherCentralVC: UIViewController {
         }
     }
 
-    //MARK: ---- Do each of the selected Featuees ----
-    //--------------------------- DoAlerts ------------------------
+    //MARK: Do each selected Feature
+    //-------------------- DoAlerts ----------------------
     func doAlerts(jsonResult: AnyObject) -> String {
         clearRawData()
         if !gAlerts.hasData {
@@ -602,7 +602,6 @@ temp_high --> {
     
     //---------------------------------- doAstronomy ------------------------------------
     func doAstronomy(jsonResult: AnyObject) -> String {
-        //clearRawData()
         if !gAstronomy.hasData {
             return "\"astronomy\" not in downloaded data!!"
         }

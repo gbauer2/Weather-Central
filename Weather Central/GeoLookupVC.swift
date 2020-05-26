@@ -178,15 +178,6 @@ class GeoLookupVC: UIViewController {
         lblError.text = "got the wuDownloadDone Notification"
     }
 
-    //---- didUpdateLocations - when you get location from CLLocationManager, record gUserLat/gUserLon, & stop updates.
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        userLocation = locations[0]
-        gUserLat = userLocation.coordinate.latitude
-        gUserLon = userLocation.coordinate.longitude
-        print("\n🙂 \(codeFile)#\(#line) ** locationManager",gUserLat,gUserLon,"**\n")
-        locationManager.stopUpdatingLocation()
-    }
-    
     // ------ Dismiss Keybooard if user taps empty area ------
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         self.view.endEditing(true)
@@ -423,7 +414,7 @@ class GeoLookupVC: UIViewController {
         }
     }
     
-    //MARK: ---- funcs for Buttons ----
+    //MARK: --- funcs for Buttons ---
     func lookupStation() {
         var place = txtStation.text ?? ""
         let count = place.count
@@ -669,12 +660,12 @@ extension GeoLookupVC: WuAPIdelegate {
 
                 let tupleDistDir = formatDistDir(latFrom: latVal, lonFrom: lonVal, latTo: lat, lonTo: lon, doMi: true, doDeg: false)
                 let strDistDir = tupleDistDir.strDistDir
-                //                    var distStr = "     "
-                //                    let distNM = greatCircDist(ALat: latVal, ALon: lonVal, BLat: lat, BLon: lon)
-                //                    let distMi = distNM * 1.15
-                //                    let dirDeg = greatCircAng(ALat: latVal, ALon: lonVal, BLat: lat, BLon: lon, Dist: distNM)
-                //                    if distMi < 99 { distStr = distMi.format("5.1") }
-                //                    let distDirStr = "\(distStr)mi \(dirDeg)°"
+                //  var distStr = "     "
+                //  let distNM = greatCircDist(ALat: latVal, ALon: lonVal, BLat: lat, BLon: lon)
+                //  let distMi = distNM * 1.15
+                //  let dirDeg = greatCircAng(ALat: latVal, ALon: lonVal, BLat: lat, BLon: lon, Dist: distNM)
+                //  if distMi < 99 { distStr = distMi.format("5.1") }
+                //  let distDirStr = "\(distStr)mi \(dirDeg)°"
 
                 let strLatLon3 = formatLatLon(lat: lat, lon: lon, places: 3)
 
@@ -717,7 +708,7 @@ extension GeoLookupVC: WuAPIdelegate {
 }//end extension: WuAPIdelegate
 
 
-
+//MARK:- MapVCdelegate Extension
 extension GeoLookupVC: MapVCdelegate {
 
     //delegate  - MapDelegate required method
@@ -745,12 +736,23 @@ extension GeoLookupVC: MapVCdelegate {
 }//end extension: MapVCdelegate
 
 
-
+//MARK:- CLLocationManagerDelegate
 extension GeoLookupVC: CLLocationManagerDelegate {
-}//end extension: MapVCdelegate
+
+    //---- didUpdateLocations - when you get location from CLLocationManager, record gUserLat/gUserLon, & stop updates.
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        userLocation = locations[0]
+        gUserLat = userLocation.coordinate.latitude
+        gUserLon = userLocation.coordinate.longitude
+        print("\n🙂 \(codeFile)#\(#line) ** locationManager",gUserLat,gUserLon,"**\n")
+        locationManager.stopUpdatingLocation()
+    }
+
+}//end extension: CLLocationManagerDelegate
 
 
 
+//MARK:- UITextFieldDelegate ext
 extension GeoLookupVC: UITextFieldDelegate {
 
     // ------ Dismiss Keybooard if user taps "Return" ------
